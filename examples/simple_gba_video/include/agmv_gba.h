@@ -10,12 +10,11 @@
 *   File: agmv_gba.h
 *   Date: 5/20/2024
 *   Version: 1.0
-*   Updated: 6/6/2024
+*   Updated: 6/7/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 #include <gba.h>
-#include "sound.h"
 
 typedef unsigned char   u8;
 typedef unsigned short u16;
@@ -474,9 +473,18 @@ typedef struct AGMV{
 	u32 frame_count;
 	u32 frame_index;
 	u32 offset_table[MAX_OFFSET_TABLE];
+	Bool disable_all_audio;
 }AGMV;
 
 /*-----------------AGMV DECODING------------------*/
+
+void AGMV_DisableAllAudio(AGMV* agmv){
+	agmv->disable_all_audio = TRUE;
+}
+
+void AGMV_EnableAllAudio(AGMV* agmv){
+	agmv->disable_all_audio = FALSE;
+}
 
 int AGMV_NextIFrame(int n, int frame_count){
 	int nexti = n;
@@ -502,7 +510,7 @@ int AGMV_SkipToNearestIFrame(int n){
 	return nexti;
 }
 
-AGMV* AGMV_AllocResources(File* file){
+AGMV* AGMV_AllocResources(File* file, const u8* agmv_sound, u32 total_audio_size, u32 sample_audio_size){
 	int i;
 	
 	AGMV* agmv = (AGMV*)malloc(sizeof(AGMV));
@@ -528,14 +536,16 @@ AGMV* AGMV_AllocResources(File* file){
 	agmv->bitstream->pos = 0;
 	agmv->bitstream->len = agmv->frame->width*agmv->frame->height*2;
 	agmv->bitstream->data = (u8*)malloc(sizeof(u8)*agmv->bitstream->len);
-	agmv->audio_chunk->size = SAMPLE_SIZE*2;
-	agmv->audio_chunk->total_size = SIZE;
+	agmv->audio_chunk->size = sample_audio_size*2;
+	agmv->audio_chunk->total_size = total_audio_size;
 	agmv->audio_chunk->pcm = agmv_sound;
-	agmv->audio_chunk->sample = (s8*)malloc(sizeof(s8)*SAMPLE_SIZE*2);
-	agmv->audio_chunk->empty = (s8*)malloc(sizeof(s8)*SAMPLE_SIZE*2);
-	memset(agmv->audio_chunk->empty,0,SAMPLE_SIZE*2);
+	agmv->audio_chunk->sample = (s8*)malloc(sizeof(s8)*sample_audio_size*2);
+	agmv->audio_chunk->empty = (s8*)malloc(sizeof(s8)*sample_audio_size*2);
+	memset(agmv->audio_chunk->empty,0,sample_audio_size*2);
 	agmv->audio_chunk->enable_audio = TRUE;
 	agmv->audio_chunk->point = 0;
+	
+	AGMV_EnableAllAudio(agmv);
 	
 	return agmv;
 }
@@ -934,14 +944,16 @@ void AGMV_SkipBackwards(File* file, AGMV* agmv, int n){
 	}
 	
 	seek(file,agmv->offset_table[agmv->frame_count],SEEK_SET);
-		
-	int point = agmv->audio_chunk->point;
-	point -= n * agmv->audio_chunk->size/2;
-	if(point <= 0 || point >= agmv->audio_chunk->total_size/2){
-		agmv->audio_chunk->point = 0;
-	}
-	else{
-		agmv->audio_chunk->point = point;
+	
+	if(agmv->disable_all_audio != TRUE){
+		int point = agmv->audio_chunk->point;
+		point -= n * agmv->audio_chunk->size/2;
+		if(point <= 0 || point >= agmv->audio_chunk->total_size/2){
+			agmv->audio_chunk->point = 0;
+		}
+		else{
+			agmv->audio_chunk->point = point;
+		}
 	}
 }
 
@@ -952,7 +964,9 @@ void AGMV_SkipTo(File* file, AGMV* agmv, int n){
 	if(n >= 0 && n < agmv->header.num_of_frames){
 		seek(file,agmv->offset_table[n],SEEK_SET);
 		agmv->frame_count = n;
-		agmv->audio_chunk->point = n * agmv->audio_chunk->size/2;
+		if(agmv->disable_all_audio != TRUE){
+			agmv->audio_chunk->point = n * agmv->audio_chunk->size/2;
+		}
 	}
 }
 
@@ -961,23 +975,25 @@ static inline void IWRAM AGMV_PlayAGMV(File* file, AGMV* agmv){
 	agmv->offset_table[agmv->frame_count] = tell(file);
 	AGMV_DecodeFrameChunk(file,agmv);
 	
-	if(agmv->audio_chunk->enable_audio == TRUE){	
-		s8* sample = agmv->audio_chunk->sample;
-		s8* pcm = agmv->audio_chunk->pcm;
-		u32 point = agmv->audio_chunk->point;
-		u32 size = agmv->audio_chunk->size;
-		int i;
-		for(i = 0; i < size/2; i++){
-			sample[i] = pcm[point++];
+	if(agmv->disable_all_audio != TRUE){
+		if(agmv->audio_chunk->enable_audio == TRUE){	
+			s8* sample = agmv->audio_chunk->sample;
+			s8* pcm = agmv->audio_chunk->pcm;
+			u32 point = agmv->audio_chunk->point;
+			u32 size = agmv->audio_chunk->size;
+			int i;
+			for(i = 0; i < size/2; i++){
+				sample[i] = pcm[point++];
+			}
+			agmv->audio_chunk->point = point;
+			play_sound(sample, size/2, 16000, 'A');	
 		}
-		agmv->audio_chunk->point = point;
-	 	play_sound(sample, size/2, 16000, 'A');	
-	}
-	else{
-		s8* empty = agmv->audio_chunk->empty;
-		u32 size = agmv->audio_chunk->size;
-		play_sound(empty, size/2, 16000, 'A');
-		agmv->audio_chunk->point += size/2;
+		else{
+			s8* empty = agmv->audio_chunk->empty;
+			u32 size = agmv->audio_chunk->size;
+			play_sound(empty, size/2, 16000, 'A');
+			agmv->audio_chunk->point += size/2;
+		}
 	}
 }
 

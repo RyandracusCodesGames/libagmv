@@ -1,5 +1,6 @@
 #include "basics.h"
-#include "GBA_GEN_AGMV.h"    
+#include "GBA_GEN_AGMV.h"  
+#include "sound.h"  
 #include <stdlib.h>
 #include <gba.h>
 
@@ -19,7 +20,11 @@ int IWRAM main(){
 	
 	Open(file,GBA_AGMV_FILE,260390);
 	
-	AGMV* agmv = AGMV_AllocResources(file);
+	AGMV* agmv = AGMV_AllocResources(file,agmv_sound,139947,1358);
+	
+	//IF NO AUDIO DO THIS INSTEAD
+	//AGMV* agmv = AGMV_AllocResources(file,NULL,0,0);
+	//AGMV_DisableAllAudio(agmv);
 	
 	*interrupt_enable = 0;
     *interrupt_selection |= INTERRUPT_VBLANK;

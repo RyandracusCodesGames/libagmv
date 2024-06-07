@@ -18,8 +18,8 @@ main.o: \
  C:/devkitPro/libgba/include/gba_systemcalls.h \
  C:/devkitPro/libgba/include/gba_timers.h \
  C:/devkitPro/libgba/include/gba_video.h \
- C:/Users/ryand/OneDrive/Desktop/AGMV/examples/simple_gba_video/include/sound.h \
- C:/Users/ryand/OneDrive/Desktop/AGMV/examples/simple_gba_video/include/GBA_GEN_AGMV.h
+ C:/Users/ryand/OneDrive/Desktop/AGMV/examples/simple_gba_video/include/GBA_GEN_AGMV.h \
+ C:/Users/ryand/OneDrive/Desktop/AGMV/examples/simple_gba_video/include/sound.h
 C:/Users/ryand/OneDrive/Desktop/AGMV/examples/simple_gba_video/include/basics.h:
 C:/Users/ryand/OneDrive/Desktop/AGMV/examples/simple_gba_video/include/agmv_gba.h:
 C:/devkitPro/libgba/include/gba.h:
@@ -38,5 +38,5 @@ C:/devkitPro/libgba/include/gba_sprites.h:
 C:/devkitPro/libgba/include/gba_systemcalls.h:
 C:/devkitPro/libgba/include/gba_timers.h:
 C:/devkitPro/libgba/include/gba_video.h:
-C:/Users/ryand/OneDrive/Desktop/AGMV/examples/simple_gba_video/include/sound.h:
 C:/Users/ryand/OneDrive/Desktop/AGMV/examples/simple_gba_video/include/GBA_GEN_AGMV.h:
+C:/Users/ryand/OneDrive/Desktop/AGMV/examples/simple_gba_video/include/sound.h:
