@@ -510,7 +510,7 @@ int AGMV_SkipToNearestIFrame(int n){
 	return nexti;
 }
 
-AGMV* AGMV_AllocResources(File* file, const u8* agmv_sound, u32 total_audio_size, u32 sample_audio_size){
+AGMV* AGMV_AllocResources(File* file, const s8* agmv_sound, u32 total_audio_size, u32 sample_audio_size){
 	int i;
 	
 	AGMV* agmv = (AGMV*)malloc(sizeof(AGMV));
@@ -719,7 +719,7 @@ int IWRAM AGMV_DecodeFrameChunk(File* file, AGMV* agmv){
 			for(x = 0; x < width && escape != TRUE; x += 4){
 				u8 byte = bitstream_data[bitpos++];
 				
-				if(bitpos >= bpos){
+				if(bitpos > bpos){
 					escape = TRUE;
 					break;
 				}
@@ -729,7 +729,7 @@ int IWRAM AGMV_DecodeFrameChunk(File* file, AGMV* agmv){
 					fbit = (index >> 7) & 1;
 					bot = (index & 0x7f);
 					
-					if(bitpos >= bpos){
+					if(bitpos > bpos){
 						escape = TRUE;
 						break;
 					}
@@ -753,7 +753,7 @@ int IWRAM AGMV_DecodeFrameChunk(File* file, AGMV* agmv){
 					}
 				}
 				else if(byte == AGMV_COPY_FLAG){
-					if(bitpos >= bpos){
+					if(bitpos > bpos){
 						escape = TRUE;
 						break;
 					}
@@ -775,7 +775,7 @@ int IWRAM AGMV_DecodeFrameChunk(File* file, AGMV* agmv){
 							fbit = (index >> 7) & 1;
 							bot = (index & 0x7f);
 							
-							if(bitpos >= bpos){
+							if(bitpos > bpos){
 								escape = TRUE;
 								break;
 							}
@@ -802,7 +802,7 @@ int IWRAM AGMV_DecodeFrameChunk(File* file, AGMV* agmv){
 			for(x = 0; x < width && escape != TRUE; x += 4){
 				u8 byte = bitstream_data[bitpos++];
 				
-				if(bitpos >= bpos){
+				if(bitpos > bpos){
 					escape = TRUE;
 					break;
 				}
@@ -811,7 +811,7 @@ int IWRAM AGMV_DecodeFrameChunk(File* file, AGMV* agmv){
 					index = bitstream_data[bitpos++];
 					color = palette0[index];
 					
-					if(bitpos >= bpos){
+					if(bitpos > bpos){
 						escape = TRUE;
 						break;
 					}
@@ -840,7 +840,7 @@ int IWRAM AGMV_DecodeFrameChunk(File* file, AGMV* agmv){
 						u32 offset = (y+j)*width;
 						for(i = 0; i < 4; i++){
 							u8 index = bitstream_data[bitpos++];
-							if(bitpos >= bpos){
+							if(bitpos > bpos){
 								escape = TRUE;
 								break;
 							}

@@ -7,7 +7,7 @@
 *   File: agmv_decode.c
 *   Date: 5/17/2024
 *   Version: 1.0
-*   Updated: 6/4/2024
+*   Updated: 6/7/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
@@ -150,8 +150,9 @@ int AGMV_DecodeFrameChunk(FILE* file, AGMV* agmv){
 		for(y = 0; y < height && escape != TRUE; y += 4){
 			for(x = 0; x < width && escape != TRUE; x += 4){
 				
-				if(bitpos >= agmv->bitstream->pos){
+				if(bitpos > agmv->bitstream->pos){
 					escape = TRUE;
+					break;
 				}
 
 				byte = bitstream_data[bitpos++];
@@ -161,7 +162,7 @@ int AGMV_DecodeFrameChunk(FILE* file, AGMV* agmv){
 					fbit = (index >> 7) & 1;
 					bot = (index & 0x7f);
 					
-					if(bitpos >= agmv->bitstream->pos){
+					if(bitpos > agmv->bitstream->pos){
 						escape = TRUE;
 						break;
 					}
@@ -200,7 +201,7 @@ int AGMV_DecodeFrameChunk(FILE* file, AGMV* agmv){
 					for(j = 0; j < 4; j++){
 						offset = (y+j)*width;
 						for(i = 0; i < 4; i++){
-							if(bitpos >= agmv->bitstream->pos){
+							if(bitpos > agmv->bitstream->pos){
 								escape = TRUE;
 								break;
 							}
@@ -233,15 +234,16 @@ int AGMV_DecodeFrameChunk(FILE* file, AGMV* agmv){
 			for(x = 0; x < width && escape != TRUE; x += 4){
 				u8 byte = bitstream_data[bitpos++];
 				
-				if(bitpos >= agmv->bitstream->pos){
+				if(bitpos > agmv->bitstream->pos){
 					escape = TRUE;
+					break;
 				}
 				
 				if(byte == AGMV_FILL_FLAG){
 					index = bitstream_data[bitpos++];
 					color = palette0[index];
 					
-					if(bitpos >= agmv->bitstream->pos){
+					if(bitpos > agmv->bitstream->pos){
 						escape = TRUE;
 						break;
 					}
@@ -272,7 +274,7 @@ int AGMV_DecodeFrameChunk(FILE* file, AGMV* agmv){
 						offset = (y+j)*width;
 						for(i = 0; i < 4; i++){
 							index = bitstream_data[bitpos++];
-							if(bitpos >= agmv->bitstream->pos){
+							if(bitpos > agmv->bitstream->pos){
 								escape = TRUE;
 								break;
 							}
