@@ -16,9 +16,11 @@ Why use AGMV? AGMV serves four purposes:
 	
 ## GBA Video Demo
 
+https://github.com/RyandracusCodesGames/libagmv/assets/108719757/9c914d0a-4635-4dac-82ff-a18c1e7b5215
 
 ## Video Player Demo
 
+https://github.com/RyandracusCodesGames/libagmv/assets/108719757/47f2041f-ea3f-4264-87e2-7ebbdcfbb81a
 
 # Example Programs
 
