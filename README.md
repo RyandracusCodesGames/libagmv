@@ -1,5 +1,6 @@
 # libagmv - Adaptive Graphics Motion Video
 An open-source full-motion video codec optimized for real-time playback on low-end graphical devices.
+![agmv](https://github.com/RyandracusCodesGames/libagmv/assets/108719757/9cbb12b4-4a41-40e5-9fb7-9ba0fb9427cd)
 
 ## About
 AGMV is an indexed colored, block-based full-motion video codec that utilizes classic
