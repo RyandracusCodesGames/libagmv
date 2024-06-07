@@ -83,4 +83,16 @@ int main(){
 }
 
 ```
+## Commands in FFMPEG to Extract Frames
+1. Convert frame rate of video to 24 frames per second **ffmpeg -i example.mp4 -filter:v fps=fps=24 new_example.mp4**
+2. Extract audio from new video **ffmpeg -i new_example.mp4 example.wav**
+3. Extract image frames from video **ffmpeg -i new_example.mp4 agmv_frame_%d.bmp**
+4. In audacity, drag and drop **example.wav**
+5. Click on **Tracks** on the top bar and select **Mix Stereo Down to Mono** if the audio is not already mono.
+6. Now, still on **Tracks**, select resample, and choose **16,000**.
+7. Next, click on **File** at the top, **Export**, then **Export Audio**
+8. In **Save Type**, select other compressed files
+9. In **Header**, select **Raw(header-less)**
+10. In **encoding**, select **Signed 8-bit PCM**
+11. Now, click save
 
