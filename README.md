@@ -34,7 +34,7 @@ https://github.com/RyandracusCodesGames/libagmv/assets/108719757/f77fd24f-c94d-4
 int main(){
 	AGMV* agmv = CreateAGMV(212,320,240,24); /* (Number of Frames, Width, Height, Frames per Second) */
 	AGMV_WavToAudioTrack("example.wav",agmv);
-	AGMV_EncodeAGMV(agmv,"example.agmv","example_directory","agmv_base_name",1,212,320,240,24,AGMV_OPT_III,AGMV_LOW_QUALITY,AGMV_LZSS_COMPRESSION);
+	AGMV_EncodeAGMV(agmv,"example.agmv","example_directory","agmv_base_name",AGMV_IMG_BMP,1,212,320,240,24,AGMV_OPT_III,AGMV_LOW_QUALITY,AGMV_LZSS_COMPRESSION);
 	
 	return 0;
 }
