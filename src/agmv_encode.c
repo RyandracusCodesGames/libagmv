@@ -277,15 +277,15 @@ u8 AGMV_ComparePFrameBlock(AGMV* agmv, u32 x, u32 y, AGMV_ENTRY* entry){
 			bdiff = b1-b2;
 			
 			if(rdiff < 0){
-				rdiff += (rdiff*rdiff);
+				rdiff = AGIDL_Abs(rdiff);
 			}
 			
 			if(gdiff < 0){
-				gdiff += (gdiff*gdiff);
+				gdiff = AGIDL_Abs(gdiff);
 			}
 			
 			if(bdiff < 0){
-				bdiff += (bdiff*bdiff);
+				bdiff = AGIDL_Abs(bdiff);
 			}
 			
 			if(rdiff <= 2 && gdiff <= 2 && bdiff <= 2){
@@ -329,15 +329,15 @@ u8 AGMV_CompareIFrameBlock(AGMV* agmv, u32 x, u32 y, u32 color, AGMV_ENTRY* img_
 			bdiff = b1-b2;
 			
 			if(rdiff < 0){
-				rdiff += (rdiff*rdiff);
+				rdiff = AGIDL_Abs(rdiff);
 			}
 			
 			if(gdiff < 0){
-				gdiff += (gdiff*gdiff);
+				gdiff = AGIDL_Abs(gdiff);
 			}
 			
 			if(bdiff < 0){
-				bdiff += (bdiff*bdiff);
+				bdiff = AGIDL_Abs(bdiff);
 			}
 			
 			if(rdiff <= 2 && gdiff <= 2 && bdiff <= 2){
