@@ -561,7 +561,7 @@ void AGMV_SyncAudioTrack(AGMV* agmv, u16* pcm){
 
 int AGMV_Abs(int a){
 	if(a < 0){
-		return a += a*a;
+		return -a;
 	}
 	else return a;
 }

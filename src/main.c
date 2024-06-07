@@ -4,6 +4,9 @@
 #include <agmv.h>
 
 int main(){
+
+	//What is AGMV for GitHub repo? An open-source full-motion video codec optimized for real-time playback on low-end graphical devices.
+	//I Programmed a Full-Motion Video Codec for the GBA And Nintendo DS
 	
 	float startTimeInterval = (float)clock() / CLOCKS_PER_SEC;
 
