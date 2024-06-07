@@ -40,7 +40,20 @@ int main(){
 }
 
 ```
+## Simple GBA Video Encoding
+#include <stdio.h>
+#include <agmv.h>
+#include <agidl.h>
 
+int main(){
+	u32 total_num_frames = 210;
+ 	/*GENERATES A C HEADER FILE CALLED SOUND.H -> USE RAW SIGNED 8-BIT PCM WHEN CALLING THIS FUNCTION*/
+	AGMV_ExportRaw8PCM("example.raw",total_num_frames/2.0f); /*IF AGMV_OPT_GBA_I OR AGMV_OPT_GBA_II DIVIDE BY 2, IF AGMV_OPT_GBA_III DIVIDE BY 4
+ 	/* GENERATES A C HEADER FILE CONTAINING AGMV VIDEO*/
+	AGMV_EncodeVideo("example.agmv","example_directory","agmv_base_name",1,total_num_frames,320,240,24,AGMV_OPT_GBA_I,AGMV_LOW_QUALITY,AGMV_LZSS_COMPRESSION);
+	
+	return 0;
+}
 ## Simple Video Decoding
 ```c
 #include <stdio.h>
