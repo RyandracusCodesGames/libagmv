@@ -1028,15 +1028,15 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 			int bdiff = b-palb;
 			
 			if(rdiff < 0){
-				rdiff += (rdiff*rdiff);
+				rdiff = AGIDL_Abs(rdiff);
 			}
 			
 			if(gdiff < 0){
-				gdiff += (gdiff*gdiff);
+				gdiff = AGIDL_Abs(gdiff);
 			}
 			
 			if(bdiff < 0){
-				bdiff += (bdiff*bdiff);
+				bdiff = AGIDL_Abs(bdiff);
 			}
 			
 			if(quality == AGMV_HIGH_QUALITY){
@@ -2584,15 +2584,15 @@ void AGMV_EncodeAGMV(AGMV* agmv, const char* filename, const char* dir, const ch
 			int bdiff = b-palb;
 			
 			if(rdiff < 0){
-				rdiff += (rdiff*rdiff);
+				rdiff = AGIDL_Abs(rdiff);
 			}
 			
 			if(gdiff < 0){
-				gdiff += (gdiff*gdiff);
+				gdiff = AGIDL_Abs(gdiff);
 			}
 			
 			if(bdiff < 0){
-				bdiff += (bdiff*bdiff);
+				bdiff = AGIDL_Abs(bdiff);
 			}
 			
 			if(quality == AGMV_HIGH_QUALITY){
@@ -3948,15 +3948,15 @@ void AGMV_EncodeFullAGMV(AGMV* agmv, const char* filename, const char* dir, cons
 			int bdiff = b-palb;
 			
 			if(rdiff < 0){
-				rdiff += (rdiff*rdiff);
+				rdiff = AGIDL_Abs(rdiff);
 			}
 			
 			if(gdiff < 0){
-				gdiff += (gdiff*gdiff);
+				gdiff = AGIDL_Abs(gdiff);
 			}
 			
 			if(bdiff < 0){
-				bdiff += (bdiff*bdiff);
+				bdiff = AGIDL_Abs(bdiff);
 			}
 			
 			if(quality == AGMV_HIGH_QUALITY){
