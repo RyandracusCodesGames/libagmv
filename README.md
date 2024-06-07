@@ -41,6 +41,7 @@ int main(){
 
 ```
 ## Simple GBA Video Encoding
+```c
 #include <stdio.h>
 #include <agmv.h>
 #include <agidl.h>
@@ -54,6 +55,7 @@ int main(){
 	
 	return 0;
 }
+```
 ## Simple Video Decoding
 ```c
 #include <stdio.h>
