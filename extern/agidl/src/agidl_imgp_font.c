@@ -197,6 +197,8 @@ int AGIDL_GetFontLen(AGIDL_FONT* font){
 	return font->num_of_letters;
 }
 
+int AGIDL_InsideClipBounds(u32 x, u32 y, u32 width, u32 height);
+
 void AGIDL_BlitFont(AGIDL_FONT* font, char c, void* data, u32 x, u32 y, u32 width, u32 height, AGIDL_CLR_FMT fmt){
 	if(AGIDL_GetBitCount(fmt) != 16){
 		COLOR* clrdata = (COLOR*)data;

@@ -14,6 +14,8 @@
 
 #include "agidl_imgp_impl.h"
 
+#include <stdlib.h>
+
 void AGIDL_GrayscaleBMP(AGIDL_BMP* bmp){
 	if(AGIDL_GetBitCount(AGIDL_BMPGetClrFmt(bmp)) == 16){
 		AGIDL_GrayscaleImgData(bmp->pixels.pix16,AGIDL_BMPGetWidth(bmp),AGIDL_BMPGetHeight(bmp),

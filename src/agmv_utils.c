@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include "agmv_utils.h"
 
+#include <agmv_decode.h>
+
 /*-------FILE READING UTILITY FUNCTIONS------*/
 
 Bool AGMV_EOF(FILE* file){
@@ -1425,6 +1427,8 @@ int AGMV_ResetFrameRate(const char* filename, u32 frames_per_second){
 
 	return NO_ERR;
 }
+
+void to_80bitfloat(u32 num, u8 bytes[10]);
 
 void AGMV_ExportAudioType(FILE* audio, AGMV* agmv, AGMV_AUDIO_TYPE audio_type){
 	int i;
