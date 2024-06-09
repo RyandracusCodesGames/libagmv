@@ -2,6 +2,9 @@
 #include <string.h>
 #include <math.h>
 #include "agidl_img_pvr.h"
+
+#include <agidl_mmu_utils.h>
+
 #include "agidl_cc_core.h"
 #include "agidl_math_utils.h"
 #include "agidl_img_error.h"

@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "agidl_img_tga.h"
+
+#include <agidl_mmu_utils.h>
+
 #include "agidl_cc_core.h"
 #include "agidl_img_compression.h"
 #include "agidl_img_error.h"

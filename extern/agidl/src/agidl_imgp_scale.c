@@ -14,6 +14,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "agidl_imgp_scale.h"
+
+#include <tgmath.h>
+
 #include "agidl_cc_mixer.h"
 #include "agidl_math_utils.h"
 

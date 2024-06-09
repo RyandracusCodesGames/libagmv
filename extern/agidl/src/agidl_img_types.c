@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "agidl_img_types.h"
+
+#include <agidl_math_utils.h>
+
 #include "agidl_imgp_scale.h"
 #include "agidl_cc_core.h"
 
