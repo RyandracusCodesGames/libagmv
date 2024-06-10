@@ -11,15 +11,15 @@
 *   Author: Ryandracus Chapman
 *
 ********************************************/
+
+#include <agidl_vid_str.h>
+
 #include <stdlib.h>
 #include <string.h>
-#include "agidl_vid_str.h"
-#include "agidl_mmu_utils.h"
-#include "agidl_file_utils.h"
-#include "agidl_img_error.h"
-#include "agidl_img_core.h"
-#include "agidl_math_utils.h"
-#include "agidl_img_bmp.h"
+
+#include <agidl_file_utils.h>
+#include <agidl_img_error.h>
+#include <agidl_math_utils.h>
 
 const int PSX_QUANTIZATION_TABLE[64] = {	
 	2, 16, 19, 22, 26, 27, 29, 34,
@@ -217,9 +217,8 @@ void AGIDL_ReadMultiplexStream(FILE* file, AGIDL_MDEC_FRAME* frame){
 		fread(frame->data,2,MDEC_BLOCK_SIZE/2,file);
 		
 		frame->point += MDEC_BLOCK_SIZE/2;
-		
-		int i;
-		for(i = 1; i < frame->total_multi_chunk_num; i++){
+
+		for(int i = 1; i < frame->total_multi_chunk_num; i++){
 			AGIDL_FindNextVideoFrame(file);
 			fseek(file,32,SEEK_CUR);
 			fread(frame->data+frame->point,2,MDEC_BLOCK_SIZE/2,file);
@@ -232,9 +231,8 @@ void AGIDL_ReadMultiplexStream(FILE* file, AGIDL_MDEC_FRAME* frame){
 		fread(frame->data,2,MDEC_BLOCK_SIZE/2,file);
 
 		frame->point += MDEC_BLOCK_SIZE/2;
-		 
-		int i;
-		for(i = 1; i < frame->total_multi_chunk_num; i++){
+
+		for(int i = 1; i < frame->total_multi_chunk_num; i++){
 			AGIDL_FindNextVideoFrame(file);
 			fseek(file,32,SEEK_CUR);
 			fread(frame->data+frame->point,2,MDEC_BLOCK_SIZE/2,file);
@@ -250,45 +248,44 @@ u16 AGIDL_GetNext16Bits(AGIDL_MDEC_FRAME* frame){
 	return frame->data[frame->point++];
 }
 
-u16 AGIDL_GetCur16Bits(AGIDL_MDEC_FRAME* frame){
+u16 AGIDL_GetCur16Bits(const AGIDL_MDEC_FRAME* frame){
 	return frame->data[frame->point];
 }
 
-u16 AGIDL_PeekNext16Bits(AGIDL_MDEC_FRAME* frame){
+u16 AGIDL_PeekNext16Bits(const AGIDL_MDEC_FRAME* frame){
 	u16 point = frame->point;
 	return frame->data[point++];
 }
 
-void AGIDL_SkipNWords(AGIDL_MDEC_FRAME* frame, int n){
+void AGIDL_SkipNWords(AGIDL_MDEC_FRAME* frame, const int n){
 	frame->point += n;
 }
 
-void AGIDL_SeekMDEC(AGIDL_MDEC_FRAME* frame, int n){
+void AGIDL_SeekMDEC(AGIDL_MDEC_FRAME* frame, const int n){
 	frame->point = n;
 }
 
 AGIDL_Bool AGIDL_EOF(FILE* file){
-	u32 pos = ftell(file);
+	const u32 pos = ftell(file);
 	fseek(file,0,SEEK_END);
-	u32 file_size = ftell(file);
+	const u32 file_size = ftell(file);
 	fseek(file,pos,SEEK_SET);
 	
 	if(pos >= file_size){
 		return TRUE;
 	}
-	else return FALSE;
+	return FALSE;
 }
 
 u32 mdec_count = 0;
 
-void AGIDL_PrintMDECBitstream(AGIDL_MDEC_FRAME* frame){
+void AGIDL_PrintMDECBitstream(const AGIDL_MDEC_FRAME* frame){
 	char filename[30]; mdec_count++;
 	sprintf(filename,"macro_%ld.bs",mdec_count);
 	
 	FILE* file = fopen(filename,"wb");
-	
-	int i;
-	for(i = 0; i < frame->size; i++){
+
+	for(int i = 0; i < frame->size; i++){
 		AGIDL_WriteShort(file,frame->data[i]);
 	}
 	
@@ -296,21 +293,21 @@ void AGIDL_PrintMDECBitstream(AGIDL_MDEC_FRAME* frame){
 }
 
 /* UTILITY FUNCTIONS */
-s32 extend_sign(u16 bit_size, u64 n){
-    u32 mask = ((1LL << (bit_size - 1)) - 1);
-    AGIDL_Bool sign = (n & (1LL << (bit_size - 1))) != 0;
+s32 extend_sign(const u16 bit_size, const u64 n){
+	const u32 mask = ((1LL << (bit_size - 1)) - 1);
+	const AGIDL_Bool sign = (n & (1LL << (bit_size - 1))) != 0;
 
     s32 val = n & mask;
     if (sign) val |= ~mask;
     return val;
 }
 
-int AGIDL_IsMDECVideoFrame(AGIDL_MDEC_FRAME* frame){
+int AGIDL_IsMDECVideoFrame(const AGIDL_MDEC_FRAME* frame){
 	if(frame->magic != MDEC_MAGIC || frame->magic_const != MDEC_CONST || frame->pad != 0 
 	|| !(frame->version == 1 || frame->version == 2 || frame->version == 3) || frame->quant_scale > 63){
 		return INVALID_HEADER_FORMATTING_ERROR;
 	}
-	else return NO_IMG_ERROR;
+	return NO_IMG_ERROR;
 }
 
 void AGIDL_EnsureDimMul16(AGIDL_MDEC_FRAME* frame){
@@ -322,7 +319,7 @@ void AGIDL_EnsureDimMul16(AGIDL_MDEC_FRAME* frame){
 	}
 }
 
-u32 AGIDL_CalcMacroblockDim(u32 size){
+u32 AGIDL_CalcMacroblockDim(const u32 size){
 	return (u32)((size + 15) / 16.0f);
 }
 
@@ -330,7 +327,7 @@ void AGIDL_FindNextVideoFrame(FILE* file){
 	u32 magic = AGIDL_ReadLong(file);
 	
 	if(magic == MDEC_MAGIC){
-		u32 pos = ftell(file);
+		const u32 pos = ftell(file);
 		fseek(file,pos-4,SEEK_SET);
 		return;
 	}
@@ -338,8 +335,8 @@ void AGIDL_FindNextVideoFrame(FILE* file){
 	while(magic != MDEC_MAGIC && AGIDL_EOF(file) == FALSE){
 		magic = AGIDL_ReadLong(file);
 	}
-	
-	u32 pos = ftell(file);
+
+	const u32 pos = ftell(file);
 	fseek(file,pos-4,SEEK_SET);
 }
 
@@ -350,40 +347,37 @@ void AGIDL_MDECAllocResources(AGIDL_MDEC_FRAME* frame){
 }
 
 void AGIDL_FillBlock(s16 block[64]){
-	int i;
-	for(i = 0; i < 64; i++){
+	for(int i = 0; i < 64; i++){
 		block[i] = 0;
 	}
 }
 
 void AGIDL_TransformBlockToMacroblock(s16 block[64], s16 macroblock[8][8]){
-	int x,y;
-	for(y = 0; y < 8; y++){
-		for(x = 0; x < 8; x++){
-			int index = x + y * 8;
+	for(int y = 0; y < 8; y++){
+		for(int x = 0; x < 8; x++){
+			const int index = x + y * 8;
 			macroblock[x][y] = block[index];
 		}
 	}
 }
 
 void AGIDL_TransformMaroblockToBlock(s16 block[64], s16 macroblock[8][8]){
-	int x,y;
-	for(y = 0; y < 8; y++){
-		for(x = 0; x < 8; x++){
-			int index = x + y * 8;
+	for(int y = 0; y < 8; y++){
+		for(int x = 0; x < 8; x++){
+			const int index = x + y * 8;
 			block[index] = macroblock[x][y];
 		}
 	}
 }
 
-void AGIDL_AddMDECCode(AGIDL_MDEC_FRAME* frame, AGIDL_MDEC_CODE code){
+void AGIDL_AddMDECCode(AGIDL_MDEC_FRAME* frame, const AGIDL_MDEC_CODE code){
 	if(frame->len < frame->capacity - 1){
 		frame->mdec[frame->len++] = code;
 	}
 	else{
-		u32 old_len = frame->len; frame->len++;
+		const u32 old_len = frame->len; frame->len++;
 		
-		u16* prev = (u16*)malloc(sizeof(u16)*old_len);
+		u16* prev = malloc(sizeof(u16)*old_len);
 		
 		memcpy(prev,frame->mdec,old_len);
 		
@@ -416,19 +410,18 @@ void AGIDL_DisableMDECPrint(){
 }
 
 /* PRIMARY STR DECODING FUNCTION CALLS */
-float C(int u){
+float C(const int u){
 	if(u == 0){
 		return 0.3536f;
 	}
-	else return 0.5f;
+	return 0.5f;
 }
 
-int AGIDL_SingleIDCT(int x, int y, s16 macroblock[8][8]){
+int AGIDL_SingleIDCT(const int x, const int y, s16 macroblock[8][8]){
 	float summation = 0;
-	
-	int u,v;
-	for(v = 0; v < 8; v++){
-		for(u = 0; u < 8; u++){
+
+	for(int v = 0; v < 8; v++){
+		for(int u = 0; u < 8; u++){
 			summation += (C(u) * C(v)) * macroblock[u][v] * PSX_IDCT_TABLE[x][u] * PSX_IDCT_TABLE[y][v];
 		}
 	}
@@ -458,16 +451,15 @@ void AGIDL_DecodeMacroblock(AGIDL_MDEC_FRAME* frame, s16 block[64], const int ta
 	while(frame->point <= frame->size && AGIDL_GetCur16Bits(frame) == 0xfe00){
 		frame->point++;
 	}
-	
-	u16 word = AGIDL_GetNext16Bits(frame);
+
+	const u16 word = AGIDL_GetNext16Bits(frame);
 	
 	s16 dc = extend_sign(10,word & BOTTOM_10_BITS);
-	s16 quant = (word >> 10) & 0x3f;
+	const s16 quant = (word >> 10) & 0x3f;
 	
 	s16 val = dc * table[0];
-	
-	int n;
-	for (n = 0; n < 64;){
+
+	for (int n = 0; n < 64;){
         if(quant == 0){
             val = dc << 1;
         }
@@ -481,8 +473,8 @@ void AGIDL_DecodeMacroblock(AGIDL_MDEC_FRAME* frame, s16 block[64], const int ta
             block[n] = val;
         }
 
-        u16 rle = AGIDL_GetNext16Bits(frame);
-		u16 zeros = (word >> 10) & 0x3f;
+        const u16 rle = AGIDL_GetNext16Bits(frame);
+        const u16 zeros = (word >> 10) & 0x3f;
 		
         dc = extend_sign(10, rle & BOTTOM_10_BITS);
         n += zeros + 1;
@@ -497,22 +489,22 @@ void AGIDL_DecodeMacroblock(AGIDL_MDEC_FRAME* frame, s16 block[64], const int ta
 	AGIDL_TransformMaroblockToBlock(block,macroblock);
 }
 
-int AGIDL_MDEC(const char* filename, AGIDL_IMG_TYPE img_type){
+int AGIDL_MDEC(const char* filename){
 	FILE* file = fopen(filename,"rb");
 	
 	if(file == NULL){
 		return FILE_NOT_LOCATED_IMG_ERROR;
 	}
-	
-	u32 magic = AGIDL_ReadLong(file); fseek(file,0,SEEK_SET);
+
+	const u32 magic = AGIDL_ReadLong(file); fseek(file,0,SEEK_SET);
 	
 	if(magic == MDEC_MAGIC){
-		AGIDL_MDEC_FRAME* frame = (AGIDL_MDEC_FRAME*)malloc(sizeof(AGIDL_MDEC_FRAME));
+		AGIDL_MDEC_FRAME* frame = malloc(sizeof(AGIDL_MDEC_FRAME));
 		
 		frame->no_audio = TRUE;
 		
 		AGIDL_ReadMDECVideoFrame(file,frame);
-		int error = AGIDL_IsMDECVideoFrame(frame);
+		const int error = AGIDL_IsMDECVideoFrame(frame);
 		
 		if(error == NO_IMG_ERROR){
 			AGIDL_MDECAllocResources(frame);
@@ -544,40 +536,38 @@ int AGIDL_MDEC(const char* filename, AGIDL_IMG_TYPE img_type){
 		
 		return error;
 	}
-	else{
-		AGIDL_FindNextVideoFrame(file);
-		AGIDL_MDEC_FRAME* frame = (AGIDL_MDEC_FRAME*)malloc(sizeof(AGIDL_MDEC_FRAME));
+	AGIDL_FindNextVideoFrame(file);
+	AGIDL_MDEC_FRAME* frame = malloc(sizeof(AGIDL_MDEC_FRAME));
 	
-		frame->no_audio = FALSE;
+	frame->no_audio = FALSE;
 		
-		AGIDL_ReadMDECVideoFrame(file,frame);
-		int error = AGIDL_IsMDECVideoFrame(frame);
+	AGIDL_ReadMDECVideoFrame(file,frame);
+	const int error = AGIDL_IsMDECVideoFrame(frame);
 	
-		if(error == NO_IMG_ERROR){
-			AGIDL_MDECAllocResources(frame);
-			AGIDL_ReadMultiplexStream(file,frame);
+	if(error == NO_IMG_ERROR){
+		AGIDL_MDECAllocResources(frame);
+		AGIDL_ReadMultiplexStream(file,frame);
 			
+		if(print == TRUE){
+			AGIDL_PrintMDECBitstream(frame);
+		}
+			
+		while(AGIDL_EOF(file) != TRUE){
+			AGIDL_FindNextVideoFrame(file);
+			AGIDL_ReadMDECVideoFrame(file,frame);
+			AGIDL_ReadMultiplexStream(file,frame);
+				
 			if(print == TRUE){
 				AGIDL_PrintMDECBitstream(frame);
 			}
-			
-			while(AGIDL_EOF(file) != TRUE){
-				AGIDL_FindNextVideoFrame(file);
-				AGIDL_ReadMDECVideoFrame(file,frame);
-				AGIDL_ReadMultiplexStream(file,frame);
-				
-				if(print == TRUE){
-					AGIDL_PrintMDECBitstream(frame);
-				}
-			}
 		}
-
-		free(frame->data);
-		free(frame);
-		
-		return error;
 	}
-	
+
+	free(frame->data);
+	free(frame);
+		
+	return error;
+
 	fclose(file);
 	
 	return NO_IMG_ERROR;

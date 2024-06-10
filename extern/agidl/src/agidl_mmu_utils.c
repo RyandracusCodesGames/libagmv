@@ -11,91 +11,86 @@
 *   Author: Ryandracus Chapman
 *
 ********************************************/
-#include <stdlib.h>
-#include "agidl_img_types.h"
-#include "agidl_mmu_utils.h"
-#include "agidl_cc_converter.h"
 
-void* AGIDL_AllocImgDataMMU(u32 width, u32 height, AGIDL_CLR_FMT fmt){
+#include <agidl_mmu_utils.h>
+
+#include <stdlib.h>
+
+#include <agidl_cc_converter.h>
+#include <agidl_img_types.h>
+
+void* AGIDL_AllocImgDataMMU(const u32 width, const u32 height, const AGIDL_CLR_FMT fmt){
 	if(AGIDL_GetBitCount(fmt) == 16){
-		COLOR16* clr = (COLOR16*)malloc(sizeof(COLOR16)*width*height);
+		COLOR16* clr = malloc(sizeof(COLOR16)*width*height);
 		return clr;
 	}
-	else{
-		COLOR* clr = (COLOR*)malloc(sizeof(COLOR)*width*height);
-		return clr;
-	}
+	COLOR* clr = malloc(sizeof(COLOR)*width*height);
+	return clr;
 	return NULL;
 }
 
-void AGIDL_ConvertRGB2RGBA(void* src, void* dest, u32 width, u32 height, AGIDL_CLR_FMT srcfmt, AGIDL_CLR_FMT destfmt){
-	COLOR* clr_data = (COLOR*)src;
-	COLOR* dest_data = (COLOR*)dest;
-	
-	int i;
-	for(i = 0; i < width*height; i++){
-		COLOR clr = clr_data[i];
+void AGIDL_ConvertRGB2RGBA(const void* src, void* dest, const u32 width, const u32 height, const AGIDL_CLR_FMT srcfmt, const AGIDL_CLR_FMT destfmt){
+	const COLOR* clr_data = src;
+	COLOR* dest_data = dest;
+
+	for(int i = 0; i < width*height; i++){
+		const COLOR clr = clr_data[i];
 		dest_data[i] = AGIDL_RGB_TO_RGBA(clr,srcfmt,destfmt);
 	}
 }
 
-void AGIDL_ConvertRGBA2RGB(void* src, void* dest, u32 width, u32 height, AGIDL_CLR_FMT srcfmt, AGIDL_CLR_FMT destfmt){
-	COLOR* clr_data = (COLOR*)src;
-	COLOR* dest_data = (COLOR*)dest;
-	
-	int i;
-	for(i = 0; i < width*height; i++){
-		COLOR clr = clr_data[i];
+void AGIDL_ConvertRGBA2RGB(const void* src, void* dest, const u32 width, const u32 height, const AGIDL_CLR_FMT srcfmt, const AGIDL_CLR_FMT destfmt){
+	const COLOR* clr_data = src;
+	COLOR* dest_data = dest;
+
+	for(int i = 0; i < width*height; i++){
+		const COLOR clr = clr_data[i];
 		dest_data[i] = AGIDL_RGBA_TO_RGB(clr,srcfmt,destfmt);
 	}
 }
 
-void AGIDL_ColorConvertImgData(void* src, void* dest, u32 width, u32 height, AGIDL_CLR_FMT srcfmt, AGIDL_CLR_FMT destfmt){
+void AGIDL_ColorConvertImgData(void* src, void* dest, const u32 width, const u32 height, const AGIDL_CLR_FMT srcfmt, const AGIDL_CLR_FMT destfmt){
 	if(srcfmt == destfmt){
 		return;
 	}
-	
-	u8 sbits = AGIDL_GetBitCount(srcfmt), dbits = AGIDL_GetBitCount(destfmt);
+
+	const u8 sbits = AGIDL_GetBitCount(srcfmt), dbits = AGIDL_GetBitCount(destfmt);
 	
 	if((sbits == 24 || sbits == 32) && (dbits == 24 || dbits == 32)){
-		COLOR* src_data = (COLOR*)src;
-		
-		int i;
-		for(i = 0; i < width*height; i++){
-			COLOR clr = src_data[i];
-			COLOR dst = AGIDL_ColorConvert(clr,srcfmt,destfmt);
+		COLOR* src_data = src;
+
+		for(int i = 0; i < width*height; i++){
+			const COLOR clr = src_data[i];
+			const COLOR dst = AGIDL_ColorConvert(clr,srcfmt,destfmt);
 			src_data[i] = dst;
 		}
 	}
 	else if(sbits == 16 && dbits == 16){
-		COLOR16* src_data = (COLOR16*)src;
-		
-		int i;
-		for(i = 0; i < width*height; i++){
-			COLOR16 clr = src_data[i];
-			COLOR16 dst = AGIDL_ColorConvert(clr,srcfmt,destfmt);
+		COLOR16* src_data = src;
+
+		for(int i = 0; i < width*height; i++){
+			const COLOR16 clr = src_data[i];
+			const COLOR16 dst = AGIDL_ColorConvert(clr,srcfmt,destfmt);
 			src_data[i] = dst;
 		}
 	}
 	else if((sbits == 24 || sbits == 32) && dbits == 16){
-		COLOR* src_data = (COLOR*)src;
-		COLOR16* dst_data = (COLOR16*)dest;
-		
-		int i;
-		for(i = 0; i < width*height; i++){
-			COLOR clr = src_data[i];
-			COLOR16 dst = AGIDL_ColorConvert(clr,srcfmt,destfmt);
+		const COLOR* src_data = src;
+		COLOR16* dst_data = dest;
+
+		for(int i = 0; i < width*height; i++){
+			const COLOR clr = src_data[i];
+			const COLOR16 dst = AGIDL_ColorConvert(clr,srcfmt,destfmt);
 			dst_data[i] = dst;
 		}
 	}
 	else{
-		COLOR16* src_data = (COLOR16*)src;
-		COLOR* dst_data = (COLOR*)dest;
-		
-		int i;
-		for(i = 0; i < width*height; i++){
-			COLOR16 clr = src_data[i];
-			COLOR dst = AGIDL_ColorConvert(clr,srcfmt,destfmt);
+		const COLOR16* src_data = src;
+		COLOR* dst_data = dest;
+
+		for(int i = 0; i < width*height; i++){
+			const COLOR16 clr = src_data[i];
+			const COLOR dst = AGIDL_ColorConvert(clr,srcfmt,destfmt);
 			dst_data[i] = dst;
 		}
 	}

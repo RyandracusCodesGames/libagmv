@@ -1,14 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "agidl_img_search.h"
-
-#include <agidl_imgp_impl.h>
-
-#include "agidl_img_error.h"
-#include "agidl_file_utils.h"
-#include "agidl_img_converter.h"
-
 /********************************************
 *   Adaptive Graphics Image Display Library
 *
@@ -23,7 +12,17 @@
 *
 ********************************************/
 
-void AGIDL_TIMSearchFileOnDisk(const char* filename, AGIDL_IMG_TYPE type, int flip){
+#include <agidl_img_search.h>
+
+#include <stdlib.h>
+#include <string.h>
+
+#include <agidl_file_utils.h>
+#include <agidl_imgp_impl.h>
+#include <agidl_img_converter.h>
+#include <agidl_img_error.h>
+
+void AGIDL_TIMSearchFileOnDisk(const char* filename, const AGIDL_IMG_TYPE img_type, const int flip){
 	FILE* file = fopen(filename,"rb");
 	
 	if(file == NULL){
@@ -33,18 +32,19 @@ void AGIDL_TIMSearchFileOnDisk(const char* filename, AGIDL_IMG_TYPE type, int fl
 	
 	fseek(file,0,SEEK_END);
 	
-	u32 img_count = 0, file_size = ftell(file);
-	
+	u32 img_count = 0;
+	const u32 file_size = ftell(file);
+
 	fseek(file,0,SEEK_SET);
 	
 	while(!feof(file)){
 	
-		AGIDL_TIM *tim = (AGIDL_TIM*)malloc(sizeof(AGIDL_TIM));
+		AGIDL_TIM *tim = malloc(sizeof(AGIDL_TIM));
 		
 		AGIDL_TIMDecodeHeader(tim,file);
 
 		while(!feof(file) && !AGIDL_IsTIMHeader(tim)){
-			u32 curr_coord = ftell(file);
+			const u32 curr_coord = ftell(file);
 			if(curr_coord >= file_size){
 				printf("Exceeded file size! Closing file stream!\n");
 				fclose(file);
@@ -55,12 +55,12 @@ void AGIDL_TIMSearchFileOnDisk(const char* filename, AGIDL_IMG_TYPE type, int fl
 		}
 		
 		AGIDL_TIMDecodeIMG(tim,file);
-		
-		u32 curr = ftell(file);
+
+		const u32 curr = ftell(file);
 		
 		if(AGIDL_IsTIM(tim)){
 			img_count++;
-			switch(type){
+			switch(img_type){
 				case AGIDL_IMG_TIM:{
 					char file_name[25];
 					sprintf(file_name,"tim_%ld.tim",img_count);
@@ -235,8 +235,8 @@ void AGIDL_TIMSearchFileOnDisk(const char* filename, AGIDL_IMG_TYPE type, int fl
 	fclose(file);
 }
 
-int AGIDL_3DFSearchFileOnDisk(const char* filename, AGIDL_IMG_TYPE img_type, int flip, u32 jump){
-	FILE* file = fopen(filename,"rb");
+int AGIDL_3DFSearchFileOnDisk(const char* searchFilename, const AGIDL_IMG_TYPE img_type, const int flip, const u32 jump){
+	FILE* file = fopen(searchFilename,"rb");
 	
 	if(file == NULL){
 		return FILE_NOT_LOCATED_IMG_ERROR;
@@ -249,13 +249,12 @@ int AGIDL_3DFSearchFileOnDisk(const char* filename, AGIDL_IMG_TYPE img_type, int
 	fseek(file,jump,SEEK_SET);
 	
 	while(!feof(file)){
-		AGIDL_3DF* glide = (AGIDL_3DF*)malloc(sizeof(AGIDL_3DF));
+		AGIDL_3DF* glide = malloc(sizeof(AGIDL_3DF));
 		
 		int error = AGIDL_3DFDecodePartialHeader(glide,file);
 
 		while(!feof(file) && error != NO_IMG_ERROR){
-
-			int pos = ftell(file);
+			const int pos = ftell(file);
 			
 			if(pos >= file_size){
 				printf("Exceeded file size! Closing file stream!\n");
@@ -266,8 +265,8 @@ int AGIDL_3DFSearchFileOnDisk(const char* filename, AGIDL_IMG_TYPE img_type, int
 			fseek(file,pos-8,SEEK_SET);
 			error = AGIDL_3DFDecodePartialHeader(glide,file);
 		}
-		
-		u32 curr = ftell(file);
+
+		const u32 curr = ftell(file);
 		fseek(file,curr-9,SEEK_SET);
 
 		AGIDL_3DFDecodeHeader(glide,file);
@@ -416,31 +415,29 @@ int AGIDL_3DFSearchFileOnDisk(const char* filename, AGIDL_IMG_TYPE img_type, int
 	return NO_IMG_ERROR;
 }
 
-void AGIDL_TGASearchFileOnDisk(const char* filename, AGIDL_IMG_TYPE img_type){
+void AGIDL_TGASearchFileOnDisk(const char* filename, const AGIDL_IMG_TYPE img_type){
 	FILE* file = fopen(filename,"rb");
 	
 	if(file == NULL){
-		printf("Could not locate/open file - %s!\n");
+		printf("Could not locate/open file - %s!\n", filename);
 		return;
 	}	
 	
 	u32 img_count = 0;
 	
 	while(!feof(file)){
-		AGIDL_TGA* tga = (AGIDL_TGA*)malloc(sizeof(AGIDL_TGA));
+		AGIDL_TGA* tga = malloc(sizeof(AGIDL_TGA));
 		
 		AGIDL_TGADecodeHeader(tga,file);
 		
 		while(!feof(file) && !AGIDL_IsTGA(tga)){
-			u32 curr_coord = ftell(file);
+			const u32 curr_coord = ftell(file);
 			fseek(file,0,SEEK_END);
 			if(curr_coord >= ftell(file)){
 				fclose(file);
 				return;
 			}
-			else{
-				fseek(file,curr_coord,SEEK_SET);
-			}
+			fseek(file,curr_coord,SEEK_SET);
 			fseek(file,curr_coord-17,SEEK_SET);
 			AGIDL_TGADecodeHeader(tga,file);
 		}
@@ -451,9 +448,9 @@ void AGIDL_TGASearchFileOnDisk(const char* filename, AGIDL_IMG_TYPE img_type){
 		printf("type = %d\n",tga->header.imgtype);
 		printf("icp = %d\n",tga->header.clrmaptype);
 		printf("flip = %d\n",tga->header.flip);
-		
-		TGA_ICP_TYPE icp = AGIDL_TGAGetICPType(tga->header.imgtype);
-		TGA_IMG_TYPE tga_img_type = AGIDL_TGAGetIMGType(tga->header.bits);
+
+		const TGA_ICP_TYPE icp = AGIDL_TGAGetICPType(tga->header.imgtype);
+		const TGA_IMG_TYPE tga_img_type = AGIDL_TGAGetIMGType(tga->header.bits);
 	
 		AGIDL_TGADecodeIMG(tga,file,icp,tga_img_type);
 		AGIDL_TGADecodeRLE(tga,file,icp,tga_img_type);

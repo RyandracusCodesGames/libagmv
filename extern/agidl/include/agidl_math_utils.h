@@ -15,7 +15,7 @@
 *
 ********************************************/
 
-#include "agidl_types.h"
+#include <agidl_types.h>
 
 #define AGIDL_PI 3.141592
 
@@ -36,11 +36,11 @@ int AGIDL_Floor(int a);
 float AGIDL_FModf(float a, float b);
 float AGIDL_FixAng(float ang);
 u32 AGIDL_Pow2(u32 num);
-u32 AGIDL_Bin2Dec(char* bin);
+u32 AGIDL_Bin2Dec(const char* bin);
 u32 AGIDL_BitXor(u32 i, u32 j);
 u32 AGIDL_BitInterleave(u32 a, u32 b);
 char* AGIDL_Dec2Bin(u32 num);
-u32 AGIDL_BitReverse(char* bin);
+u32 AGIDL_BitReverse(const char* bin);
 u32 AGIDL_NearestPow2(int num);
 u8 AGIDL_GetPow2Index(u32 num);
 f32 AGIDL_Deg2Rad(f32 degrees);

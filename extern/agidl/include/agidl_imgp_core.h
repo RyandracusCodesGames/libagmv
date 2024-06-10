@@ -15,10 +15,10 @@
 *
 ********************************************/
 
-#include "agidl_imgp_impl.h"
-#include "agidl_imgp_lightmap.h"
-#include "agidl_imgp_blend.h"
-#include "agidl_imgp_font.h"
-#include "agidl_imgp_mipmap.h"
+#include <agidl_imgp_blend.h>
+#include <agidl_imgp_font.h>
+#include <agidl_imgp_impl.h>
+#include <agidl_imgp_lightmap.h>
+#include <agidl_imgp_mipmap.h>
 
 #endif

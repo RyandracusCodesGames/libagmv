@@ -15,8 +15,6 @@
 *
 ********************************************/
 
-#include "agidl_types.h"
-
 typedef enum AGIDL_IMG_ERROR{
 	NO_IMG_ERROR = 0x0,
 	FILE_NOT_LOCATED_IMG_ERROR = 0x1,

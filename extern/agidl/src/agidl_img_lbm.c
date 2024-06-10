@@ -11,67 +11,70 @@
 *   Author: Ryandracus Chapman
 *
 ********************************************/
+
+#include <agidl_img_lbm.h>
+
 #include <stdlib.h>
 #include <string.h>
-#include "agidl_img_lbm.h"
-#include "agidl_img_error.h"
-#include "agidl_file_utils.h"
-#include "agidl_mmu_utils.h"
-#include "agidl_cc_converter.h"
-#include "agidl_math_utils.h"
-#include "agidl_img_compression.h"
+
+#include <agidl_cc_converter.h>
+#include <agidl_file_utils.h>
+#include <agidl_img_compression.h>
+#include <agidl_img_error.h>
+#include <agidl_math_utils.h>
+#include <agidl_mmu_utils.h>
 
 void AGIDL_SetLBMFilename(AGIDL_LBM* lbm, const char* filename){
 	lbm->filename = (char*)realloc(lbm->filename,strlen(filename));
 	AGIDL_FilenameCpy(lbm->filename,filename);
 }
 
-void AGIDL_LBMSetWidth(AGIDL_LBM* lbm, int width){
+void AGIDL_LBMSetWidth(AGIDL_LBM* lbm, const int width){
 	lbm->header.bmhd.width = width;
 }
 
-void AGIDL_LBMSetHeight(AGIDL_LBM* lbm, int height){
+void AGIDL_LBMSetHeight(AGIDL_LBM* lbm, const int height){
 	lbm->header.bmhd.height = height;
 }
 
-void AGIDL_LBMSetClrFmt(AGIDL_LBM* lbm, AGIDL_CLR_FMT fmt){
+void AGIDL_LBMSetClrFmt(AGIDL_LBM* lbm, const AGIDL_CLR_FMT fmt){
 	lbm->fmt = fmt;
 }
 
-void AGIDL_LBMSetICPMode(AGIDL_LBM* lbm, AGIDL_Bool icp){
+void AGIDL_LBMSetICPMode(AGIDL_LBM* lbm, const AGIDL_Bool icp){
 	lbm->icp = icp;
 }
 
-void AGIDL_LBMSetICPEncoding(AGIDL_LBM* lbm, AGIDL_ICP_ENCODE encode){
+void AGIDL_LBMSetICPEncoding(AGIDL_LBM* lbm, const AGIDL_ICP_ENCODE encode){
 	lbm->encode = encode;
 }
 
-void AGIDL_LBMSetMaxDiff(AGIDL_LBM* lbm, int max_diff){
+void AGIDL_LBMSetMaxDiff(AGIDL_LBM* lbm, const int max_diff){
 	lbm->max_diff = max_diff;
 }
 
-void AGIDL_LBMSetCompression(AGIDL_LBM* lbm, AGIDL_Bool compress){
+void AGIDL_LBMSetCompression(AGIDL_LBM* lbm, const AGIDL_Bool compress){
 	lbm->compress = compress;
 }
 
-void AGIDL_LBMSetType(AGIDL_LBM* lbm, AGIDL_ILBM_TYPE type){
+void AGIDL_LBMSetType(AGIDL_LBM* lbm, const AGIDL_ILBM_TYPE type){
 	lbm->type = type;
 }
 
-void AGIDL_LBMSetClr(AGIDL_LBM* lbm, int x, int y, COLOR clr){
+void AGIDL_LBMSetClr(const AGIDL_LBM* lbm, const int x, const int y, const COLOR clr){
 	if(x >= 0 && y >= 0 && x < AGIDL_LBMGetWidth(lbm) && y < AGIDL_LBMGetHeight(lbm)){
 		lbm->pixels.pix32[x+y*AGIDL_LBMGetWidth(lbm)] = clr;
 	}
 }
 
-void AGIDL_LBMSetClr16(AGIDL_LBM* lbm, int x, int y, COLOR16 clr){
+void AGIDL_LBMSetClr16(const AGIDL_LBM* lbm, const int x, const int y, const COLOR16 clr){
 	if(x >= 0 && y >= 0 && x < AGIDL_LBMGetWidth(lbm) && y < AGIDL_LBMGetHeight(lbm)){
 		lbm->pixels.pix16[x+y*AGIDL_LBMGetWidth(lbm)] = clr;
 	}
 }
 
-void AGIDL_LBMSetRGB(AGIDL_LBM* lbm, int x, int y, u8 r, u8 g, u8 b){
-	AGIDL_CLR_FMT fmt = AGIDL_LBMGetClrFmt(lbm);
+void AGIDL_LBMSetRGB(const AGIDL_LBM* lbm, const int x, const int y, const u8 r, const u8 g, const u8 b){
+	const AGIDL_CLR_FMT fmt = AGIDL_LBMGetClrFmt(lbm);
 	switch(AGIDL_GetBitCount(fmt)){
 		case 16:{
 			AGIDL_LBMSetClr16(lbm,x,y,AGIDL_RGB16(r,g,b,fmt));
@@ -85,15 +88,15 @@ void AGIDL_LBMSetRGB(AGIDL_LBM* lbm, int x, int y, u8 r, u8 g, u8 b){
 	}
 }
 
-void AGIDL_LBMSetRGBA(AGIDL_LBM* lbm, int x, int y, u8 r, u8 g, u8 b, u8 a){
-	AGIDL_CLR_FMT fmt = AGIDL_LBMGetClrFmt(lbm);
+void AGIDL_LBMSetRGBA(const AGIDL_LBM* lbm, const int x, const int y, const u8 r, const u8 g, const u8 b, const u8 a){
+	const AGIDL_CLR_FMT fmt = AGIDL_LBMGetClrFmt(lbm);
 	if(AGIDL_GetBitCount(fmt) == 32){
 		AGIDL_LBMSetClr(lbm,x,y,AGIDL_RGBA(r,g,b,a,fmt));
 	}
 }
 
-void AGIDL_LBMSetColor3f(AGIDL_LBM* lbm, int x, int y, f32 r, f32 g, f32 b){
-	AGIDL_CLR_FMT fmt = AGIDL_LBMGetClrFmt(lbm);
+void AGIDL_LBMSetColor3f(const AGIDL_LBM* lbm, const int x, const int y, const f32 r, const f32 g, const f32 b){
+	const AGIDL_CLR_FMT fmt = AGIDL_LBMGetClrFmt(lbm);
 	switch(AGIDL_GetBitCount(fmt)){
 		case 16:{
 			AGIDL_LBMSetClr16(lbm,x,y,AGIDL_Color3f(r,g,b,fmt));
@@ -107,61 +110,61 @@ void AGIDL_LBMSetColor3f(AGIDL_LBM* lbm, int x, int y, f32 r, f32 g, f32 b){
 	}
 }
 
-void AGIDL_LBMSetColor4f(AGIDL_LBM* lbm, int x, int y, f32 r, f32 g, f32 b, f32 a){
-	AGIDL_CLR_FMT fmt = AGIDL_LBMGetClrFmt(lbm);
+void AGIDL_LBMSetColor4f(const AGIDL_LBM* lbm, const int x, const int y, const f32 r, const f32 g, const f32 b, const f32 a){
+	const AGIDL_CLR_FMT fmt = AGIDL_LBMGetClrFmt(lbm);
 	if(AGIDL_GetBitCount(fmt) == 32){
 		AGIDL_LBMSetClr(lbm,x,y,AGIDL_Color4f(r,g,b,a,fmt));
 	}
 }
 
-u32 AGIDL_LBMGetWidth(AGIDL_LBM* lbm){
+u32 AGIDL_LBMGetWidth(const AGIDL_LBM* lbm){
 	return lbm->header.bmhd.width;
 }
 
-u32 AGIDL_LBMGetHeight(AGIDL_LBM* lbm){
+u32 AGIDL_LBMGetHeight(const AGIDL_LBM* lbm){
 	return lbm->header.bmhd.height;
 }
 
-u32 AGIDL_LBMGetSize(AGIDL_LBM* lbm){
+u32 AGIDL_LBMGetSize(const AGIDL_LBM* lbm){
 	return AGIDL_LBMGetWidth(lbm) * AGIDL_LBMGetHeight(lbm);
 }
 
-AGIDL_CLR_FMT AGIDL_LBMGetClrFmt(AGIDL_LBM* lbm){
+AGIDL_CLR_FMT AGIDL_LBMGetClrFmt(const AGIDL_LBM* lbm){
 	return lbm->fmt;
 }
 
-int AGIDL_LBMGetMaxDiff(AGIDL_LBM* lbm){
+int AGIDL_LBMGetMaxDiff(const AGIDL_LBM* lbm){
 	return lbm->max_diff;
 }
 
-AGIDL_ILBM_TYPE AGIDL_LBMGetType(AGIDL_LBM* lbm){
+AGIDL_ILBM_TYPE AGIDL_LBMGetType(const AGIDL_LBM* lbm){
 	return lbm->type;
 }
 
-COLOR AGIDL_LBMGetClr(AGIDL_LBM* lbm, int x, int y){
+COLOR AGIDL_LBMGetClr(const AGIDL_LBM* lbm, const int x, const int y){
 	if(x >= 0 && y >= 0 && x < AGIDL_LBMGetWidth(lbm) && y < AGIDL_LBMGetHeight(lbm)){
 		return lbm->pixels.pix32[x+y*AGIDL_LBMGetWidth(lbm)];
 	}
-	else return 0;
+	return 0;
 }
 
-COLOR16 AGIDL_LBMGetClr16(AGIDL_LBM* lbm, int x, int y){
+COLOR16 AGIDL_LBMGetClr16(const AGIDL_LBM* lbm, const int x, const int y){
 	if(x >= 0 && y >= 0 && x < AGIDL_LBMGetWidth(lbm) && y < AGIDL_LBMGetHeight(lbm)){
 		return lbm->pixels.pix16[x+y*AGIDL_LBMGetWidth(lbm)];
 	}
-	else return 0;
+	return 0;
 }
 
-void AGIDL_ClearLBM(AGIDL_LBM *lbm, COLOR clr){
+void AGIDL_ClearLBM(const AGIDL_LBM *lbm, const COLOR clr){
 	if(AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm)) != 16){
 		AGIDL_ClrMemset(lbm->pixels.pix32,clr,AGIDL_LBMGetSize(lbm));
 	}
 	else{
-		AGIDL_ClrMemset16(lbm->pixels.pix16,(COLOR16)clr,AGIDL_LBMGetSize(lbm));
+		AGIDL_ClrMemset16(lbm->pixels.pix16,clr,AGIDL_LBMGetSize(lbm));
 	}
 }
 
-void AGIDL_ClearLBM16(AGIDL_LBM *lbm, COLOR16 clr){
+void AGIDL_ClearLBM16(const AGIDL_LBM *lbm, const COLOR16 clr){
 	if(AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm)) == 16){
 		AGIDL_ClrMemset16(lbm->pixels.pix16,clr,AGIDL_LBMGetSize(lbm));
 	}
@@ -170,7 +173,7 @@ void AGIDL_ClearLBM16(AGIDL_LBM *lbm, COLOR16 clr){
 	}
 }
 
-void AGIDL_ClearColorLBM(AGIDL_LBM* lbm, float r, float g, float b){
+void AGIDL_ClearColorLBM(const AGIDL_LBM* lbm, const float r, const float g, const float b){
 	if(AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm)) == 16){
 		AGIDL_ClearColorBuffer(lbm->pixels.pix16,r,g,b,AGIDL_LBMGetClrFmt(lbm),AGIDL_LBMGetSize(lbm));
 	}
@@ -179,29 +182,29 @@ void AGIDL_ClearColorLBM(AGIDL_LBM* lbm, float r, float g, float b){
 	}
 }
 
-void AGIDL_FlushLBM(AGIDL_LBM* lbm){
+void AGIDL_FlushLBM(const AGIDL_LBM* lbm){
 	AGIDL_ClearLBM(lbm,0);
 }
 
-void AGIDL_LBMSyncPix(AGIDL_LBM *lbm, COLOR *clrs){
+void AGIDL_LBMSyncPix(const AGIDL_LBM *lbm, const COLOR *clrs){
 	if(AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm)) != 16){
 		AGIDL_ClrMemcpy(lbm->pixels.pix32,clrs,AGIDL_LBMGetSize(lbm));
 	}
 }
 
-void AGIDL_LBMSyncPix16(AGIDL_LBM *lbm, COLOR16 *clrs){
+void AGIDL_LBMSyncPix16(const AGIDL_LBM *lbm, const COLOR16 *clrs){
 	if(AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm)) == 16){
 		AGIDL_ClrMemcpy16(lbm->pixels.pix16,clrs,AGIDL_LBMGetSize(lbm));
 	}
 }
 
-void AGIDL_LBMCopyPix(AGIDL_LBM* lbm, COLOR* clrs, u32 count){
+void AGIDL_LBMCopyPix(const AGIDL_LBM* lbm, const COLOR* clrs, const u32 count){
 	if(AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm)) != 16){
 		AGIDL_ClrMemcpy(lbm->pixels.pix32,clrs,count);
 	}
 }
 
-void AGIDL_LBMCopyPix16(AGIDL_LBM* lbm, COLOR16* clrs, u32 count){
+void AGIDL_LBMCopyPix16(const AGIDL_LBM* lbm, const COLOR16* clrs, const u32 count){
 	if(AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm)) == 16){
 		AGIDL_ClrMemcpy16(lbm->pixels.pix16,clrs,count);
 	}
@@ -269,8 +272,8 @@ void AGIDL_LBMConvertRGBA2RGB(AGIDL_LBM* lbm){
 	}
 }
 
-void AGIDL_ColorConvertLBM(AGIDL_LBM* lbm, AGIDL_CLR_FMT dest){
-	u8 sbits = AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm)), dbits = AGIDL_GetBitCount(dest);
+void AGIDL_ColorConvertLBM(AGIDL_LBM* lbm, const AGIDL_CLR_FMT dest){
+	const u8 sbits = AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm)), dbits = AGIDL_GetBitCount(dest);
 	if(sbits == 16 && dbits == 16){
 		AGIDL_ColorConvertImgData(lbm->pixels.pix16,NULL,AGIDL_LBMGetWidth(lbm),AGIDL_LBMGetHeight(lbm),AGIDL_LBMGetClrFmt(lbm),dest);
 		AGIDL_LBMSetClrFmt(lbm,dest);
@@ -293,7 +296,7 @@ void AGIDL_ColorConvertLBM(AGIDL_LBM* lbm, AGIDL_CLR_FMT dest){
 	}
 }
 
-int  Align(int l){
+int  Align(const int l){
 	if (l&1)
 		return l+1;
 	return l;
@@ -302,24 +305,24 @@ int  Align(int l){
 
 int AGIDL_LBMDecodeHeader(AGIDL_LBM* lbm, FILE* file){
 	AGIDL_InitBigEndArch();
-	
+
 	lbm->header.form.formid[0] = AGIDL_ReadByte(file);
 	lbm->header.form.formid[1] = AGIDL_ReadByte(file);
 	lbm->header.form.formid[2] = AGIDL_ReadByte(file);
 	lbm->header.form.formid[3] = AGIDL_ReadByte(file);
-	
+
 	lbm->header.form.size = AGIDL_ReadLong(file);
-	
+
 	lbm->header.form.ilbmid[0] = AGIDL_ReadByte(file);
 	lbm->header.form.ilbmid[1] = AGIDL_ReadByte(file);
 	lbm->header.form.ilbmid[2] = AGIDL_ReadByte(file);
 	lbm->header.form.ilbmid[3] = AGIDL_ReadByte(file);
-	
+
 	lbm->header.bmhd.bmhdid[0] = AGIDL_ReadByte(file);
 	lbm->header.bmhd.bmhdid[1] = AGIDL_ReadByte(file);
 	lbm->header.bmhd.bmhdid[2] = AGIDL_ReadByte(file);
 	lbm->header.bmhd.bmhdid[3] = AGIDL_ReadByte(file);
-	
+
 	lbm->header.bmhd.size = AGIDL_ReadLong(file);
 	lbm->header.bmhd.width = AGIDL_ReadShort(file);
 	lbm->header.bmhd.height = AGIDL_ReadShort(file);
@@ -334,69 +337,64 @@ int AGIDL_LBMDecodeHeader(AGIDL_LBM* lbm, FILE* file){
 	lbm->header.bmhd.y_aspect = AGIDL_ReadByte(file);
 	lbm->header.bmhd.horz_res = AGIDL_ReadShort(file);
 	lbm->header.bmhd.vert_res = AGIDL_ReadShort(file);
-	
+
 	u8 fourcc[4] = {0,0,0,0};
-	
+
 	do{
 		fourcc[0] = AGIDL_ReadByte(file);
 		fourcc[1] = AGIDL_ReadByte(file);
 		fourcc[2] = AGIDL_ReadByte(file);
 		fourcc[3] = AGIDL_ReadByte(file);
-		
+
 		u32 size = AGIDL_ReadLong(file);
-		
+
 		if(fourcc[0] == 'B' && fourcc[1] == 'O' && fourcc[2] == 'D' && fourcc[3] == 'Y'){
 			lbm->header.body.size = size;
 			lbm->header.body.src = (u8*)malloc(size);
 			fread(lbm->header.body.src,1,size,file);
-			
+
 		}
 		else{
 			if(fourcc[0] == 'C' && fourcc[1] == 'M' && fourcc[2] == 'A' && fourcc[3] == 'P'){
-				u16 num_of_colors = AGIDL_Pow2(lbm->header.bmhd.bpp);
-				
+				const u16 num_of_colors = AGIDL_Pow2(lbm->header.bmhd.bpp);
+
 				if(num_of_colors <= 0 || num_of_colors > 256){
 					AGIDL_DisableBigEndArch();
 					return INVALID_HEADER_FORMATTING_ERROR;
 				}
-				
-				int i;
-				for(i = 0; i < num_of_colors; i++){
-					u8 r = AGIDL_ReadByte(file);
-					u8 g = AGIDL_ReadByte(file);
-					u8 b = AGIDL_ReadByte(file);
-					
+
+				for(int i = 0; i < num_of_colors; i++){
+					const u8 r = AGIDL_ReadByte(file);
+					const u8 g = AGIDL_ReadByte(file);
+					const u8 b = AGIDL_ReadByte(file);
+
 					lbm->header.cmap.palette.icp.palette_256[i] = AGIDL_RGB(r,g,b,AGIDL_RGB_888);
 				}
 			}
 			else if(fourcc[0] == 'C' && fourcc[1] == 'L' && fourcc[2] == 'U' && fourcc[3] == 'T'){
-				u32 cluttype = AGIDL_ReadLong(file);
-				u32 reserved = AGIDL_ReadLong(file);
-				
+				const u32 cluttype = AGIDL_ReadLong(file);
+				AGIDL_ReadLong(file);
+
 				lbm->clut = TRUE;
-				
+
 				switch(cluttype){
 					case 0:{
-						int i;
-						for(i = 0; i < 256; i++){
+						for(int i = 0; i < 256; i++){
 							lbm->header.clut.ilut[i] = AGIDL_ReadByte(file);
 						}
 					}break;
 					case 1:{
-						int i;
-						for(i = 0; i < 256; i++){
+						for(int i = 0; i < 256; i++){
 							lbm->header.clut.rlut[i] = AGIDL_ReadByte(file);
 						}
 					}break;
 					case 2:{
-						int i;
-						for(i = 0; i < 256; i++){
+						for(int i = 0; i < 256; i++){
 							lbm->header.clut.glut[i] = AGIDL_ReadByte(file);
 						}
 					}break;
 					case 3:{
-						int i;
-						for(i = 0; i < 256; i++){
+						for(int i = 0; i < 256; i++){
 							lbm->header.clut.blut[i] = AGIDL_ReadByte(file);
 						}
 					}break;
@@ -407,70 +405,66 @@ int AGIDL_LBMDecodeHeader(AGIDL_LBM* lbm, FILE* file){
 				fseek(file,size,SEEK_CUR);
 			}
 		}
-		
+
 		if(fourcc[0] == 'T' || fourcc[1] != 'I' || fourcc[2] != 'N' || fourcc[3] != 'Y'){
 			fourcc[0] = 'C';
 			fourcc[1] = 'R';
 			fourcc[2] = 'N';
 			fourcc[3] = 'G';
 		}
-		
+
 	}while(fourcc[0] != 'B' && fourcc[1] != 'O' && fourcc[2] != 'D' && fourcc[3] != 'Y' && ftell(file) < 6000);
-	
+
 	if(lbm->header.form.size % 2 != 0){
 		AGIDL_ReadByte(file);
 	}
-	
+
 	AGIDL_DisableBigEndArch();
-	
-	if(lbm->header.form.ilbmid[0] == 'I' && lbm->header.form.ilbmid[1] == 'L' && lbm->header.form.ilbmid[2] == 'B' && lbm->header.form.ilbmid[3] && 'M'){
+
+	if(lbm->header.form.ilbmid[0] == 'I' && lbm->header.form.ilbmid[1] == 'L' && lbm->header.form.ilbmid[2] == 'B' && lbm->header.form.ilbmid[3]){
 		AGIDL_LBMSetType(lbm,TYPE_ILBM);
 	}
 	else{
 		AGIDL_LBMSetType(lbm,TYPE_PBM);
 	}
-	
+
 	if(lbm->header.form.formid[0] != 'F' || lbm->header.form.formid[1] != 'O' || lbm->header.form.formid[2] != 'R'  || lbm->header.form.formid[3] != 'M'
 	  || !(lbm->header.form.ilbmid[0] == 'I' || lbm->header.form.ilbmid[1] == 'L' || lbm->header.form.ilbmid[2] == 'B' || lbm->header.form.ilbmid[3] == 'M' ||
 	  lbm->header.form.ilbmid[0] == 'P' || lbm->header.form.ilbmid[1] == 'B' || lbm->header.form.ilbmid[2] == 'M' || lbm->header.form.ilbmid[3] == ' ')){
 		return INVALID_HEADER_FORMATTING_ERROR;
 	}
-	else if(lbm->header.bmhd.bmhdid[0] != 'B' || lbm->header.bmhd.bmhdid[1] != 'M' || lbm->header.bmhd.bmhdid[2] != 'H' || lbm->header.bmhd.bmhdid[3] != 'D' ||
-	lbm->header.bmhd.size != 0x14){
+	if(lbm->header.bmhd.bmhdid[0] != 'B' || lbm->header.bmhd.bmhdid[1] != 'M' || lbm->header.bmhd.bmhdid[2] != 'H' || lbm->header.bmhd.bmhdid[3] != 'D' ||
+	   lbm->header.bmhd.size != 0x14){
 		return INVALID_HEADER_FORMATTING_ERROR;
 	}
-	else if(lbm->header.bmhd.bpp > 8 || lbm->header.bmhd.bpp < 1 || !(lbm->header.bmhd.compress == 0 || lbm->header.bmhd.compress == 1)){
+	if(lbm->header.bmhd.bpp > 8 || lbm->header.bmhd.bpp < 1 || !(lbm->header.bmhd.compress == 0 || lbm->header.bmhd.compress == 1)){
 		return INVALID_HEADER_FORMATTING_ERROR;
 	}
-	else return NO_IMG_ERROR;
+	return NO_IMG_ERROR;
 }
 
-void AGIDL_LBMDecompressData(AGIDL_LBM* lbm, u8* src, u8* dest){
+void AGIDL_LBMDecompressData(AGIDL_LBM* lbm, const u8* src, u8* dest){
 	AGIDL_LBMSetWidth(lbm,(AGIDL_LBMGetWidth(lbm) + 15 ) & 0xFFFFFFF0);
-	u32 bytesperline = ((AGIDL_LBMGetWidth(lbm) + 15) / 16) * 2;
-	
+	const u32 bytesperline = ((AGIDL_LBMGetWidth(lbm) + 15) / 16) * 2;
 	if(lbm->header.bmhd.bpp != 1){
 		AGIDL_PackBits(src,dest,AGIDL_LBMGetSize(lbm));
 	}
 	else{
-		int y;
-		for(y = 0; y < AGIDL_LBMGetHeight(lbm); y++){
+		for(int y = 0; y < AGIDL_LBMGetHeight(lbm); y++){
 			u32 count = 0;
-		
+
 			do{
-				u8 byte = *src++;
-				
+				const u8 byte = *src++;
+
 				if(byte > 128){
-					u8 nextbyte = *src++;
-					
-					int i;
-					for(i = 0; i < 257 - byte; i++, count++){
+					const u8 nextbyte = *src++;
+
+					for(int i = 0; i < 257 - byte; i++, count++){
 						*dest++ = nextbyte;
 					}
 				}
 				else if(byte < 128){
-					int i;
-					for(i = 0; i < byte + 1; i++, count++){
+					for(int i = 0; i < byte + 1; i++, count++){
 						*dest++ = *src++;
 					}
 				}
@@ -482,26 +476,23 @@ void AGIDL_LBMDecompressData(AGIDL_LBM* lbm, u8* src, u8* dest){
 	}
 }
 
-void AGIDL_LBMDeinterleaveData(AGIDL_LBM* lbm, u8* src, u8* dest){
+void AGIDL_LBMDeinterleaveData(const AGIDL_LBM* lbm, const u8* src, u8* dest){
 	u8 bpp = lbm->header.bmhd.bpp;
-	u32 bytesperline = ((AGIDL_LBMGetWidth(lbm) + 15) / 16) * 2;
-	
+	const u32 bytesperline = ((AGIDL_LBMGetWidth(lbm) + 15) / 16) * 2;
 	if (lbm->header.bmhd.mask == 1) {
 		bpp += 1;
 	}
-	
-	int y,b,p,i;
-	for(y = 0; y < AGIDL_LBMGetHeight(lbm); y++){
-		for(p = 0; p < bpp; p++){
-			u16 plane_mask = 1 << p;
-			for(i = 0; i < bytesperline; i++){
-				u32 bit_offset = (y * bpp * bytesperline) + (p * bytesperline) + i;
-				u8 bit_value = src[bit_offset];
-				for(b = 0; b < 8; b++){
-					u32 pixel_mask = 1 << (7 - b);
-					
+
+	for(int y = 0; y < AGIDL_LBMGetHeight(lbm); y++){
+		for(int p = 0; p < bpp; p++){
+			const u16 plane_mask = 1 << p;
+			for(int i = 0; i < bytesperline; i++){
+				const u32 bit_offset = (y * bpp * bytesperline) + (p * bytesperline) + i;
+				const u8 bit_value = src[bit_offset];
+				for(int b = 0; b < 8; b++){
+					const u32 pixel_mask = 1 << (7 - b);
 					if(bit_value & pixel_mask){
-						u32 x = (i * 8) + b;
+						const u32 x = (i * 8) + b;
 						dest[(y * AGIDL_LBMGetWidth(lbm)) + x] |= plane_mask;
 					}
 				}
@@ -514,13 +505,13 @@ void AGIDL_LBMDecodeIMG(AGIDL_LBM* lbm){
 	if(lbm->header.bmhd.bpp != 24 && lbm->header.bmhd.bpp != 32){
 		AGIDL_LBMSetClrFmt(lbm,AGIDL_RGB_888);
 		lbm->pixels.pix32 = (COLOR*)AGIDL_AllocImgDataMMU(AGIDL_LBMGetWidth(lbm),AGIDL_LBMGetHeight(lbm),AGIDL_RGB_888);
-		
+
 		if(lbm->header.bmhd.compress == 1){
 
 			lbm->header.body.dest = (u8*)malloc(AGIDL_LBMGetSize(lbm));
-			
+
 			if(AGIDL_LBMGetType(lbm) == TYPE_ILBM){
-			
+
 				if(lbm->header.bmhd.bpp != 1){
 					lbm->header.body.interleave = (u8*)malloc(AGIDL_LBMGetSize(lbm));
 				}
@@ -530,21 +521,19 @@ void AGIDL_LBMDecodeIMG(AGIDL_LBM* lbm){
 
 				AGIDL_LBMDecompressData(lbm,lbm->header.body.src,lbm->header.body.interleave);
 				AGIDL_LBMDeinterleaveData(lbm,lbm->header.body.interleave,lbm->header.body.dest);
-				
-				int i;
-				for(i = 0; i < AGIDL_LBMGetSize(lbm); i++){
+
+				for(int i = 0; i < AGIDL_LBMGetSize(lbm); i++){
 					lbm->pixels.pix32[i] = lbm->header.cmap.palette.icp.palette_256[lbm->header.body.dest[i]];
 				}
-				
+
 				free(lbm->header.body.interleave);
 				free(lbm->header.body.dest);
 				free(lbm->header.body.src);
 			}
 			else{
 				AGIDL_LBMDecompressData(lbm,lbm->header.body.src,lbm->header.body.dest);
-				
-				int i;
-				for(i = 0; i < AGIDL_LBMGetSize(lbm); i++){
+
+				for(int i = 0; i < AGIDL_LBMGetSize(lbm); i++){
 					lbm->pixels.pix32[i] = lbm->header.cmap.palette.icp.palette_256[lbm->header.body.dest[i]];
 				}
 
@@ -554,19 +543,18 @@ void AGIDL_LBMDecodeIMG(AGIDL_LBM* lbm){
 		}
 		else{
 			lbm->header.body.dest = (u8*)malloc(AGIDL_LBMGetSize(lbm));
-			
+
 			if(AGIDL_LBMGetType(lbm) == TYPE_ILBM){
 				AGIDL_LBMDeinterleaveData(lbm,lbm->header.body.src,lbm->header.body.dest);
 			}
 			else{
 				memcpy(lbm->header.body.dest,lbm->header.body.src,AGIDL_LBMGetSize(lbm));
 			}
-			
-			int i;
-			for(i = 0; i < AGIDL_LBMGetSize(lbm); i++){
+
+			for(int i = 0; i < AGIDL_LBMGetSize(lbm); i++){
 				lbm->pixels.pix32[i] = lbm->header.cmap.palette.icp.palette_256[lbm->header.body.dest[i]];
 			}
-			
+
 			free(lbm->header.body.dest);
 			free(lbm->header.body.src);
 		}
@@ -587,8 +575,8 @@ void AGIDL_FreeLBM(AGIDL_LBM* lbm){
 	}
 }
 
-AGIDL_LBM * AGIDL_CreateLBM(const char* filename, int width, int height, AGIDL_CLR_FMT fmt){
-	AGIDL_LBM* lbm = (AGIDL_LBM*)malloc(sizeof(AGIDL_LBM));
+AGIDL_LBM * AGIDL_CreateLBM(const char* filename, const int width, const int height, const AGIDL_CLR_FMT fmt){
+	AGIDL_LBM* lbm = malloc(sizeof(AGIDL_LBM));
 	AGIDL_LBMSetWidth(lbm,width);
 	AGIDL_LBMSetHeight(lbm,height);
 	AGIDL_LBMSetClrFmt(lbm,fmt);
@@ -610,7 +598,7 @@ AGIDL_LBM * AGIDL_CreateLBM(const char* filename, int width, int height, AGIDL_C
 	return lbm;
 }
 
-AGIDL_LBM* AGIDL_LBMCpyImg(AGIDL_LBM* lbm){
+AGIDL_LBM* AGIDL_LBMCpyImg(const AGIDL_LBM* lbm){
 	AGIDL_LBM* lbmcpy = AGIDL_CreateLBM("lbmcpy.lbm",AGIDL_LBMGetWidth(lbm),AGIDL_LBMGetHeight(lbm),lbm->fmt);
 	AGIDL_LBMSetICPMode(lbmcpy,lbm->icp);
 	AGIDL_LBMSetCompression(lbmcpy,lbm->header.bmhd.compress);
@@ -635,7 +623,7 @@ AGIDL_LBM * AGIDL_LoadLBM(char* filename){
 		return NULL;
 	}
 	
-	AGIDL_LBM* lbm = (AGIDL_LBM*)malloc(sizeof(AGIDL_LBM));
+	AGIDL_LBM* lbm = malloc(sizeof(AGIDL_LBM));
 	lbm->filename = (char*)malloc(strlen(filename)+1);
 	AGIDL_FilenameCpy(lbm->filename,filename);
 	
@@ -643,8 +631,8 @@ AGIDL_LBM * AGIDL_LoadLBM(char* filename){
 		printf("%s\n",AGIDL_Error2Str(MEMORY_IMG_ERROR));
 		return NULL;
 	}
-	
-	int error = AGIDL_LBMDecodeHeader(lbm,file);
+
+	const int error = AGIDL_LBMDecodeHeader(lbm,file);
 	
 	if(error != NO_IMG_ERROR){
 		printf("%s - %s!\n",AGIDL_Error2Str(error),filename);
@@ -658,7 +646,7 @@ AGIDL_LBM * AGIDL_LoadLBM(char* filename){
 	return lbm;
 }
 
-void AGIDL_LBMEncodeHeader(AGIDL_LBM* lbm, FILE* file){
+void AGIDL_LBMEncodeHeader(const AGIDL_LBM* lbm, FILE* file){
 	AGIDL_InitBigEndArch();
 	
 	AGIDL_PrintFourCC(file,'F','O','R','M');
@@ -686,14 +674,13 @@ void AGIDL_LBMEncodeHeader(AGIDL_LBM* lbm, FILE* file){
 	AGIDL_WriteShort(file,AGIDL_LBMGetHeight(lbm));
 	AGIDL_PrintFourCC(file,'C','M','A','P');
 	AGIDL_WriteLong(file,768);
-	
-	int i;
-	for(i = 0; i < 256; i++){
-		COLOR clr = lbm->header.cmap.palette.icp.palette_256[i];
-		
-		u8 r = AGIDL_GetR(clr,AGIDL_LBMGetClrFmt(lbm));
-		u8 g = AGIDL_GetG(clr,AGIDL_LBMGetClrFmt(lbm));
-		u8 b = AGIDL_GetB(clr,AGIDL_LBMGetClrFmt(lbm));
+
+	for(int i = 0; i < 256; i++){
+		const COLOR clr = lbm->header.cmap.palette.icp.palette_256[i];
+
+		const u8 r = AGIDL_GetR(clr,AGIDL_LBMGetClrFmt(lbm));
+		const u8 g = AGIDL_GetG(clr,AGIDL_LBMGetClrFmt(lbm));
+		const u8 b = AGIDL_GetB(clr,AGIDL_LBMGetClrFmt(lbm));
 		
 		AGIDL_WriteByte(file,r);
 		AGIDL_WriteByte(file,g);
@@ -713,11 +700,10 @@ void AGIDL_LBMEncodeICP(AGIDL_LBM* lbm){
 			int pass = 0;
 			
 			AGIDL_InitICP(&lbm->header.cmap.palette,AGIDL_ICP_256);
-			
-			int x,y;
-			for(y = 0; y < AGIDL_LBMGetHeight(lbm); y++){
-				for(x = 0; x < AGIDL_LBMGetWidth(lbm); x++){
-					COLOR clr = AGIDL_LBMGetClr(lbm,x,y);
+
+			for(int y = 0; y < AGIDL_LBMGetHeight(lbm); y++){
+				for(int x = 0; x < AGIDL_LBMGetWidth(lbm); x++){
+					const COLOR clr = AGIDL_LBMGetClr(lbm,x,y);
 					
 					AGIDL_AddColorICP(&lbm->header.cmap.palette,pal_index,clr,AGIDL_LBMGetClrFmt(lbm),AGIDL_LBMGetMaxDiff(lbm),&pass);
 					
@@ -733,25 +719,23 @@ void AGIDL_LBMEncodeICP(AGIDL_LBM* lbm){
 	}
 }
 
-void AGIDL_LBMEncodeIMG(AGIDL_LBM* lbm, FILE* file){
+void AGIDL_LBMEncodeIMG(const AGIDL_LBM* lbm, FILE* file){
 	if(lbm->compress != TRUE){
-		int x,y;
-		for(y = 0; y < AGIDL_LBMGetHeight(lbm); y++){
-			for(x = 0; x < AGIDL_LBMGetWidth(lbm); x++){
-				COLOR clr = AGIDL_LBMGetClr(lbm,x,y);		
-				u8 index = AGIDL_FindNearestColor(lbm->header.cmap.palette,clr,AGIDL_LBMGetClrFmt(lbm));
+		for(int y = 0; y < AGIDL_LBMGetHeight(lbm); y++){
+			for(int x = 0; x < AGIDL_LBMGetWidth(lbm); x++){
+				const COLOR clr = AGIDL_LBMGetClr(lbm,x,y);
+				const u8 index = AGIDL_FindNearestColor(lbm->header.cmap.palette,clr,AGIDL_LBMGetClrFmt(lbm));
 				AGIDL_WriteByte(file,index);
 			}
 		}
 	}
 	else{
 		u32 size = 0;
-		
-		int x,y;
-		for(y = 0; y < AGIDL_LBMGetHeight(lbm); y++){
-			for(x = 0; x < AGIDL_LBMGetWidth(lbm); x++){	
+
+		for(int y = 0; y < AGIDL_LBMGetHeight(lbm); y++){
+			for(int x = 0; x < AGIDL_LBMGetWidth(lbm); x++){
 				COLOR clr = AGIDL_LBMGetClr(lbm,x,y);
-				u32 count = AGIDL_EncodeRLE(lbm->pixels.pix32,AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm)),x,y,AGIDL_LBMGetWidth(lbm),AGIDL_LBMGetHeight(lbm),128);
+				const u32 count = AGIDL_EncodeRLE(lbm->pixels.pix32,AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm)),x,y,AGIDL_LBMGetWidth(lbm),AGIDL_LBMGetHeight(lbm),128);
 				u8 index = AGIDL_FindNearestColor(lbm->header.cmap.palette,clr,AGIDL_LBMGetClrFmt(lbm));
 				
 				 if(count > 1){
@@ -762,9 +746,8 @@ void AGIDL_LBMEncodeIMG(AGIDL_LBM* lbm, FILE* file){
 				 }
 				 else{
 					AGIDL_WriteByte(file,count-1);
-					
-					int i;
-					for (i = 0; i < count; i++, size++) {
+
+					for (int i = 0; i < count; i++, size++) {
 						clr = AGIDL_LBMGetClr(lbm,x+i,y);
 						index = AGIDL_FindNearestColor(lbm->header.cmap.palette,clr,AGIDL_LBMGetClrFmt(lbm));
 						AGIDL_WriteByte(file,index);

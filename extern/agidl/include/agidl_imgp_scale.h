@@ -15,9 +15,8 @@
 *
 ********************************************/
 
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_types.h"
+#include <agidl_cc_types.h>
+#include <agidl_types.h>
 
 typedef enum AGIDL_SCALE{
 	AGIDL_SCALE_NEAREST = 0x1,

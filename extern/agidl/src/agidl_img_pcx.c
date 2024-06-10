@@ -1,15 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "agidl_img_pcx.h"
-
-#include <agidl_mmu_utils.h>
-
-#include "agidl_cc_core.h"
-#include "agidl_img_compression.h"
-#include "agidl_img_error.h"
-#include "agidl_file_utils.h"
-
 /********************************************
 *   Adaptive Graphics Image Display Library
 *
@@ -24,36 +12,47 @@
 *
 ********************************************/
 
+#include <agidl_img_pcx.h>
+
+#include <stdlib.h>
+#include <string.h>
+
+#include <agidl_cc_core.h>
+#include <agidl_file_utils.h>
+#include <agidl_img_compression.h>
+#include <agidl_img_error.h>
+#include <agidl_mmu_utils.h>
+
 void AGIDL_SetPCXFilename(AGIDL_PCX *pcx, const char* filename){
 	pcx->filename = (char*)realloc(pcx->filename,strlen(filename));
 	AGIDL_FilenameCpy(pcx->filename,filename);
 }
 
-void AGIDL_PCXSetWidth(AGIDL_PCX *pcx, int width){
+void AGIDL_PCXSetWidth(AGIDL_PCX *pcx, const int width){
 	pcx->header.width = width;
 }
 
-void AGIDL_PCXSetHeight(AGIDL_PCX *pcx, int height){
+void AGIDL_PCXSetHeight(AGIDL_PCX *pcx, const int height){
 	pcx->header.height = height;
 }
 
-void AGIDL_PCXSetClrFmt(AGIDL_PCX *pcx, AGIDL_CLR_FMT fmt){
+void AGIDL_PCXSetClrFmt(AGIDL_PCX *pcx, const AGIDL_CLR_FMT fmt){
 	pcx->fmt = fmt;
 }
 
-void AGIDL_PCXSetICPMode(AGIDL_PCX *pcx, int mode){
+void AGIDL_PCXSetICPMode(AGIDL_PCX *pcx, const int mode){
 	pcx->icp = mode;
 }
 
-void AGIDL_PCXSetICPEncoding(AGIDL_PCX* pcx, AGIDL_ICP_ENCODE encode){
+void AGIDL_PCXSetICPEncoding(AGIDL_PCX* pcx, const AGIDL_ICP_ENCODE encode){
 	pcx->encode = encode;
 }
 
-void AGIDL_PCXSetMaxDiff(AGIDL_PCX* pcx, int max_diff){
+void AGIDL_PCXSetMaxDiff(AGIDL_PCX* pcx, const int max_diff){
 	pcx->max_diff = max_diff;
 }
 
-void AGIDL_PCXSetClr(AGIDL_PCX *pcx, int x, int y, COLOR clr){
+void AGIDL_PCXSetClr(const AGIDL_PCX *pcx, const int x, const int y, const COLOR clr){
 	if(AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx)) != 16){
 		AGIDL_SetClr(pcx->pixels.pix32,clr,x,y,AGIDL_PCXGetWidth(pcx),AGIDL_PCXGetHeight(pcx));
 	}
@@ -62,7 +61,7 @@ void AGIDL_PCXSetClr(AGIDL_PCX *pcx, int x, int y, COLOR clr){
 	}
 }
 
-void AGIDL_PCXSetClr16(AGIDL_PCX *pcx, int x, int y, COLOR16 clr){
+void AGIDL_PCXSetClr16(const AGIDL_PCX *pcx, const int x, const int y, const COLOR16 clr){
 	if(AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx) == 16)){
 		AGIDL_SetClr16(pcx->pixels.pix16,clr,x,y,AGIDL_PCXGetWidth(pcx),AGIDL_PCXGetHeight(pcx));
 	}
@@ -71,7 +70,7 @@ void AGIDL_PCXSetClr16(AGIDL_PCX *pcx, int x, int y, COLOR16 clr){
 	}
 }
 
-void AGIDL_PCXSetRGB(AGIDL_PCX *pcx, int x, int y, u8 r, u8 g, u8 b){
+void AGIDL_PCXSetRGB(const AGIDL_PCX *pcx, const int x, const int y, const u8 r, const u8 g, const u8 b){
 	switch(AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx))){
 		case 24:{
 			AGIDL_PCXSetClr(pcx,x,y,AGIDL_RGB(r,g,b,AGIDL_PCXGetClrFmt(pcx)));
@@ -85,16 +84,16 @@ void AGIDL_PCXSetRGB(AGIDL_PCX *pcx, int x, int y, u8 r, u8 g, u8 b){
 	}
 }
 
-void AGIDL_ClearPCX(AGIDL_PCX *pcx, COLOR clr){
+void AGIDL_ClearPCX(const AGIDL_PCX *pcx, const COLOR clr){
 	if(AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx)) != 16){
 		AGIDL_ClrMemset(pcx->pixels.pix32,clr,AGIDL_PCXGetSize(pcx));
 	}
 	else{
-		AGIDL_ClrMemset16(pcx->pixels.pix16,(COLOR16)clr,AGIDL_PCXGetSize(pcx));
+		AGIDL_ClrMemset16(pcx->pixels.pix16,clr,AGIDL_PCXGetSize(pcx));
 	}
 }
 
-void AGIDL_ClearPCX16(AGIDL_PCX *pcx, COLOR16 clr){
+void AGIDL_ClearPCX16(const AGIDL_PCX *pcx, const COLOR16 clr){
 	if(AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx)) == 16){
 		AGIDL_ClrMemset16(pcx->pixels.pix16,clr,AGIDL_PCXGetSize(pcx));
 	}
@@ -103,7 +102,7 @@ void AGIDL_ClearPCX16(AGIDL_PCX *pcx, COLOR16 clr){
 	}
 }
 
-void AGIDL_ClearColorPCX(AGIDL_PCX* pcx, float r, float g, float b){
+void AGIDL_ClearColorPCX(const AGIDL_PCX* pcx, const float r, const float g, const float b){
 	if(AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx)) == 16){
 		AGIDL_ClearColorBuffer(pcx->pixels.pix16,r,g,b,AGIDL_PCXGetClrFmt(pcx),AGIDL_PCXGetSize(pcx));
 	}
@@ -112,64 +111,68 @@ void AGIDL_ClearColorPCX(AGIDL_PCX* pcx, float r, float g, float b){
 	}
 }
 
-void AGIDL_FlushPCX(AGIDL_PCX* pcx){
+void AGIDL_FlushPCX(const AGIDL_PCX* pcx){
 	AGIDL_ClearPCX(pcx,0);
 }
 
-void AGIDL_PCXSyncPix(AGIDL_PCX *pcx, COLOR *clrs){
+void AGIDL_PCXSyncPix(const AGIDL_PCX *pcx, const COLOR *clrs){
 	if(AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx)) != 16){
 		AGIDL_ClrMemcpy(pcx->pixels.pix32,clrs,AGIDL_PCXGetSize(pcx));
 	}
 }
 
-void AGIDL_PCXSyncPix16(AGIDL_PCX *pcx, COLOR16 *clrs){
+void AGIDL_PCXSyncPix16(const AGIDL_PCX *pcx, const COLOR16 *clrs){
 	if(AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx)) == 16){
 		AGIDL_ClrMemcpy16(pcx->pixels.pix16,clrs,AGIDL_PCXGetSize(pcx));
 	}
 }
 
-void AGIDL_PCXCopyPix(AGIDL_PCX* pcx, COLOR* clrs, u32 count){
+void AGIDL_PCXCopyPix(const AGIDL_PCX* pcx, const COLOR* clrs, const u32 count){
 	if(AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx)) != 16){
 		AGIDL_ClrMemcpy(pcx->pixels.pix32,clrs,count);
 	}
 }
 
-void AGIDL_PCXCopyPix16(AGIDL_PCX* pcx, COLOR16* clrs, u32 count){
+void AGIDL_PCXCopyPix16(const AGIDL_PCX* pcx, const COLOR16* clrs, const u32 count){
 	if(AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx)) == 16){
 		AGIDL_ClrMemcpy16(pcx->pixels.pix16,clrs,count);
 	}
 }
 
-int AGIDL_PCXGetWidth(AGIDL_PCX *pcx){
+int AGIDL_PCXGetWidth(const AGIDL_PCX *pcx){
 	return pcx->header.width;
 }
 
-int AGIDL_PCXGetHeight(AGIDL_PCX *pcx){
+int AGIDL_PCXGetHeight(const AGIDL_PCX *pcx){
 	return pcx->header.height;
 }
 
-u32 AGIDL_PCXGetSize(AGIDL_PCX* pcx){
+u32 AGIDL_PCXGetSize(const AGIDL_PCX* pcx){
 	return AGIDL_PCXGetWidth(pcx) * AGIDL_PCXGetHeight(pcx);
 }
 
-int AGIDL_PCXGetMaxDiff(AGIDL_PCX* pcx){
+int AGIDL_PCXGetMaxDiff(const AGIDL_PCX* pcx){
 	return pcx->max_diff;
 }
 
-AGIDL_CLR_FMT AGIDL_PCXGetClrFmt(AGIDL_PCX *pcx){
+AGIDL_CLR_FMT AGIDL_PCXGetClrFmt(const AGIDL_PCX *pcx){
 	return pcx->fmt;
 }
 
-COLOR AGIDL_PCXGetClr(AGIDL_PCX *pcx, int x, int y){
+COLOR AGIDL_PCXGetClr(const AGIDL_PCX *pcx, const int x, const int y){
 	if(x >= 0 && y >= 0 && x < AGIDL_PCXGetWidth(pcx) && y < AGIDL_PCXGetHeight(pcx)){
 		return pcx->pixels.pix32[x+y*AGIDL_PCXGetWidth(pcx)];
 	}
+	fprintf(stderr, "%s: Index out of range", __FUNCTION__);
+	abort();
 }
 
-COLOR16 AGIDL_PCXGetClr16(AGIDL_PCX *pcx, int x, int y){
+COLOR16 AGIDL_PCXGetClr16(const AGIDL_PCX *pcx, const int x, const int y){
 	if(x >= 0 && y >= 0 && x < AGIDL_PCXGetWidth(pcx) && y < AGIDL_PCXGetHeight(pcx)){
 		return pcx->pixels.pix16[x+y*AGIDL_PCXGetWidth(pcx)];
 	}
+	fprintf(stderr, "%s: Index out of range", __FUNCTION__);
+	abort();
 }
 
 void AGIDL_FreePCX(AGIDL_PCX *pcx){
@@ -183,10 +186,6 @@ void AGIDL_FreePCX(AGIDL_PCX *pcx){
 	}
 	
 	free(pcx);
-	
-	if(pcx != NULL){
-		pcx = NULL;
-	}
 }
 
 void AGIDL_PCXRGB2BGR(AGIDL_PCX *pcx){
@@ -232,8 +231,8 @@ void AGIDL_PCXConvert565TO555(AGIDL_PCX *pcx){
 	AGIDL_565TO555(pcx->pixels.pix16,AGIDL_PCXGetWidth(pcx),AGIDL_PCXGetHeight(pcx),&pcx->fmt);
 }
 
-void AGIDL_ColorConvertPCX(AGIDL_PCX* pcx, AGIDL_CLR_FMT dest){
-	u8 sbits = AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx)), dbits = AGIDL_GetBitCount(dest);
+void AGIDL_ColorConvertPCX(AGIDL_PCX* pcx, const AGIDL_CLR_FMT dest){
+	const u8 sbits = AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx)), dbits = AGIDL_GetBitCount(dest);
 	if(sbits == 16 && dbits == 16){
 		AGIDL_ColorConvertImgData(pcx->pixels.pix16,NULL,AGIDL_PCXGetWidth(pcx),AGIDL_PCXGetHeight(pcx),AGIDL_PCXGetClrFmt(pcx),dest);
 		AGIDL_PCXSetClrFmt(pcx,dest);
@@ -256,8 +255,8 @@ void AGIDL_ColorConvertPCX(AGIDL_PCX* pcx, AGIDL_CLR_FMT dest){
 	}
 }
 
-AGIDL_PCX * AGIDL_CreatePCX(const char *filename, int width, int height, AGIDL_CLR_FMT fmt){
-	AGIDL_PCX *pcx = (AGIDL_PCX*)malloc(sizeof(AGIDL_PCX));
+AGIDL_PCX * AGIDL_CreatePCX(const char *filename, const int width, const int height, const AGIDL_CLR_FMT fmt){
+	AGIDL_PCX *pcx = malloc(sizeof(AGIDL_PCX));
 	pcx->filename = (char*)malloc(strlen(filename)+1);
 	AGIDL_FilenameCpy(pcx->filename,filename);
 	AGIDL_PCXSetWidth(pcx,width);
@@ -276,7 +275,7 @@ AGIDL_PCX * AGIDL_CreatePCX(const char *filename, int width, int height, AGIDL_C
 	return pcx;
 }
 
-AGIDL_PCX* AGIDL_PCXCpyImg(AGIDL_PCX* pcx){
+AGIDL_PCX* AGIDL_PCXCpyImg(const AGIDL_PCX* pcx){
 	AGIDL_PCX* pcxcpy = AGIDL_CreatePCX("pcxcpy.pcx",AGIDL_PCXGetWidth(pcx),AGIDL_PCXGetHeight(pcx),pcx->fmt);
 	AGIDL_PCXSetICPMode(pcxcpy,pcx->icp);
 	if(pcx->fmt == AGIDL_RGB_888 || pcx->fmt == AGIDL_BGR_888 || pcx->fmt == AGIDL_RGBA_8888 || pcx->fmt == AGIDL_ARGB_8888){
@@ -291,16 +290,20 @@ AGIDL_PCX* AGIDL_PCXCpyImg(AGIDL_PCX* pcx){
 
 u16 binmul[9] = {1,2,4,8,16,32,64,128,256};
 
-u16 bin2dec(char *binary){
+u16 bin2dec(const char *binary){
 	u16 accumulation = 0;
-	int i, count = 0;
-	for(i = strlen(binary)-1; i >= 0; i--){
+	int count = 0;
+	for(int i = strlen(binary) - 1; i >= 0; i--){
 		int bin;
 		if(binary[i] == '0'){
 			bin = 0;
 		}
-		if(binary[i] == '1'){
+		else if(binary[i] == '1'){
 			bin = 1;
+		}
+		else {
+			fprintf(stderr, "%s: Unexpected binary digit", __FUNCTION__);
+			abort();
 		}
 		accumulation += binmul[count] * bin;
 		count++;
@@ -308,11 +311,10 @@ u16 bin2dec(char *binary){
 	return accumulation;
 }
 
-char* dec2bin(u16 number){
-	char *bin = (char*)malloc(sizeof(char)*9);
-	int i;
-	for(i = 7; i >= 0; i--){
-		int k = number >> i;
+char* dec2bin(const u16 number){
+	char *bin = malloc(sizeof(char)*9);
+	for(int i = 7; i >= 0; i--){
+		const int k = number >> i;
 		if(k & 1){
 			bin[7-i] = '1';
 		}
@@ -324,63 +326,58 @@ char* dec2bin(u16 number){
 	return bin;
 }
 
-char* pcxrlebits(char *binary){
-	char *bin = (char*)malloc(sizeof(char)*7);
-	int i;
-	for(i = 2; i <= 7; i++){
+char* pcxrlebits(const char *binary){
+	char *bin = malloc(sizeof(char)*7);
+	for(int i = 2; i <= 7; i++){
 		bin[i-2] = binary[i];
 	}
 	bin[6] = '\0';
 	return bin;
 }
 
-u16 little_endianify(u16 number){
-	u8 lsb = (number & 0xff);
-	u8 msb = (number & 0xff00) >> 8;
-	
+u16 little_endianify(const u16 number){
+	const u8 lsb = (number & 0xff);
+	const u8 msb = (number & 0xff00) >> 8;
 	printf("Little Endianifying - %d\n",number);
 	printf("lsb - %d\n",lsb);
 	printf("msb - %d\n",msb);
 	printf("Little Endianified - %d\n",(lsb << 8 | msb));
-	
 	return lsb << 8 | msb;
 }
 
-u16 big_endianify(u16 number){
-	u8 msb = (number & 0xff);
-	u8 lsb = (number & 0xff00) >> 8;
-	
+u16 big_endianify(const u16 number){
+	const u8 msb = (number & 0xff);
+	const u8 lsb = (number & 0xff00) >> 8;
 	printf("Big Endianifying - %d\n",number);
 	printf("lsb - %d\n",lsb);
 	printf("msb - %d\n",msb);
 	printf("Big Endianified - %d\n",(msb << 8 | lsb));
-	
 	return msb << 8 | lsb;
 }
 
 int contains_icp(FILE *file, u32 *pal_coord){
 	fseek(file,0,SEEK_END);
-	
-	u32 file_size = ftell(file);
-	u32 palette_coord = file_size - 769;
-	
+
+	const u32 file_size = ftell(file);
+	const u32 palette_coord = file_size - 769;
+
 	if(file_size <= 769){
 		return 0;
 	}
-	
+
 	fseek(file,palette_coord,SEEK_SET);
-	
+
 	*pal_coord = palette_coord;
-	
+
 	u8 byte = 0;
 	fread(&byte,1,1,file);
-	
+
 	fseek(file,0,SEEK_SET);
-	
+
 	if(byte == 12){
 		return 1;
 	}
-	else return 0;
+	return 0;
 }
 
 int AGIDL_PCXDecodeHeader(AGIDL_PCX* pcx, FILE* file){
@@ -394,29 +391,29 @@ int AGIDL_PCXDecodeHeader(AGIDL_PCX* pcx, FILE* file){
 	pcx->header.y_end = AGIDL_ReadShort(file);
 	pcx->header.width = AGIDL_ReadShort(file);
 	pcx->header.height = AGIDL_ReadShort(file);
-	
+
 	int i;
 	for(i = 0; i < 48; i++){
-		char clr = AGIDL_ReadByte(file);
+		const char clr = AGIDL_ReadByte(file);
 		pcx->header.ega[i] = clr;
 	}
-	
+
 	pcx->header.reserved = AGIDL_ReadByte(file);
 	pcx->header.numbitplanes = AGIDL_ReadByte(file);
 	pcx->header.bytesperline = AGIDL_ReadShort(file);
 	pcx->header.pal_type = AGIDL_ReadShort(file);
 	pcx->header.screen_horz = AGIDL_ReadShort(file);
 	pcx->header.screen_vert = AGIDL_ReadShort(file);
-	
+
 	for(i = 0; i < 54; i++){
-		char blank = AGIDL_ReadByte(file);
+		const char blank = AGIDL_ReadByte(file);
 		pcx->header.blanks[i] = blank;
 	}
-	
+
 	if((pcx->header.x_end - pcx->header.x_start) == 0){
 		AGIDL_PCXSetWidth(pcx, AGIDL_PCXGetWidth(pcx)+1);
 		AGIDL_PCXSetHeight(pcx, AGIDL_PCXGetHeight(pcx)+1);
-		
+
 		if(AGIDL_PCXGetWidth(pcx) > 258){
 			AGIDL_PCXSetWidth(pcx,little_endianify(AGIDL_PCXGetWidth(pcx)));
 		}
@@ -428,70 +425,67 @@ int AGIDL_PCXDecodeHeader(AGIDL_PCX* pcx, FILE* file){
 		AGIDL_PCXSetWidth(pcx,(pcx->header.x_end - pcx->header.x_start) + 1);
 		AGIDL_PCXSetHeight(pcx,(pcx->header.y_end - pcx->header.y_start) + 1);
 	}
-	
-	if(pcx->header.id != 10 || !(pcx->header.version == 0 || pcx->header.version == 2 || pcx->header.version == 3 || pcx->header.version == 4 
+
+	if(pcx->header.id != 10 || !(pcx->header.version == 0 || pcx->header.version == 2 || pcx->header.version == 3 || pcx->header.version == 4
 	   || pcx->header.version == 5) || !(pcx->header.pal_type == 1 || pcx->header.pal_type == 2)){
 		return INVALID_HEADER_FORMATTING_ERROR;
 	}
-	else if(pcx->header.x_end > 4096 || pcx->header.y_end > 4096){
+	if(pcx->header.x_end > 4096 || pcx->header.y_end > 4096){
 		return CORRUPED_IMG_ERROR;
 	}
-	else return NO_IMG_ERROR;
+	return NO_IMG_ERROR;
 }
 
 void AGIDL_PCXDecodeIMG(AGIDL_PCX* pcx, FILE* file){
-	if(pcx->header.bits == 24 || pcx->header.bits == 8 || pcx->header.bits == 1){	
+	if(pcx->header.bits == 24 || pcx->header.bits == 8 || pcx->header.bits == 1){
 		AGIDL_PCXSetClrFmt(pcx,AGIDL_RGB_888);
 	}
 	if(pcx->header.bits == 16){
 		AGIDL_PCXSetClrFmt(pcx,AGIDL_RGB_555);
 	}
-	
-	int scanlinelength = (pcx->header.bytesperline * pcx->header.numbitplanes);
-	
+
+	const int scanlinelength = (pcx->header.bytesperline * pcx->header.numbitplanes);
 //	printf("scanlinelength - %d\n",scanlinelength);
-	
-	u16 roffset = 0, goffset = pcx->header.bytesperline, boffset = (goffset * 2);
-	
+
+	const u16 goffset = pcx->header.bytesperline, boffset = (goffset * 2);
 //	printf("roffset - %d\n",roffset);
 //	printf("goffset - %d\n",goffset);
 //	printf("boffset - %d\n",boffset);
-	
+
 //	printf("width = %d\n",AGIDL_PCXGetWidth(pcx));
 //	printf("height = %d\n",AGIDL_PCXGetHeight(pcx));
-	
+
 	u32 pal_coord = 0;
-	
+
 	if(!contains_icp(file,&pal_coord)){
-		
+
 		fseek(file,128,SEEK_SET);
-		
-		int scanline;
-		for(scanline = 0; scanline < AGIDL_PCXGetHeight(pcx); scanline++){		
-			u8 *buf = (u8*)malloc(sizeof(u8)*scanlinelength);
-			
+
+		for(int scanline = 0; scanline < AGIDL_PCXGetHeight(pcx); scanline++){
+			const u16 roffset = 0;
+			u8 *buf = malloc(sizeof(u8)*scanlinelength);
+
 			int count = 0;
 			while(count < scanlinelength){
-				u8 byte = AGIDL_ReadByte(file);
-				
+				const u8 byte = AGIDL_ReadByte(file);
+
 				if(count < 1){
 				//	printf("first incoming byte 0x%x\n",byte);
 				}
-				
+
 				char* bin = dec2bin(byte);
-				
+
 			//	printf("bin - %s\n",bin);
-				
+
 				if(bin[0] == '1' && bin[1] == '1'){
-					char* byte = pcxrlebits(bin);
-					u16 rle = bin2dec(byte);
+					char* bytePtr = pcxrlebits(bin);
+					const u16 rle = bin2dec(bytePtr);
 				//	printf("rle byte - %s\n",byte);
 					free(bin);
-					free(byte);
+					free(bytePtr);
 				//	printf("rle - %d\n",rle);
-					u8 read = AGIDL_ReadByte(file);
-					int i;
-					for(i = 0; i < rle; i++){
+					const u8 read = AGIDL_ReadByte(file);
+					for(int i = 0; i < rle; i++){
 						buf[count] = read;
 						count++;
 					//	printf("count - %d\n",count);
@@ -499,8 +493,7 @@ void AGIDL_PCXDecodeIMG(AGIDL_PCX* pcx, FILE* file){
 				}
 				else{
 					int iszero = 1;
-					int zero;
-					for(zero = 0; zero < 8; zero++){
+					for(int zero = 0; zero < 8; zero++){
 						if(bin[zero] != '0'){
 							iszero = 0;
 						}
@@ -520,64 +513,61 @@ void AGIDL_PCXDecodeIMG(AGIDL_PCX* pcx, FILE* file){
 					}
 				}
 			}
-			
+
 			//printf("Pixel Processing Beginning...\n");
 			if(pcx->header.bits == 24 || pcx->header.bits == 8){
-				int x;
-				for(x = 0; x < AGIDL_PCXGetWidth(pcx); x++){
-					COLOR clr = AGIDL_RGB(buf[roffset+x],buf[goffset+x],buf[boffset+x],AGIDL_RGB_888);
+				for(int x = 0; x < AGIDL_PCXGetWidth(pcx); x++){
+					const COLOR clr = AGIDL_RGB(buf[roffset+x],buf[goffset+x],buf[boffset+x],AGIDL_RGB_888);
 					AGIDL_PCXSetClr(pcx,x,scanline,clr);
 				}
 			}
 			else{
-				int x;
-				for(x = 0; x < AGIDL_PCXGetWidth(pcx); x++){
-					COLOR16 clr = AGIDL_RGB(buf[roffset+x],buf[goffset+x],buf[boffset+x],AGIDL_RGB_555);
+				for(int x = 0; x < AGIDL_PCXGetWidth(pcx); x++){
+					const COLOR16 clr = AGIDL_RGB(buf[roffset+x],buf[goffset+x],buf[boffset+x],AGIDL_RGB_555);
 					AGIDL_PCXSetClr16(pcx,x,scanline,clr);
 				}
 			}
-			
+
 			free(buf);
-		
+
 		}
 	}
 	else{
 		fseek(file,pal_coord+1,SEEK_SET);
-		
+
 		AGIDL_InitICP(&pcx->palette,AGIDL_ICP_256);
-		
+
 		int i;
-		for(i = 0; i < 256; i++){	
+		for(i = 0; i < 256; i++){
 			pcx->palette.icp.palette_256[i] = AGIDL_ReadRGB(file,AGIDL_RGB_888);
 		}
-		
+
 		fseek(file,128,SEEK_SET);
-		
-		int scanline;
-		for(scanline = 0; scanline < AGIDL_PCXGetHeight(pcx); scanline++){		
-			u8 *buf = (u8*)malloc(sizeof(u8)*scanlinelength);
-			
+
+		for(int scanline = 0; scanline < AGIDL_PCXGetHeight(pcx); scanline++){
+			u8 *buf = malloc(sizeof(u8)*scanlinelength);
+
 			int count = 0;
 			while(count < scanlinelength){
-				u8 byte = AGIDL_ReadByte(file);
-				
+				const u8 byte = AGIDL_ReadByte(file);
+
 				if(count < 1){
 					//printf("first incoming byte 0x%x\n",byte);
 				}
-				
+
 				char* bin = dec2bin(byte);
-				
+
 			//	printf("bin - %s\n",bin);
-				
+
 				if(bin[0] == '1' && bin[1] == '1'){
-					char* byte = pcxrlebits(bin);
-					u16 rle = bin2dec(byte);
+					char* bytePtr = pcxrlebits(bin);
+					const u16 rle = bin2dec(bytePtr);
 				//	printf("rle byte - %s\n",byte);
 					free(bin);
-					free(byte);
+					free(bytePtr);
 				//	printf("rle - %d\n",rle);
-					u8 read = AGIDL_ReadByte(file);
-					int i;
+					const u8 read = AGIDL_ReadByte(file);
+
 					for(i = 0; i < rle; i++){
 						buf[count] = read;
 						count++;
@@ -586,8 +576,7 @@ void AGIDL_PCXDecodeIMG(AGIDL_PCX* pcx, FILE* file){
 				}
 				else{
 					int iszero = 1;
-					int zero;
-					for(zero = 0; zero < 8; zero++){
+					for(int zero = 0; zero < 8; zero++){
 						if(bin[zero] != '0'){
 							iszero = 0;
 						}
@@ -607,20 +596,19 @@ void AGIDL_PCXDecodeIMG(AGIDL_PCX* pcx, FILE* file){
 					}
 				}
 			}
-			
+
 		//	printf("Pixel Processing Beginning...\n");
-			
-			int x;
-			for(x = 0; x < AGIDL_PCXGetWidth(pcx); x++){
-				COLOR clr = pcx->palette.icp.palette_256[buf[x]];
+
+			for(int x = 0; x < AGIDL_PCXGetWidth(pcx); x++){
+				const COLOR clr = pcx->palette.icp.palette_256[buf[x]];
 				AGIDL_PCXSetClr(pcx,x,scanline,clr);
 			}
-			
+
 		//	printf("Current scanline = %d\n",scanline);
 		//	printf("We are at address 0x%x in file!\n",ftell(file));
 
 			free(buf);
-		
+
 		}
 	}
 }
@@ -634,21 +622,19 @@ void AGIDL_PCXEncodeHeader(AGIDL_PCX* pcx, FILE* file){
 	pcx->header.y_start = 0;
 	pcx->header.x_end = AGIDL_PCXGetWidth(pcx)-1;
 	pcx->header.y_end = AGIDL_PCXGetHeight(pcx)-1;
-	u16 horz = 72;
-	u16 vert = 72;
+	const u16 horz = 72;
+	const u16 vert = 72;
 	pcx->header.reserved = 0;
 	pcx->header.numbitplanes = 3;
 	pcx->header.bytesperline = AGIDL_PCXGetWidth(pcx);
 	pcx->header.pal_type = 1;
 	pcx->header.screen_horz = 0;
 	pcx->header.screen_vert = 0;
-	
-	u8 icp = 0, blank = 0;
-	
+
 	if(pcx->icp == YES_ICP){
 		pcx->header.numbitplanes = 1;
 	}
-	
+
 	AGIDL_WriteByte(file,pcx->header.id);
 	AGIDL_WriteByte(file,pcx->header.version);
 	AGIDL_WriteByte(file,pcx->header.encoding);
@@ -659,20 +645,22 @@ void AGIDL_PCXEncodeHeader(AGIDL_PCX* pcx, FILE* file){
 	AGIDL_WriteShort(file,pcx->header.y_end);
 	AGIDL_WriteShort(file,horz);
 	AGIDL_WriteShort(file,vert);
-	
+
 	int i;
-	for(i = 0; i < 48; i++){
+	for(i = 0; i < 48; i++) {
+		const u8 icp = 0;
 		AGIDL_WriteByte(file,icp);
 	}
-	
+
 	AGIDL_WriteByte(file,pcx->header.reserved);
 	AGIDL_WriteByte(file,pcx->header.numbitplanes);
 	AGIDL_WriteShort(file,pcx->header.bytesperline);
 	AGIDL_WriteShort(file,pcx->header.pal_type);
 	AGIDL_WriteShort(file,pcx->header.screen_horz);
 	AGIDL_WriteShort(file,pcx->header.screen_vert);
-	
-	for(i = 0; i < 54; i++){
+
+	for(i = 0; i < 54; i++) {
+		const u8 blank = 0;
 		AGIDL_WriteByte(file,blank);
 	}
 }
@@ -680,21 +668,20 @@ void AGIDL_PCXEncodeHeader(AGIDL_PCX* pcx, FILE* file){
 void AGIDL_PCXEncodeICP(AGIDL_PCX* pcx){
 	if(pcx->encode == ICP_ENCODE_THRESHOLD){
 		AGIDL_InitICP(&pcx->palette,AGIDL_ICP_256);
-		
+
 		int pass = 0;
 		u8 pal_index = 0;
-		
-		int x,y;
-		for(y = 0; y < AGIDL_PCXGetHeight(pcx); y++){
-			for(x = 0; x < AGIDL_PCXGetWidth(pcx); x++){
-				COLOR clr = AGIDL_PCXGetClr(pcx,x,y);
-				
+
+		for(int y = 0; y < AGIDL_PCXGetHeight(pcx); y++){
+			for(int x = 0; x < AGIDL_PCXGetWidth(pcx); x++){
+				const COLOR clr = AGIDL_PCXGetClr(pcx,x,y);
+
 				AGIDL_AddColorICP(&pcx->palette,pal_index,clr,AGIDL_PCXGetClrFmt(pcx),AGIDL_PCXGetMaxDiff(pcx),&pass);
-				
+
 				if(pass == 1 && pal_index < 256){
 					pal_index++;
 				}
-				
+
 				pass = 0;
 			}
 		}
@@ -705,8 +692,8 @@ void AGIDL_PCXEncodeICP(AGIDL_PCX* pcx){
 }
 
 void AGIDL_PCXEncodeImg(AGIDL_PCX* pcx, FILE* file){
-	AGIDL_CLR_FMT fmt = pcx->fmt;
-	
+	const AGIDL_CLR_FMT fmt = pcx->fmt;
+
 	switch(pcx->fmt){
 		case AGIDL_BGR_888:{
 			AGIDL_PCXBGR2RGB(pcx);
@@ -728,187 +715,184 @@ void AGIDL_PCXEncodeImg(AGIDL_PCX* pcx, FILE* file){
 			AGIDL_PCXConvert16BPPTO24BPP(pcx);
 		}break;
 	}
-	
+
 	if(pcx->icp != 1){
-		int scanlinelength = AGIDL_PCXGetWidth(pcx) * 3;
-		
-		int roffset = 0, goffset = AGIDL_PCXGetWidth(pcx), boffset = goffset*2;
-		
-		int scanline, x;
-		for(scanline = 0; scanline <= AGIDL_PCXGetHeight(pcx); scanline++){
-			u8 *buf = (u8*)malloc(sizeof(u8)*scanlinelength);
+		const int scanlinelength = AGIDL_PCXGetWidth(pcx) * 3;
+
+		const int goffset = AGIDL_PCXGetWidth(pcx), boffset = goffset*2;
+
+		int x;
+		for(int scanline = 0; scanline <= AGIDL_PCXGetHeight(pcx); scanline++){
+			u8 *buf = malloc(sizeof(u8)*scanlinelength);
 			for(x = 0; x < AGIDL_PCXGetWidth(pcx); x++){
 				if(AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx)) == 32){
-					COLOR clr = AGIDL_PCXGetClr(pcx,x,scanline);
-					u8 r = AGIDL_GetR(clr,AGIDL_PCXGetClrFmt(pcx));
-					u8 g = AGIDL_GetG(clr,AGIDL_PCXGetClrFmt(pcx));
-					u8 b = AGIDL_GetB(clr,AGIDL_PCXGetClrFmt(pcx));
+					const COLOR clr = AGIDL_PCXGetClr(pcx,x,scanline);
+					const u8 r = AGIDL_GetR(clr,AGIDL_PCXGetClrFmt(pcx));
+					const u8 g = AGIDL_GetG(clr,AGIDL_PCXGetClrFmt(pcx));
+					const u8 b = AGIDL_GetB(clr,AGIDL_PCXGetClrFmt(pcx));
 					buf[x] = r; buf[x+goffset] = g; buf[x+boffset] = b;
 				}
 				else{
-					COLOR clr = AGIDL_PCXGetClr(pcx,x,scanline);
-					u8 r = AGIDL_GetR(clr,AGIDL_RGB_888);
-					u8 g = AGIDL_GetG(clr,AGIDL_RGB_888);
-					u8 b = AGIDL_GetB(clr,AGIDL_RGB_888);
+					const COLOR clr = AGIDL_PCXGetClr(pcx,x,scanline);
+					const u8 r = AGIDL_GetR(clr,AGIDL_RGB_888);
+					const u8 g = AGIDL_GetG(clr,AGIDL_RGB_888);
+					const u8 b = AGIDL_GetB(clr,AGIDL_RGB_888);
 					buf[x] = r; buf[x+goffset] = g; buf[x+boffset] = b;
 				}
 			}
-			
+
 			for(x = 0; x < goffset; x++){
 				int count = 1, x_count = x+1;
 				while((buf[x] == buf[x_count]) && count < 63){
 					count++;
 					x_count++;
 				}
-				
+
 				if(x_count >= goffset){
-				
+
 					count = AGIDL_PCXGetWidth(pcx) - x;
-					
+
 					char* bin = dec2bin(count);
-			
+
 					bin[0] = '1'; bin[1] = '1';
-					
-					u8 byte = bin2dec(bin);
-					u8 data = buf[x];
-					
+
+					const u8 byte = bin2dec(bin);
+					const u8 data = buf[x];
+
 					AGIDL_WriteByte(file,byte);
 					AGIDL_WriteByte(file,data);
-					
+
 					x += count - 1;
-					
+
 					if(scanline <= 24)
 						//printf("too much x - %d, %d\n",x,count);
-					
+
 					free(bin);
-					
+
 				}else{
 					char* bin = dec2bin(count);
-			
+
 					bin[0] = '1'; bin[1] = '1';
-					
-					u8 byte = bin2dec(bin);
-					u8 data = buf[x];
-					
+
+					const u8 byte = bin2dec(bin);
+					const u8 data = buf[x];
+
 					AGIDL_WriteByte(file,byte);
 					AGIDL_WriteByte(file,data);
-					
+
 					x += count - 1;
-					
+
 					if(scanline <= 24)
 						//printf("much x - %d, %d\n",x,count);
-					
+
 					free(bin);
 				}
-				
+
 			}
 
-			
+
 			for(x = goffset; x < boffset; x++){
 				int count = 1, x_count = x+1;
 				while((buf[x] == buf[x_count]) && count < 63){
 					count++;
 					x_count++;
 				}
-				
+
 				if(x_count >= boffset){
-				
+
 					count = (AGIDL_PCXGetWidth(pcx)*2) - x;
-					
 					char* bin = dec2bin(count);
-			
+
 					bin[0] = '1'; bin[1] = '1';
-					
-					u8 byte = bin2dec(bin);
-					u8 data = buf[x];
-					
+
+					const u8 byte = bin2dec(bin);
+					const u8 data = buf[x];
+
 					AGIDL_WriteByte(file,byte);
 					AGIDL_WriteByte(file,data);
-					
+
 					x += count - 1;
-					
+
 					free(bin);
-					
+
 				}else{
 					char* bin = dec2bin(count);
-			
+
 					bin[0] = '1'; bin[1] = '1';
-					
-					u8 byte = bin2dec(bin);
-					u8 data = buf[x];
-					
+
+					const u8 byte = bin2dec(bin);
+					const u8 data = buf[x];
+
 					AGIDL_WriteByte(file,byte);
 					AGIDL_WriteByte(file,data);
-					
+
 					x += count - 1;
-					
+
 					free(bin);
 				}
-				
+
 			}
-			
+
 			for(x = boffset; x < scanlinelength; x++){
 				int count = 1, x_count = x+1;
 				while((buf[x] == buf[x_count]) && count < 63){
 					count++;
 					x_count++;
 				}
-				
+
 				char* bin = dec2bin(count);
-			
+
 				bin[0] = '1'; bin[1] = '1';
-				
-				u8 byte = bin2dec(bin);
-				u8 data = buf[x];
-				
+
+				const u8 byte = bin2dec(bin);
+				const u8 data = buf[x];
+
 				AGIDL_WriteByte(file,byte);
 				AGIDL_WriteByte(file,data);
-				
+
 				x += count - 1;
-				
+
 				free(bin);
-				
+
 			}
 				free(buf);
 		}
 	}
 	else{
 		AGIDL_PCXEncodeICP(pcx);
-	
-		int x,y;
-		for(y = 0; y < AGIDL_PCXGetHeight(pcx); y++){
-			for(x = 0; x < AGIDL_PCXGetWidth(pcx); x++){
-				u32 color = AGIDL_PCXGetClr(pcx,x,y);
-				u32 rle = AGIDL_EncodeRLE(pcx->pixels.pix32,24,x,y,AGIDL_PCXGetWidth(pcx),AGIDL_PCXGetHeight(pcx),62);
 
-				u8 index = AGIDL_FindNearestColor(pcx->palette,color,AGIDL_PCXGetClrFmt(pcx));
-				u8 byte = 1 << 7 | 1 << 6 | rle;
-					
+		for(int y = 0; y < AGIDL_PCXGetHeight(pcx); y++){
+			for(int x = 0; x < AGIDL_PCXGetWidth(pcx); x++){
+				const u32 color = AGIDL_PCXGetClr(pcx,x,y);
+				const u32 rle = AGIDL_EncodeRLE(pcx->pixels.pix32,24,x,y,AGIDL_PCXGetWidth(pcx),AGIDL_PCXGetHeight(pcx),62);
+
+				const u8 index = AGIDL_FindNearestColor(pcx->palette,color,AGIDL_PCXGetClrFmt(pcx));
+				const u8 byte = 1 << 7 | 1 << 6 | rle;
+
 				AGIDL_WriteByte(file,byte);
 				AGIDL_WriteByte(file,index);
-				
+
 				x += rle - 1;
 			}
 		}
-		
-		u8 hexid = 0x0C;
-			
+
+		const u8 hexid = 0x0C;
+
 		AGIDL_WriteByte(file,hexid);
-			
-		int i;
-		for(i = 0; i < 256; i++){
-			COLOR clr = pcx->palette.icp.palette_256[i];
-			
-			u8 r = AGIDL_GetR(clr,AGIDL_RGB_888);
-			u8 g = AGIDL_GetG(clr,AGIDL_RGB_888);
-			u8 b = AGIDL_GetB(clr,AGIDL_RGB_888);
-			
+
+		for(int i = 0; i < 256; i++){
+			const COLOR clr = pcx->palette.icp.palette_256[i];
+
+			const u8 r = AGIDL_GetR(clr,AGIDL_RGB_888);
+			const u8 g = AGIDL_GetG(clr,AGIDL_RGB_888);
+			const u8 b = AGIDL_GetB(clr,AGIDL_RGB_888);
+
 			AGIDL_WriteByte(file,r);
 			AGIDL_WriteByte(file,g);
 			AGIDL_WriteByte(file,b);
-		}	
+		}
 	}
-	
+
 	switch(fmt){
 		case AGIDL_BGR_888:{
 			AGIDL_PCXRGB2BGR(pcx);
@@ -929,28 +913,28 @@ void AGIDL_PCXEncodeImg(AGIDL_PCX* pcx, FILE* file){
 			AGIDL_PCXConvert24BPPTO16BPP(pcx);
 			AGIDL_PCXConvert555TO565(pcx);
 		}break;
-	
+
 	}
 }
 
 AGIDL_PCX * AGIDL_LoadPCX(char *filename){
 	FILE* file = fopen(filename,"rb");
-	
+
 	if(file == NULL){
 		printf("%s - %s\n",AGIDL_Error2Str(FILE_NOT_LOCATED_IMG_ERROR),filename);
 		return NULL;
 	}
-	
-	AGIDL_PCX *pcx = (AGIDL_PCX*)malloc(sizeof(AGIDL_PCX));
+
+	AGIDL_PCX *pcx = malloc(sizeof(AGIDL_PCX));
 	pcx->filename = (char*)malloc(strlen(filename)+1);
 	AGIDL_FilenameCpy(pcx->filename,filename);
 	AGIDL_PCXSetICPEncoding(pcx,ICP_ENCODE_THRESHOLD);
-	
-	if(pcx == NULL || pcx->filename == NULL){
+
+	if(pcx->filename == NULL){
 		printf("%s\n",AGIDL_Error2Str(MEMORY_IMG_ERROR));
 	}
-	
-	int error = AGIDL_PCXDecodeHeader(pcx,file);
+
+	const int error = AGIDL_PCXDecodeHeader(pcx,file);
 	
 	if(error != NO_IMG_ERROR){
 		printf("%s\n",AGIDL_Error2Str(error));

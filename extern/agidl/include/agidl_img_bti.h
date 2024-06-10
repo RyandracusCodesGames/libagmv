@@ -15,11 +15,12 @@
 *
 ********************************************/
 
+#include <agidl_cc_manager.h>
+#include <agidl_cc_types.h>
+#include <agidl_img_types.h>
+#include <agidl_types.h>
+
 #include <stdio.h>
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_types.h"
-#include "agidl_cc_manager.h"
 
 typedef enum BTI_CLR_FMT{
 	BTI_I4 = 0x00,
@@ -81,21 +82,21 @@ void AGIDL_BTISetMaxDiff(AGIDL_BTI* bti, int max_diff);
 void AGIDL_BTISetICPMode(AGIDL_BTI* bti, int mode);
 void AGIDL_BTISetICPEncoding(AGIDL_BTI* bti, AGIDL_ICP_ENCODE encode);
 void AGIDL_BTISetCompression(AGIDL_BTI* bti, int compress);
-void AGIDL_BTISetClr(AGIDL_BTI* bti, int x, int y, COLOR clr);
-void AGIDL_BTISetClr16(AGIDL_BTI* bti, int x, int y, COLOR16 clr);
-void AGIDL_BTISetRGB(AGIDL_BTI* bti, int x, int y, u8 r, u8 g, u8 b);
-void AGIDL_BTISetRGBA(AGIDL_BTI* bti, int x, int y, u8 r, u8 g, u8 b, u8 a);
-void AGIDL_ClearBTI(AGIDL_BTI* bti, COLOR clr);
-void AGIDL_ClearBTI16(AGIDL_BTI* bti, COLOR16 clr);
-void AGIDL_ClearColorBTI(AGIDL_BTI* bti, float r, float g, float b);
-void AGIDL_FlushBTI(AGIDL_BTI* bti);
-int AGIDL_BTIGetWidth(AGIDL_BTI* bti);
-int AGIDL_BTIGetHeight(AGIDL_BTI* bti);
-u32 AGIDL_BTIGetSize(AGIDL_BTI* bti);
-AGIDL_CLR_FMT AGIDL_BTIGetClrFmt(AGIDL_BTI* bti);
-int AGIDL_BTIGetMaxDiff(AGIDL_BTI* bti);
-COLOR AGIDL_BTIGetClr(AGIDL_BTI* bti, int x, int y);
-COLOR16 AGIDL_BTIGetClr16(AGIDL_BTI* bti, int x, int y);
+void AGIDL_BTISetClr(const AGIDL_BTI* bti, int x, int y, COLOR clr);
+void AGIDL_BTISetClr16(const AGIDL_BTI* bti, int x, int y, COLOR16 clr);
+void AGIDL_BTISetRGB(const AGIDL_BTI* bti, int x, int y, u8 r, u8 g, u8 b);
+void AGIDL_BTISetRGBA(const AGIDL_BTI* bti, int x, int y, u8 r, u8 g, u8 b, u8 a);
+void AGIDL_ClearBTI(const AGIDL_BTI* bti, COLOR clr);
+void AGIDL_ClearBTI16(const AGIDL_BTI* bti, COLOR16 clr);
+void AGIDL_ClearColorBTI(const AGIDL_BTI* bti, float r, float g, float b);
+void AGIDL_FlushBTI(const AGIDL_BTI* bti);
+int AGIDL_BTIGetWidth(const AGIDL_BTI* bti);
+int AGIDL_BTIGetHeight(const AGIDL_BTI* bti);
+u32 AGIDL_BTIGetSize(const AGIDL_BTI* bti);
+AGIDL_CLR_FMT AGIDL_BTIGetClrFmt(const AGIDL_BTI* bti);
+int AGIDL_BTIGetMaxDiff(const AGIDL_BTI* bti);
+COLOR AGIDL_BTIGetClr(const AGIDL_BTI* bti, int x, int y);
+COLOR16 AGIDL_BTIGetClr16(const AGIDL_BTI* bti, int x, int y);
 void AGIDL_BTIRGB2BGR(AGIDL_BTI* bti);
 void AGIDL_BTIBGR2RGB(AGIDL_BTI* bti);
 void AGIDL_BTIConvert24BPPTO16BPP(AGIDL_BTI* bti);
@@ -104,20 +105,20 @@ void AGIDL_BTIRGBATORGB(AGIDL_BTI* bti);
 void AGIDL_BTI555TO565(AGIDL_BTI* bti);
 void AGIDL_BTI565TO555(AGIDL_BTI* bti);
 void AGIDL_ColorConvertBTI(AGIDL_BTI* bti, AGIDL_CLR_FMT dest);
-void AGIDL_BTISyncPix(AGIDL_BTI *bti, COLOR *clrs);
-void AGIDL_BTISyncPix16(AGIDL_BTI *bti, COLOR16 *clrs);
-void AGIDL_BTICopyPix(AGIDL_BTI* bti, COLOR* clrs, u32 count);
-void AGIDL_BTICopyPix16(AGIDL_BTI* bti, COLOR16* clrs, u32 count);
+void AGIDL_BTISyncPix(const AGIDL_BTI *bti, const COLOR *clrs);
+void AGIDL_BTISyncPix16(const AGIDL_BTI *bti, const COLOR16 *clrs);
+void AGIDL_BTICopyPix(const AGIDL_BTI* bti, const COLOR* clrs, u32 count);
+void AGIDL_BTICopyPix16(const AGIDL_BTI* bti, const COLOR16* clrs, u32 count);
 AGIDL_BTI* AGIDL_LoadBTI(char* filename);
 AGIDL_BTI* AGIDL_CreateBTI(const char* filename, int width, int height, AGIDL_CLR_FMT fmt);
-AGIDL_BTI* AGIDL_BTICpyImg(AGIDL_BTI* bti);
+AGIDL_BTI* AGIDL_BTICpyImg(const AGIDL_BTI* bti);
 BTI_CLR_FMT AGIDL_GetBTIClrFmt(u8 type);
 BTI_ICP_FMT AGIDL_BTIGetICPFmt(u8 type);
 void AGIDL_ExportBTI(AGIDL_BTI* bti);
 void AGIDL_FreeBTI(AGIDL_BTI* bti);
 int AGIDL_BTIDecodeHeader(AGIDL_BTI* bti, FILE* file);
 void AGIDL_BTIDecodeIMG(AGIDL_BTI* bti, FILE* file);
-void AGIDL_BTIEncodeHeader(AGIDL_BTI* bti, FILE* file);
+void AGIDL_BTIEncodeHeader(const AGIDL_BTI* bti, FILE* file);
 void AGIDL_BTIEncodeICP(AGIDL_BTI* bti);
 void AGIDL_BTIEncodeIMG(AGIDL_BTI* bti, FILE* file);
 

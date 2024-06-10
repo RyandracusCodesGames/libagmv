@@ -15,10 +15,10 @@
 *
 ********************************************/
 
-#include "agmv_defines.h"
-#include "agmv_encode.h"
-#include "agmv_decode.h"
-#include "agmv_utils.h"
-#include "agmv_playback.h"
+#include <agmv_decode.h>
+#include <agmv_defines.h>
+#include <agmv_encode.h>
+#include <agmv_playback.h>
+#include <agmv_utils.h>
 
 #endif

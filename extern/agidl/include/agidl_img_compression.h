@@ -15,11 +15,11 @@
 *
 ********************************************/
 
-#include "agidl_types.h"
+#include <agidl_types.h>
 
-u32 AGIDL_EncodeRLE(void* data, u32 bit_count, u32 x, u32 y, u32 width, u32 height, u16 max_rle);
-u32 AGIDL_EncodeByteRLE(u8* data, u32 i, u32 max_rle);
-void AGIDL_PackBits(u8* src, u8 *dest, u32 max_rle);
+u32 AGIDL_EncodeRLE(const void* data, u32 bit_count, u32 x, u32 y, u32 width, u32 height, u16 max_rle);
+u32 AGIDL_EncodeByteRLE(const u8* data, u32 i, u32 max_rle);
+void AGIDL_PackBits(const u8* src, u8 *dest, u32 max_rle);
 void AGIDL_EncodePackBits(u8* src, u8* dest, u32 max_rle);
 
 #endif

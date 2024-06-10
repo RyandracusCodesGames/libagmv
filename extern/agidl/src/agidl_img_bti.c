@@ -1,11 +1,3 @@
-#include <stdlib.h>
-#include <string.h>
-#include "agidl_img_bti.h"
-#include "agidl_cc_core.h"
-#include "agidl_img_error.h"
-#include "agidl_file_utils.h"
-#include "agidl_mmu_utils.h"
-
 /********************************************
 *   Adaptive Graphics Image Display Library
 *
@@ -20,40 +12,50 @@
 *
 ********************************************/
 
+#include <agidl_img_bti.h>
+
+#include <stdlib.h>
+#include <string.h>
+
+#include <agidl_cc_core.h>
+#include <agidl_file_utils.h>
+#include <agidl_img_error.h>
+#include <agidl_mmu_utils.h>
+
 void AGIDL_SetBTIFilename(AGIDL_BTI* bti, const char* filename){
 	bti->filename = (char*)realloc(bti->filename,strlen(filename));
 	AGIDL_FilenameCpy(bti->filename,filename);
 }
 
-void AGIDL_BTISetWidth(AGIDL_BTI* bti, u16 width){
+void AGIDL_BTISetWidth(AGIDL_BTI* bti, const u16 width){
 	bti->header.width = width;
 }
 
-void AGIDL_BTISetHeight(AGIDL_BTI* bti, u16 height){
+void AGIDL_BTISetHeight(AGIDL_BTI* bti, const u16 height){
 	bti->header.height = height;
 }
 
-void AGIDL_BTISetClrFmt(AGIDL_BTI* bti, AGIDL_CLR_FMT fmt){
+void AGIDL_BTISetClrFmt(AGIDL_BTI* bti, const AGIDL_CLR_FMT fmt){
 	bti->fmt = fmt;
 }
 
-void AGIDL_BTISetMaxDiff(AGIDL_BTI* bti, int max_diff){
+void AGIDL_BTISetMaxDiff(AGIDL_BTI* bti, const int max_diff){
 	bti->max_diff = max_diff;
 }
 
-void AGIDL_BTISetICPMode(AGIDL_BTI* bti, int mode){
+void AGIDL_BTISetICPMode(AGIDL_BTI* bti, const int mode){
 	bti->icp = mode;
 }
 
-void AGIDL_BTISetICPEncoding(AGIDL_BTI* bti, AGIDL_ICP_ENCODE encode){
+void AGIDL_BTISetICPEncoding(AGIDL_BTI* bti, const AGIDL_ICP_ENCODE encode){
 	bti->encode = encode;
 }
 
-void AGIDL_BTISetCompression(AGIDL_BTI* bti, int compress){
+void AGIDL_BTISetCompression(AGIDL_BTI* bti, const int compress){
 	bti->compression = compress;
 }
 
-void AGIDL_BTISetClr(AGIDL_BTI *bti, int x, int y, COLOR clr){
+void AGIDL_BTISetClr(const AGIDL_BTI *bti, const int x, const int y, const COLOR clr){
 	if(AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti)) != 16){
 		AGIDL_SetClr(bti->pixels.pix32,clr,x,y,AGIDL_BTIGetWidth(bti),AGIDL_BTIGetHeight(bti));
 	}
@@ -62,7 +64,7 @@ void AGIDL_BTISetClr(AGIDL_BTI *bti, int x, int y, COLOR clr){
 	}
 }
 
-void AGIDL_BTISetClr16(AGIDL_BTI *bti, int x, int y, COLOR16 clr){
+void AGIDL_BTISetClr16(const AGIDL_BTI *bti, const int x, const int y, const COLOR16 clr){
 	if(AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti) == 16)){
 		AGIDL_SetClr16(bti->pixels.pix16,clr,x,y,AGIDL_BTIGetWidth(bti),AGIDL_BTIGetHeight(bti));
 	}
@@ -71,7 +73,7 @@ void AGIDL_BTISetClr16(AGIDL_BTI *bti, int x, int y, COLOR16 clr){
 	}
 }
 
-void AGIDL_BTISetRGB(AGIDL_BTI* bti, int x, int y, u8 r, u8 g, u8 b){
+void AGIDL_BTISetRGB(const AGIDL_BTI* bti, const int x, const int y, const u8 r, const u8 g, const u8 b){
 	switch(AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti))){
 		case 24:{
 			AGIDL_BTISetClr(bti,x,y,AGIDL_RGB(r,g,b,AGIDL_BTIGetClrFmt(bti)));
@@ -85,22 +87,22 @@ void AGIDL_BTISetRGB(AGIDL_BTI* bti, int x, int y, u8 r, u8 g, u8 b){
 	}
 }
 
-void AGIDL_BTISetRGBA(AGIDL_BTI* bti, int x, int y, u8 r, u8 g, u8 b, u8 a){
+void AGIDL_BTISetRGBA(const AGIDL_BTI* bti, const int x, const int y, const u8 r, const u8 g, const u8 b, const u8 a){
 	if(AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti)) == 32){
 		AGIDL_BTISetClr(bti,x,y,AGIDL_RGBA(r,g,b,a,AGIDL_BTIGetClrFmt(bti)));
 	}
 }
 
-void AGIDL_ClearBTI(AGIDL_BTI *bti, COLOR clr){
+void AGIDL_ClearBTI(const AGIDL_BTI *bti, const COLOR clr){
 	if(AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti)) != 16){
 		AGIDL_ClrMemset(bti->pixels.pix32,clr,AGIDL_BTIGetSize(bti));
 	}
 	else{
-		AGIDL_ClrMemset16(bti->pixels.pix16,(COLOR16)clr,AGIDL_BTIGetSize(bti));
+		AGIDL_ClrMemset16(bti->pixels.pix16,clr,AGIDL_BTIGetSize(bti));
 	}
 }
 
-void AGIDL_ClearBTI16(AGIDL_BTI *bti, COLOR16 clr){
+void AGIDL_ClearBTI16(const AGIDL_BTI *bti, const COLOR16 clr){
 	if(AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti)) == 16){
 		AGIDL_ClrMemset16(bti->pixels.pix16,clr,AGIDL_BTIGetSize(bti));
 	}
@@ -109,7 +111,7 @@ void AGIDL_ClearBTI16(AGIDL_BTI *bti, COLOR16 clr){
 	}
 }
 
-void AGIDL_ClearColorBTI(AGIDL_BTI* bti, float r, float g, float b){
+void AGIDL_ClearColorBTI(const AGIDL_BTI* bti, const float r, const float g, const float b){
 	if(AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti)) == 16){
 		AGIDL_ClearColorBuffer(bti->pixels.pix16,r,g,b,AGIDL_BTIGetClrFmt(bti),AGIDL_BTIGetSize(bti));
 	}
@@ -118,34 +120,34 @@ void AGIDL_ClearColorBTI(AGIDL_BTI* bti, float r, float g, float b){
 	}
 }
 
-void AGIDL_FlushBTI(AGIDL_BTI* bti){
+void AGIDL_FlushBTI(const AGIDL_BTI* bti){
 	AGIDL_ClearBTI(bti,0);
 }
 
-int AGIDL_BTIGetWidth(AGIDL_BTI* bti){
+int AGIDL_BTIGetWidth(const AGIDL_BTI* bti){
 	return bti->header.width;
 }
 
-int AGIDL_BTIGetHeight(AGIDL_BTI* bti){
+int AGIDL_BTIGetHeight(const AGIDL_BTI* bti){
 	return bti->header.height;
 }
 
-u32 AGIDL_BTIGetSize(AGIDL_BTI* bti){
+u32 AGIDL_BTIGetSize(const AGIDL_BTI* bti){
 	return AGIDL_BTIGetWidth(bti) * AGIDL_BTIGetHeight(bti);
 }
 
-AGIDL_CLR_FMT AGIDL_BTIGetClrFmt(AGIDL_BTI* bti){
+AGIDL_CLR_FMT AGIDL_BTIGetClrFmt(const AGIDL_BTI* bti){
 	return bti->fmt;
 }
 
-int AGIDL_BTIGetMaxDiff(AGIDL_BTI* bti){
+int AGIDL_BTIGetMaxDiff(const AGIDL_BTI* bti){
 	return bti->max_diff;
 }
 
-COLOR AGIDL_BTIGetClr(AGIDL_BTI* bti, int x, int y){
+COLOR AGIDL_BTIGetClr(const AGIDL_BTI* bti, const int x, const int y){
 	return AGIDL_GetClr(bti->pixels.pix32,x,y,AGIDL_BTIGetWidth(bti),AGIDL_BTIGetHeight(bti));
 }
-COLOR16 AGIDL_BTIGetClr16(AGIDL_BTI* bti, int x, int y){
+COLOR16 AGIDL_BTIGetClr16(const AGIDL_BTI* bti, const int x, const int y){
 	return AGIDL_GetClr16(bti->pixels.pix16,x,y,AGIDL_BTIGetWidth(bti),AGIDL_BTIGetHeight(bti));
 }
 
@@ -184,16 +186,6 @@ void AGIDL_BTIConvert16BPPTO24BPP(AGIDL_BTI* bti){
 }
 
 void AGIDL_BTIRGBATORGB(AGIDL_BTI* bti){
-	int x,y;
-	for(y = 0; y < AGIDL_BTIGetHeight(bti); y++){
-		for(x = 0; x < AGIDL_BTIGetWidth(bti); x++){
-			COLOR clr = AGIDL_BTIGetClr(bti,x,y);
-			u8 r = AGIDL_GetR(clr,bti->fmt);
-			u8 g = AGIDL_GetG(clr,bti->fmt);
-			u8 b = AGIDL_GetB(clr,bti->fmt);
-			clr = AGIDL_RGB(r,g,b,AGIDL_RGB_888);
-		}
-	}
 	bti->fmt = AGIDL_RGB_888;
 }
 
@@ -205,8 +197,8 @@ void AGIDL_BTI565TO555(AGIDL_BTI* bti){
 	AGIDL_565TO555(bti->pixels.pix16,AGIDL_BTIGetWidth(bti),AGIDL_BTIGetHeight(bti),&bti->fmt);
 }
 
-void AGIDL_ColorConvertBTI(AGIDL_BTI* bti, AGIDL_CLR_FMT dest){
-	u8 sbits = AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti)), dbits = AGIDL_GetBitCount(dest);
+void AGIDL_ColorConvertBTI(AGIDL_BTI* bti, const AGIDL_CLR_FMT dest){
+	const u8 sbits = AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti)), dbits = AGIDL_GetBitCount(dest);
 	if(sbits == 16 && dbits == 16){
 		AGIDL_ColorConvertImgData(bti->pixels.pix16,NULL,AGIDL_BTIGetWidth(bti),AGIDL_BTIGetHeight(bti),AGIDL_BTIGetClrFmt(bti),dest);
 		AGIDL_BTISetClrFmt(bti,dest);
@@ -229,32 +221,32 @@ void AGIDL_ColorConvertBTI(AGIDL_BTI* bti, AGIDL_CLR_FMT dest){
 	}
 }
 
-void AGIDL_BTISyncPix(AGIDL_BTI *bti, COLOR *clrs){
+void AGIDL_BTISyncPix(const AGIDL_BTI *bti, const COLOR *clrs){
 	if(AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti)) != 16){
 		AGIDL_ClrMemcpy(bti->pixels.pix32,clrs,AGIDL_BTIGetSize(bti));
 	}
 }
 
-void AGIDL_BTISyncPix16(AGIDL_BTI *bti, COLOR16 *clrs){
+void AGIDL_BTISyncPix16(const AGIDL_BTI *bti, const COLOR16 *clrs){
 	if(AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti)) == 16){
 		AGIDL_ClrMemcpy16(bti->pixels.pix16,clrs,AGIDL_BTIGetSize(bti));
 	}
 }
 
-void AGIDL_BTICopyPix(AGIDL_BTI* bti, COLOR* clrs, u32 count){
+void AGIDL_BTICopyPix(const AGIDL_BTI* bti, const COLOR* clrs, const u32 count){
 	if(AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti)) != 16){
 		AGIDL_ClrMemcpy(bti->pixels.pix32,clrs,count);
 	}
 }
 
-void AGIDL_BTICopyPix16(AGIDL_BTI* bti, COLOR16* clrs, u32 count){
+void AGIDL_BTICopyPix16(const AGIDL_BTI* bti, const COLOR16* clrs, const u32 count){
 	if(AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti)) == 16){
 		AGIDL_ClrMemcpy16(bti->pixels.pix16,clrs,count);
 	}
 }
 
-AGIDL_BTI* AGIDL_CreateBTI(const char* filename, int width, int height, AGIDL_CLR_FMT fmt){
-	AGIDL_BTI* bti = (AGIDL_BTI*)malloc(sizeof(AGIDL_BTI));
+AGIDL_BTI* AGIDL_CreateBTI(const char* filename, const int width, const int height, const AGIDL_CLR_FMT fmt){
+	AGIDL_BTI* bti = malloc(sizeof(AGIDL_BTI));
 	bti->filename = (char*)malloc(strlen(filename)+1);
 	AGIDL_FilenameCpy(bti->filename,filename);
 	AGIDL_BTISetWidth(bti,width);
@@ -275,7 +267,7 @@ AGIDL_BTI* AGIDL_CreateBTI(const char* filename, int width, int height, AGIDL_CL
 	return bti;
 }
 
-AGIDL_BTI* AGIDL_BTICpyImg(AGIDL_BTI* bti){
+AGIDL_BTI* AGIDL_BTICpyImg(const AGIDL_BTI* bti){
 	AGIDL_BTI* cpybti = AGIDL_CreateBTI("cpy.bti",AGIDL_BTIGetWidth(bti),AGIDL_BTIGetHeight(bti),
 	AGIDL_BTIGetClrFmt(bti));
 	AGIDL_BTISetICPMode(cpybti,bti->icp);
@@ -305,77 +297,73 @@ void AGIDL_FreeBTI(AGIDL_BTI* bti){
 	}
 	
 	free(bti);
-	
-	if(bti != NULL){
-		bti = NULL;
-	}
 }
 
-BTI_CLR_FMT AGIDL_GetBTIClrFmt(u8 type){
+BTI_CLR_FMT AGIDL_GetBTIClrFmt(const u8 type){
 	switch(type){
 		case 0x00:{
 			return BTI_I4;
-		}break;
+		}
 		case 0x01:{
 			return BTI_I8;
-		}break;
+		}
 		case 0x02:{
 			return BTI_IA4;
-		}break;
+		}
 		case 0x03:{
 			return BTI_IA8;
-		}break;
+		}
 		case 0x04:{
 			return BTI_RGB_565;
-		}break;
+		}
 		case 0x05:{
 			return BTI_RGB5A3;
-		}break;
+		}
 		case 0x06:{
 			return BTI_RGBA32;
-		}break;
+		}
 		case 0x08:{
 			return BTI_CI4;
-		}break;
+		}
 		case 0x09:{
 			return BTI_CI8;
-		}break;
+		}
 		case 0x0A:{
 			return BTI_C14X2;
-		}break;
+		}
 		case 0x0E:{
 			return BTI_CMPR;
-		}break;
+		}
 	}
 	return 44;
 }
 
-BTI_ICP_FMT AGIDL_BTIGetICPFmt(u8 type){
+BTI_ICP_FMT AGIDL_BTIGetICPFmt(const u8 type){
 	switch(type){
 		case 0x00:{
 			return BTI_ICP_IA8;
-		}break;
+		}
 		case 0x01:{
 			return BTI_ICP_565;
-		}break;
+		}
 		case 0x02:{
 			return BTI_ICP_5A3;
-		}break;
-		default: return 44; break;
+		}
+		default: return 44;
 	}
 }
 
 int AGIDL_BTIDecodeHeader(AGIDL_BTI* bti, FILE* file){
 	
 	AGIDL_InitBigEndArch();
-	
-	u8 fmt1 = AGIDL_ReadByte(file);
+
+	const u8 fmt1 = AGIDL_ReadByte(file);
 	bti->header.alpha = AGIDL_ReadByte(file);
 	bti->header.width = AGIDL_ReadShort(file);
 	bti->header.height = AGIDL_ReadShort(file);
 	bti->header.wraps = AGIDL_ReadByte(file);
 	bti->header.wrapt = AGIDL_ReadByte(file);
-	u16 fmt2 = AGIDL_ReadShort(file);
+	const u16 fmt2 = AGIDL_ReadShort(file);
 	bti->header.num_of_icps = AGIDL_ReadShort(file);
 	bti->header.offset_icp = AGIDL_ReadLong(file);
 	fseek(file,4,SEEK_CUR);
@@ -395,7 +383,7 @@ int AGIDL_BTIDecodeHeader(AGIDL_BTI* bti, FILE* file){
 	if(bti->header.fmt == 44 || bti->header.icp_fmt == 44){
 		return INVALID_HEADER_FORMATTING_ERROR;
 	}
-	else return NO_IMG_ERROR;
+	return NO_IMG_ERROR;
 }
 
 void AGIDL_BTIDecodeIMG(AGIDL_BTI* bti, FILE* file){
@@ -414,13 +402,8 @@ void AGIDL_BTIDecodeIMG(AGIDL_BTI* bti, FILE* file){
 							for(i = 0; i < 4; i++){
 								u8 byte1 = AGIDL_ReadByte(file);
 								u8 byte2 = AGIDL_ReadByte(file);
-								
-								u8 r = 0, g = 0, b = 0;
-								
+
 								if(((byte1 >> 7) & 0x1) == 0){
-									//r = (byte1 & 0xf);
-									//g = (byte2 >> 4) & 0xf;
-									//b = (byte2 & 0xf);
 									u8 a = ((byte1 >> 4) & 0x0C) << 4;
 									
 									COLOR clr = AGIDL_RGBA(155,155,155,a,AGIDL_RGBA_8888);							
@@ -580,7 +563,7 @@ void AGIDL_BTIDecodeIMG(AGIDL_BTI* bti, FILE* file){
 							for(i = 0; i < 8; i++){	
 								u8 rgb = AGIDL_ReadByte(file);
 								
-								AGIDL_BTISetClr(bti,x+i,y+j,AGIDL_RGB(rgb,rgb,rgb,AGIDL_BTIGetClrFmt(bti)));;
+								AGIDL_BTISetClr(bti,x+i,y+j,AGIDL_RGB(rgb,rgb,rgb,AGIDL_BTIGetClrFmt(bti)));
 							}
 						}
 					}
@@ -601,7 +584,7 @@ void AGIDL_BTIDecodeIMG(AGIDL_BTI* bti, FILE* file){
 								u8 alpha = ((byte >> 4) & 0xf) * 0x11;
 								u8 rgb = (byte & 0xf) * 0x11;
 								
-								AGIDL_BTISetClr(bti,x+i,y+j,AGIDL_RGBA(rgb,rgb,rgb,alpha,AGIDL_BTIGetClrFmt(bti)));;
+								AGIDL_BTISetClr(bti,x+i,y+j,AGIDL_RGBA(rgb,rgb,rgb,alpha,AGIDL_BTIGetClrFmt(bti)));
 							}
 						}
 					}
@@ -623,7 +606,7 @@ void AGIDL_BTIDecodeIMG(AGIDL_BTI* bti, FILE* file){
 								u8 alpha = byte1;
 								u8 rgb = byte2;
 								
-								AGIDL_BTISetClr(bti,x+i,y+j,AGIDL_RGBA(rgb,rgb,rgb,alpha,AGIDL_BTIGetClrFmt(bti)));;
+								AGIDL_BTISetClr(bti,x+i,y+j,AGIDL_RGBA(rgb,rgb,rgb,alpha,AGIDL_BTIGetClrFmt(bti)));
 							}
 						}
 					}
@@ -647,13 +630,8 @@ void AGIDL_BTIDecodeIMG(AGIDL_BTI* bti, FILE* file){
 			for(i = 0; i < bti->header.num_of_icps; i++){
 				u8 byte1 = AGIDL_ReadByte(file);
 				u8 byte2 = AGIDL_ReadByte(file);
-				
-				u8 r = 0, g = 0, b = 0;
-				
+
 				if(((byte1 >> 7) & 0x1) == 0){
-					//r = (byte1 & 0xf);
-					//g = (byte2 >> 4) & 0xf;
-					//b = (byte2 & 0xf);
 					u8 a = ((byte1 >> 4) & 0x0C) << 4;
 					
 					COLOR clr = AGIDL_RGBA(155,155,155,a,AGIDL_RGBA_8888);	
@@ -673,7 +651,7 @@ void AGIDL_BTIDecodeIMG(AGIDL_BTI* bti, FILE* file){
 			int x,y;
 			for(y = 0; y < AGIDL_BTIGetHeight(bti); y += 4){
 				for(x = 0; x < AGIDL_BTIGetWidth(bti); x += 8){
-					u8 i,j;
+					u8 j;
 					for(j = 0; j < 4; j++){
 						for(i = 0; i < 8; i++){
 							u8 byte = AGIDL_ReadByte(file);
@@ -713,7 +691,7 @@ void AGIDL_BTIDecodeIMG(AGIDL_BTI* bti, FILE* file){
 			int x,y;
 			for(y = 0; y < AGIDL_BTIGetHeight(bti); y += 4){
 				for(x = 0; x < AGIDL_BTIGetWidth(bti); x += 8){
-					u8 i,j;
+					u8 j;
 					for(j = 0; j < 4; j++){
 						for(i = 0; i < 8; i++){
 							u8 byte = AGIDL_ReadByte(file);
@@ -736,17 +714,17 @@ AGIDL_BTI* AGIDL_LoadBTI(char* filename){
 		printf("Could not open/locate Nintendo Gamecube BTI image - %s!\n",filename);
 	}
 	
-	AGIDL_BTI* bti = (AGIDL_BTI*)malloc(sizeof(AGIDL_BTI));
+	AGIDL_BTI* bti = malloc(sizeof(AGIDL_BTI));
 	bti->filename = (char*)malloc(strlen(filename)+1);
 	AGIDL_FilenameCpy(bti->filename,filename);
 	AGIDL_BTISetICPEncoding(bti,ICP_ENCODE_THRESHOLD);
 	
-	if(bti == NULL || bti->filename == NULL){
+	if(bti->filename == NULL){
 		printf("%s\n",AGIDL_Error2Str(MEMORY_IMG_ERROR));
 		return NULL;
 	}
-	
-	int error = AGIDL_BTIDecodeHeader(bti,file);
+
+	const int error = AGIDL_BTIDecodeHeader(bti,file);
 	
 	if(error != NO_IMG_ERROR){
 		printf("%s - %s\n",AGIDL_Error2Str(error),filename);
@@ -760,7 +738,7 @@ AGIDL_BTI* AGIDL_LoadBTI(char* filename){
 	return bti;
 }
 
-void AGIDL_BTIEncodeHeader(AGIDL_BTI* bti, FILE* file){
+void AGIDL_BTIEncodeHeader(const AGIDL_BTI* bti, FILE* file){
 	if(bti->icp != 1){
 		if(AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti)) == 24 || AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti)) == 16){	
 			AGIDL_InitBigEndArch();
@@ -841,11 +819,10 @@ void AGIDL_BTIEncodeICP(AGIDL_BTI* bti){
 		
 			int pass = 0;
 			u8 pal_index = 0;
-			
-			int x,y;
-			for(y = 0; y < AGIDL_BTIGetHeight(bti); y++){
-				for(x = 0; x < AGIDL_BTIGetWidth(bti); x++){
-					COLOR16 clr = AGIDL_BTIGetClr16(bti,x,y);
+
+			for(int y = 0; y < AGIDL_BTIGetHeight(bti); y++){
+				for(int x = 0; x < AGIDL_BTIGetWidth(bti); x++){
+					const COLOR16 clr = AGIDL_BTIGetClr16(bti,x,y);
 					
 					AGIDL_AddColorICP16(&bti->palette,pal_index,clr,AGIDL_BTIGetClrFmt(bti),AGIDL_BTIGetMaxDiff(bti),&pass);
 					

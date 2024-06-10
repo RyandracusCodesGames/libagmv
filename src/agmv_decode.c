@@ -11,11 +11,13 @@
 *   Author: Ryandracus Chapman
 *
 ********************************************/
+
+#include <agmv_decode.h>
+
 #include <agidl.h>
 #include <stdlib.h>
-#include <time.h>
-#include "agmv_decode.h"
-#include "agmv_utils.h"
+
+#include <agmv_utils.h>
 
 int AGMV_DecodeHeader(FILE* file, AGMV* agmv){
 	
@@ -41,26 +43,26 @@ int AGMV_DecodeHeader(FILE* file, AGMV* agmv){
 	
 	if(agmv->header.version == 1 || agmv->header.version == 3){	
 		for(i = 0; i < 256; i++){
-			u8 r = AGMV_ReadByte(file);
-			u8 g = AGMV_ReadByte(file);
-			u8 b = AGMV_ReadByte(file);
+			const u8 r = AGMV_ReadByte(file);
+			const u8 g = AGMV_ReadByte(file);
+			const u8 b = AGMV_ReadByte(file);
 			
 			agmv->header.palette0[i] = AGIDL_RGB(r,g,b,agmv->header.fmt);
 		}
 		
 		for(i = 0; i < 256; i++){
-			u8 r = AGMV_ReadByte(file);
-			u8 g = AGMV_ReadByte(file);
-			u8 b = AGMV_ReadByte(file);
+			const u8 r = AGMV_ReadByte(file);
+			const u8 g = AGMV_ReadByte(file);
+			const u8 b = AGMV_ReadByte(file);
 			
 			agmv->header.palette1[i] = AGIDL_RGB(r,g,b,agmv->header.fmt);
 		}
 	}
 	else{
 		for(i = 0; i < 256; i++){
-			u8 r = AGMV_ReadByte(file);
-			u8 g = AGMV_ReadByte(file);
-			u8 b = AGMV_ReadByte(file);
+			const u8 r = AGMV_ReadByte(file);
+			const u8 g = AGMV_ReadByte(file);
+			const u8 b = AGMV_ReadByte(file);
 			
 			agmv->header.palette0[i] = AGIDL_RGB(r,g,b,agmv->header.fmt);
 		}
@@ -70,9 +72,9 @@ int AGMV_DecodeHeader(FILE* file, AGMV* agmv){
 }
 
 int AGMV_DecodeFrameChunk(FILE* file, AGMV* agmv){
-	u32 pos, i, bitpos = 0, bits = 0, num_of_bits, size = agmv->header.width * agmv->header.height, width, height, bpos = 0, usize, csize, indice;	
-	u32* img_data = agmv->frame->img_data, *iframe_data = agmv->iframe->img_data, *palette, color, offset;
-	u8 byte, len, org, index, fbit, bot, *bitstream_data = agmv->bitstream->data;
+	u32 i, bitpos = 0, num_of_bits, width, height, bpos, csize, indice;
+	u32* img_data = agmv->frame->img_data, *iframe_data = agmv->iframe->img_data, color, offset;
+	u8 byte, len, index, *bitstream_data = agmv->bitstream->data;
 	Bool escape = FALSE;
 
 	agmv->bitstream->pos = 0;
@@ -84,8 +86,7 @@ int AGMV_DecodeFrameChunk(FILE* file, AGMV* agmv){
 	
 	width  = agmv->frame->width;
 	height = agmv->frame->height;
-	
-	usize = agmv->frame_chunk->uncompressed_size;
+
 	csize = agmv->frame_chunk->compressed_size;
 	
 	num_of_bits = agmv->frame_chunk->compressed_size * 8;
@@ -95,7 +96,9 @@ int AGMV_DecodeFrameChunk(FILE* file, AGMV* agmv){
 		return INVALID_HEADER_FORMATTING_ERR;
 	}
 	
-	if(agmv->header.version == 1 || agmv->header.version == 2){
+	if(agmv->header.version == 1 || agmv->header.version == 2) {
+		u32 bits = 0;
+		u8 org;
 		for(bits = 0; bits <= num_of_bits;){
 
 			byte = AGMV_ReadBits(file,1); bits++;
@@ -123,7 +126,8 @@ int AGMV_DecodeFrameChunk(FILE* file, AGMV* agmv){
 			}
 		}
 	}
-	else{
+	else {
+		u32 pos;
 		for(i = 0; i < csize; i += 4){
 			
 			offset = AGMV_ReadShort(file);
@@ -131,10 +135,10 @@ int AGMV_DecodeFrameChunk(FILE* file, AGMV* agmv){
 			byte = AGMV_ReadByte(file);
 			
 			pos = bpos;
-			
-			int i;
-			for(i = 0; i < len; i++){
-				bitstream_data[bpos++] = bitstream_data[pos - offset + i];
+
+			int j;
+			for(j = 0; j < len; j++){
+				bitstream_data[bpos++] = bitstream_data[pos - offset + j];
 			}
 			
 			bitstream_data[bpos++] = byte;
@@ -146,6 +150,9 @@ int AGMV_DecodeFrameChunk(FILE* file, AGMV* agmv){
 	AGMV_FlushReadBits();
 	
 	if(agmv->header.version == 1 || agmv->header.version == 3){
+		u32*palette;
+		u8 fbit;
+		u8 bot;
 		int x,y;
 		for(y = 0; y < height && escape != TRUE; y += 4){
 			for(x = 0; x < width && escape != TRUE; x += 4){
@@ -168,8 +175,7 @@ int AGMV_DecodeFrameChunk(FILE* file, AGMV* agmv){
 					}
 					
 					palette = fbit ? agmv->header.palette1 : agmv->header.palette0;
-					color;
-			
+
 					if(bot < 127){
 						color = palette[bot];
 					}
@@ -178,29 +184,29 @@ int AGMV_DecodeFrameChunk(FILE* file, AGMV* agmv){
 						color = palette[index];
 					}
 					
-					int i,j;
+					int k,j;
 					for(j = 0; j < 4; j++){
 						offset = (y+j)*width;
-						for(i = 0; i < 4; i++){
-							img_data[(x+i)+offset] = color;
+						for(k = 0; k < 4; k++){
+							img_data[x+k+offset] = color;
 						}
 					}
 				}
 				else if(byte == AGMV_COPY_FLAG){
-					int i,j;
+					int k,j;
 					for(j = 0; j < 4; j++){
 						offset = (y+j)*width;
-						for(i = 0; i < 4; i++){
-							indice = (x+i)+offset;
+						for(k = 0; k < 4; k++){
+							indice = x+k+offset;
 							img_data[indice] = iframe_data[indice];
 						}
 					}
 				}
 				else{
-					int i,j;
+					int k,j;
 					for(j = 0; j < 4; j++){
 						offset = (y+j)*width;
-						for(i = 0; i < 4; i++){
+						for(k = 0; k < 4; k++){
 							if(bitpos > agmv->bitstream->pos){
 								escape = TRUE;
 								break;
@@ -208,10 +214,8 @@ int AGMV_DecodeFrameChunk(FILE* file, AGMV* agmv){
 							index = bitstream_data[bitpos++];
 							fbit = (index >> 7) & 1;
 							bot = (index & 0x7f);
-							
 							palette = fbit ? agmv->header.palette1 : agmv->header.palette0;
-							color;
-					
+
 							if(bot < 127){
 								color = palette[bot];
 							}
@@ -219,7 +223,7 @@ int AGMV_DecodeFrameChunk(FILE* file, AGMV* agmv){
 								index = bitstream_data[bitpos++];
 								color = palette[index];
 							}
-							img_data[(x+i)+offset] = color;
+							img_data[x+k+offset] = color;
 						}
 					}
 				}
@@ -232,7 +236,7 @@ int AGMV_DecodeFrameChunk(FILE* file, AGMV* agmv){
 		int x,y;
 		for(y = 0; y < height && escape != TRUE; y += 4){
 			for(x = 0; x < width && escape != TRUE; x += 4){
-				u8 byte = bitstream_data[bitpos++];
+				byte = bitstream_data[bitpos++];
 				
 				if(bitpos > agmv->bitstream->pos){
 					escape = TRUE;
@@ -247,32 +251,22 @@ int AGMV_DecodeFrameChunk(FILE* file, AGMV* agmv){
 						escape = TRUE;
 						break;
 					}
-					
-					if(escape == FALSE){
-						int i,j;
-						for(j = 0; j < 4; j++){
-							offset = (y+j)*width;
-							for(i = 0; i < 4; i++){
-								img_data[(x+i)+offset] = color;
-							}
-						}
-					}
 				}
 				else if(byte == AGMV_COPY_FLAG){
-					int i,j;
+					int k,j;
 					for(j = 0; j < 4; j++){
 						offset = (y+j)*width;
-						for(i = 0; i < 4; i++){
-							indice = (x+i)+offset;
+						for(k = 0; k < 4; k++){
+							indice = x+k+offset;
 							img_data[indice] = iframe_data[indice];
 						}
 					}
 				}
 				else{
-					int i,j;
+					int k,j;
 					for(j = 0; j < 4; j++){
 						offset = (y+j)*width;
-						for(i = 0; i < 4; i++){
+						for(k = 0; k < 4; k++){
 							index = bitstream_data[bitpos++];
 							if(bitpos > agmv->bitstream->pos){
 								escape = TRUE;
@@ -280,7 +274,7 @@ int AGMV_DecodeFrameChunk(FILE* file, AGMV* agmv){
 							}
 							color = palette0[index];
 							if(escape == FALSE){
-								img_data[(x+i)+offset] = color;
+								img_data[x+k+offset] = color;
 							}
 						}
 					}
@@ -300,10 +294,8 @@ int AGMV_DecodeFrameChunk(FILE* file, AGMV* agmv){
 	return NO_ERR;
 }
 
-int AGMV_DecodeAudioChunk(FILE* file, AGMV* agmv){
-	int i;
-	u32 size, start_point;
-	u16 sample, resample, *pcm = agmv->audio_track->pcm;
+int AGMV_DecodeAudioChunk(FILE* file, const AGMV* agmv){
+	u16*pcm = agmv->audio_track->pcm;
 	
 	AGMV_ReadFourCC(file,agmv->audio_chunk->fourcc);
 	agmv->audio_chunk->size = AGIDL_ReadLong(file);
@@ -311,13 +303,13 @@ int AGMV_DecodeAudioChunk(FILE* file, AGMV* agmv){
 	if(!AGMV_IsCorrectFourCC(agmv->audio_chunk->fourcc,'A','G','A','C')){
 		return INVALID_HEADER_FORMATTING_ERR;
 	}
-	
-	size = agmv->audio_chunk->size;
-	start_point = agmv->audio_track->start_point;
 
-	for(i = 0; i < size; i++){
-		sample = AGIDL_ReadByte(file);
-		resample = 0;
+	const u32 size = agmv->audio_chunk->size;
+	u32 start_point = agmv->audio_track->start_point;
+
+	for(int i = 0; i < size; i++){
+		const u16 sample = AGIDL_ReadByte(file);
+		u16 resample = 0;
 		
 		if(sample % 2 == 0){
 			resample = sample * sample;
@@ -334,10 +326,7 @@ int AGMV_DecodeAudioChunk(FILE* file, AGMV* agmv){
 	return NO_ERR;
 }
 
-int AGMV_DecodeGBAAudioChunk(FILE* file, AGMV* agmv){
-	int i;
-	u32 size;
-	s8 sample;
+int AGMV_DecodeGBAAudioChunk(FILE* file, const AGMV* agmv){
 	s8* satsample = agmv->audio_chunk->satsample;
 	
 	AGMV_ReadFourCC(file,agmv->audio_chunk->fourcc);
@@ -346,22 +335,19 @@ int AGMV_DecodeGBAAudioChunk(FILE* file, AGMV* agmv){
 	if(!AGMV_IsCorrectFourCC(agmv->audio_chunk->fourcc,'A','G','A','C')){
 		return INVALID_HEADER_FORMATTING_ERR;
 	}
-	
-	size = agmv->audio_chunk->size;
 
-	for(i = 0; i < size; i++){
-		sample = AGIDL_ReadByte(file);
+	const u32 size = agmv->audio_chunk->size;
+
+	for(int i = 0; i < size; i++){
+		const s8 sample = AGIDL_ReadByte(file);
 		satsample[i] = sample; 
 	}
 	
 	return NO_ERR;
 }
 
-int AGMV_DecodeVideo(const char* filename, u8 img_type){
-	
-	int err, err1, i, num_of_frames;
-	
-	AGMV* agmv = (AGMV*)malloc(sizeof(AGMV));
+int AGMV_DecodeVideo(const char* filename, const u8 img_type){
+	AGMV* agmv = malloc(sizeof(AGMV));
 	agmv->frame_chunk = (AGMV_FRAME_CHUNK*)malloc(sizeof(AGMV_FRAME_CHUNK));
 	agmv->audio_chunk = (AGMV_AUDIO_CHUNK*)malloc(sizeof(AGMV_AUDIO_CHUNK));
 	agmv->bitstream = (AGMV_BITSTREAM*)malloc(sizeof(AGMV_BITSTREAM));
@@ -377,8 +363,8 @@ int AGMV_DecodeVideo(const char* filename, u8 img_type){
 		DestroyAGMV(agmv);
 		return FILE_NOT_FOUND_ERR;
 	}
-	
-	err = AGMV_DecodeHeader(file,agmv);
+
+	const int err = AGMV_DecodeHeader(file, agmv);
 	
 	agmv->frame->width = agmv->header.width;
 	agmv->frame->height = agmv->header.height;
@@ -390,40 +376,37 @@ int AGMV_DecodeVideo(const char* filename, u8 img_type){
 	
 	agmv->bitstream->len = agmv->header.width*agmv->header.height*2;
 	agmv->bitstream->data = (u8*)malloc(sizeof(u8)*agmv->bitstream->len);
-	
-	num_of_frames = AGMV_GetNumberOfFrames(agmv);
+
+	const int num_of_frames = AGMV_GetNumberOfFrames(agmv);
 	
 	if(err != NO_ERR){
 		fclose(file);
 		DestroyAGMV(agmv);
 		return err;
 	}
-	else{
-		for(i = 0; i < num_of_frames; i++){
-			AGMV_FindNextFrameChunk(file);
-			err1 = AGMV_DecodeFrameChunk(file,agmv);
+	for(int i = 0; i < num_of_frames; i++){
+		AGMV_FindNextFrameChunk(file);
+		const int err1 = AGMV_DecodeFrameChunk(file, agmv);
 				
-			if(err1 != NO_ERR){
-				fclose(file);
-				DestroyAGMV(agmv);
-				return err1;
-			}
-			
-			AGIDL_QuickExport(agmv->frame->img_data,agmv->frame->width,agmv->frame->height,AGIDL_RGB_888,img_type);
+		if(err1 != NO_ERR){
+			fclose(file);
+			DestroyAGMV(agmv);
+			return err1;
 		}
+			
+		AGIDL_QuickExport(agmv->frame->img_data,agmv->frame->width,agmv->frame->height,AGIDL_RGB_888,img_type);
 	}
-	
+
 	fclose(file);
 	DestroyAGMV(agmv);
 	
 	return NO_ERR;
 }
 
-int AGMV_DecodeAGMV(const char* filename, u8 img_type, AGMV_AUDIO_TYPE audio_type){
-	FILE* file, *audio;
-	int err, err1, err2, i, num_of_frames;
+int AGMV_DecodeAGMV(const char* filename, const u8 img_type, const AGMV_AUDIO_TYPE audio_type){
+	int err1, i;
 	
-	AGMV* agmv = (AGMV*)malloc(sizeof(AGMV));
+	AGMV* agmv = malloc(sizeof(AGMV));
 	agmv->frame_chunk = (AGMV_FRAME_CHUNK*)malloc(sizeof(AGMV_FRAME_CHUNK));
 	agmv->audio_chunk = (AGMV_AUDIO_CHUNK*)malloc(sizeof(AGMV_AUDIO_CHUNK));
 	agmv->bitstream = (AGMV_BITSTREAM*)malloc(sizeof(AGMV_BITSTREAM));
@@ -432,15 +415,15 @@ int AGMV_DecodeAGMV(const char* filename, u8 img_type, AGMV_AUDIO_TYPE audio_typ
 	agmv->iframe = (AGMV_FRAME*)malloc(sizeof(AGMV_FRAME));
 	agmv->audio_track = (AGMV_AUDIO_TRACK*)malloc(sizeof(AGMV_AUDIO_TRACK));
 	
-	file = fopen(filename,"rb");
+	FILE* file = fopen(filename, "rb");
 	
 	if(file == NULL){
 		fclose(file);
 		DestroyAGMV(agmv);
 		return FILE_NOT_FOUND_ERR;
 	}
-	
-	err = AGMV_DecodeHeader(file,agmv);
+
+	const int err = AGMV_DecodeHeader(file, agmv);
 	
 	agmv->frame->width = agmv->header.width;
 	agmv->frame->height = agmv->header.height;
@@ -452,81 +435,80 @@ int AGMV_DecodeAGMV(const char* filename, u8 img_type, AGMV_AUDIO_TYPE audio_typ
 	
 	agmv->bitstream->len = agmv->header.width*agmv->header.height*2;
 	agmv->bitstream->data = (u8*)malloc(sizeof(u8)*agmv->bitstream->len);
-	
-	num_of_frames = AGMV_GetNumberOfFrames(agmv);
+
+	const int num_of_frames = AGMV_GetNumberOfFrames(agmv);
 	
 	if(err != NO_ERR){
 		fclose(file);
 		DestroyAGMV(agmv);
 		return err;
 	}
-	else{
-		if(agmv->header.total_audio_duration != 0){
-			agmv->audio_track->start_point = 0;
-			agmv->audio_track->pcm = (u16*)malloc(sizeof(u16)*agmv->header.audio_size);
-	
-			agmv->audio_chunk->size = agmv->header.audio_size / (f32)agmv->header.num_of_frames;
-			
-			for(i = 0; i < num_of_frames; i++){
-				AGMV_FindNextFrameChunk(file);
-				err1 = AGMV_DecodeFrameChunk(file,agmv);
-				AGMV_FindNextAudioChunk(file);
-				err2 = AGMV_DecodeAudioChunk(file,agmv);
-				
-				if(err1 != NO_ERR){
-					fclose(file);
-					DestroyAGMV(agmv);
-					return err1;
-				}
-				
-				if(err2 != NO_ERR){
-					fclose(file);
-					DestroyAGMV(agmv);
-					return err1;
-				}
-				
-				AGIDL_QuickExport(agmv->frame->img_data,agmv->frame->width,agmv->frame->height,AGIDL_RGB_888,img_type);
+	if(agmv->header.total_audio_duration != 0){
+		FILE*audio;
+		agmv->audio_track->start_point = 0;
+		agmv->audio_track->pcm = (u16*)malloc(sizeof(u16)*agmv->header.audio_size);
+
+		agmv->audio_chunk->size = agmv->header.audio_size / (f32)agmv->header.num_of_frames;
+
+		for(i = 0; i < num_of_frames; i++){
+			AGMV_FindNextFrameChunk(file);
+			err1 = AGMV_DecodeFrameChunk(file,agmv);
+			AGMV_FindNextAudioChunk(file);
+			const int err2 = AGMV_DecodeAudioChunk(file, agmv);
+
+			if(err1 != NO_ERR){
+				fclose(file);
+				DestroyAGMV(agmv);
+				return err1;
 			}
 
-			switch(audio_type){
-				case AGMV_AUDIO_WAV:{
-					audio = fopen("quick_export.wav","wb");
-					AGMV_ExportAudioType(audio,agmv,AGMV_AUDIO_WAV);
-					fclose(audio);
-				}break;
-				case AGMV_AUDIO_AIFC:{
-					audio = fopen("quick_export.aiff","wb");
-					AGMV_ExportAudioType(audio,agmv,AGMV_AUDIO_AIFC);
-					fclose(audio);
-				}break;
-				case AGMV_AUDIO_AIFF:{
-					audio = fopen("quick_export.aiff","wb");
-					AGMV_ExportAudioType(audio,agmv,AGMV_AUDIO_AIFF);
-					fclose(audio);
-				}break;
-				default:{
-					audio = fopen("quick_export.wav","wb");
-					AGMV_ExportAudioType(audio,agmv,AGMV_AUDIO_WAV);	
-					fclose(audio);
-				}break;
+			if(err2 != NO_ERR){
+				fclose(file);
+				DestroyAGMV(agmv);
+				return err1;
 			}
+
+			AGIDL_QuickExport(agmv->frame->img_data,agmv->frame->width,agmv->frame->height,AGIDL_RGB_888,img_type);
 		}
-		else{
-			for(i = 0; i < num_of_frames; i++){
-				AGMV_FindNextFrameChunk(file);
-				err1 = AGMV_DecodeFrameChunk(file,agmv);
-					
-				if(err1 != NO_ERR){
-					fclose(file);
-					DestroyAGMV(agmv);
-					return err1;
-				}
-				
-				AGIDL_QuickExport(agmv->frame->img_data,agmv->frame->width,agmv->frame->height,AGIDL_RGB_888,img_type);
-			}
+
+		switch(audio_type){
+			case AGMV_AUDIO_WAV:{
+				audio = fopen("quick_export.wav","wb");
+				AGMV_ExportAudioType(audio,agmv,AGMV_AUDIO_WAV);
+				fclose(audio);
+			}break;
+			case AGMV_AUDIO_AIFC:{
+				audio = fopen("quick_export.aiff","wb");
+				AGMV_ExportAudioType(audio,agmv,AGMV_AUDIO_AIFC);
+				fclose(audio);
+			}break;
+			case AGMV_AUDIO_AIFF:{
+				audio = fopen("quick_export.aiff","wb");
+				AGMV_ExportAudioType(audio,agmv,AGMV_AUDIO_AIFF);
+				fclose(audio);
+			}break;
+			default:{
+				audio = fopen("quick_export.wav","wb");
+				AGMV_ExportAudioType(audio,agmv,AGMV_AUDIO_WAV);
+				fclose(audio);
+			}break;
 		}
 	}
-	
+	else{
+		for(i = 0; i < num_of_frames; i++){
+			AGMV_FindNextFrameChunk(file);
+			err1 = AGMV_DecodeFrameChunk(file,agmv);
+
+			if(err1 != NO_ERR){
+				fclose(file);
+				DestroyAGMV(agmv);
+				return err1;
+			}
+
+			AGIDL_QuickExport(agmv->frame->img_data,agmv->frame->width,agmv->frame->height,AGIDL_RGB_888,img_type);
+		}
+	}
+
 	fclose(file);
 	DestroyAGMV(agmv);
 	
@@ -542,20 +524,20 @@ void to_80bitfloat(u32 num, u8 bytes[10])
 		bytes [1] = 0xFF ;
 		bytes [2] = 0x80 ;
 		return ;
-		} ;
+		}
 
 	bytes [0] = 0x40 ;
 
 	if (num >= mask)
 	{	bytes [1] = 0x1D ;
 		return ;
-		} ;
+		}
 
 	for (count = 0 ; count < 32 ; count ++)
 	{	if (num & mask)
 			break ;
 		mask >>= 1 ;
-		} ;
+		}
 
 	num = count < 31 ? num << (count + 1) : 0 ;
 	bytes [1] = 29 - count ;
@@ -566,11 +548,8 @@ void to_80bitfloat(u32 num, u8 bytes[10])
 
 } 
 
-int AGMV_DecodeAudio(const char* filename, AGMV_AUDIO_TYPE audio_type){
-	FILE* file, *audio;
-	int err, err1, i, num_of_frames;
-	
-	AGMV* agmv = (AGMV*)malloc(sizeof(AGMV));
+int AGMV_DecodeAudio(const char* filename, const AGMV_AUDIO_TYPE audio_type){
+	AGMV* agmv = malloc(sizeof(AGMV));
 	agmv->frame_chunk = (AGMV_FRAME_CHUNK*)malloc(sizeof(AGMV_FRAME_CHUNK));
 	agmv->audio_chunk = (AGMV_AUDIO_CHUNK*)malloc(sizeof(AGMV_AUDIO_CHUNK));
 	agmv->bitstream = (AGMV_BITSTREAM*)malloc(sizeof(AGMV_BITSTREAM));
@@ -578,67 +557,66 @@ int AGMV_DecodeAudio(const char* filename, AGMV_AUDIO_TYPE audio_type){
 	agmv->iframe = (AGMV_FRAME*)malloc(sizeof(AGMV_FRAME));
 	agmv->audio_track = (AGMV_AUDIO_TRACK*)malloc(sizeof(AGMV_AUDIO_TRACK));
 	
-	file = fopen(filename,"rb");
+	FILE* file = fopen(filename, "rb");
 	
 	if(file == NULL){
 		fclose(file);
 		DestroyAGMV(agmv);
 		return FILE_NOT_FOUND_ERR;
 	}
-	
-	err = AGMV_DecodeHeader(file,agmv);
-	num_of_frames = AGMV_GetNumberOfFrames(agmv);
+
+	const int err = AGMV_DecodeHeader(file, agmv);
+	const int num_of_frames = AGMV_GetNumberOfFrames(agmv);
 	
 	if(err != NO_ERR){
 		fclose(file);
 		DestroyAGMV(agmv);
 		return err;
 	}
-	else{
-		if(agmv->header.total_audio_duration != 0){
-			agmv->audio_track->start_point = 0;
-			agmv->audio_track->pcm = (u16*)malloc(sizeof(u16)*agmv->header.audio_size);
-	
-			agmv->audio_chunk->size = agmv->header.audio_size / (f32)agmv->header.num_of_frames;
-			
-			for(i = 0; i < num_of_frames; i++){
-				AGMV_FindNextFrameChunk(file);
-				AGMV_SkipFrameChunk(file);
-				AGMV_FindNextAudioChunk(file);
-				err1 = AGMV_DecodeAudioChunk(file,agmv);
+	if(agmv->header.total_audio_duration != 0){
+		FILE*audio;
+		agmv->audio_track->start_point = 0;
+		agmv->audio_track->pcm = (u16*)malloc(sizeof(u16)*agmv->header.audio_size);
 
-				if(err1 != NO_ERR){
-					fclose(file);
-					DestroyAGMV(agmv);
-					return err1;
-				}
-			}
-			
-			switch(audio_type){
-				case AGMV_AUDIO_WAV:{
-					audio = fopen("quick_export.wav","wb");
-					AGMV_ExportAudioType(audio,agmv,AGMV_AUDIO_WAV);
-					fclose(audio);
-				}break;
-				case AGMV_AUDIO_AIFC:{
-					audio = fopen("quick_export.aiff","wb");
-					AGMV_ExportAudioType(audio,agmv,AGMV_AUDIO_AIFC);
-					fclose(audio);
-				}break;
-				case AGMV_AUDIO_AIFF:{
-					audio = fopen("quick_export.aiff","wb");
-					AGMV_ExportAudioType(audio,agmv,AGMV_AUDIO_AIFF);
-					fclose(audio);
-				}break;
-				default:{
-					audio = fopen("quick_export.wav","wb");
-					AGMV_ExportAudioType(audio,agmv,AGMV_AUDIO_WAV);	
-					fclose(audio);
-				}break;
+		agmv->audio_chunk->size = agmv->header.audio_size / (f32)agmv->header.num_of_frames;
+
+		for(int i = 0; i < num_of_frames; i++){
+			AGMV_FindNextFrameChunk(file);
+			AGMV_SkipFrameChunk(file);
+			AGMV_FindNextAudioChunk(file);
+			const int err1 = AGMV_DecodeAudioChunk(file, agmv);
+
+			if(err1 != NO_ERR){
+				fclose(file);
+				DestroyAGMV(agmv);
+				return err1;
 			}
 		}
+
+		switch(audio_type){
+			case AGMV_AUDIO_WAV:{
+				audio = fopen("quick_export.wav","wb");
+				AGMV_ExportAudioType(audio,agmv,AGMV_AUDIO_WAV);
+				fclose(audio);
+			}break;
+			case AGMV_AUDIO_AIFC:{
+				audio = fopen("quick_export.aiff","wb");
+				AGMV_ExportAudioType(audio,agmv,AGMV_AUDIO_AIFC);
+				fclose(audio);
+			}break;
+			case AGMV_AUDIO_AIFF:{
+				audio = fopen("quick_export.aiff","wb");
+				AGMV_ExportAudioType(audio,agmv,AGMV_AUDIO_AIFF);
+				fclose(audio);
+			}break;
+			default:{
+				audio = fopen("quick_export.wav","wb");
+				AGMV_ExportAudioType(audio,agmv,AGMV_AUDIO_WAV);
+				fclose(audio);
+			}break;
+		}
 	}
-	
+
 	fclose(file);
 	DestroyAGMV(agmv);
 	

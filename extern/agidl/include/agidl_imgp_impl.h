@@ -15,64 +15,59 @@
 *
 ********************************************/
 
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_converter.h"
-#include "agidl_imgp_grayscale.h"
-#include "agidl_imgp_rotate.h"
-#include "agidl_imgp_scale.h"
-#include "agidl_imgp_filter.h"
-#include "agidl_imgp_mirror.h"
-#include "agidl_imgp_wrap.h"
-#include "agidl_imgp_halftone.h"
+#include <agidl_imgp_mirror.h>
+#include <agidl_imgp_rotate.h>
+#include <agidl_imgp_scale.h>
+#include <agidl_img_converter.h>
+#include <agidl_types.h>
 
-void AGIDL_GrayscaleBMP(AGIDL_BMP* bmp);
-void AGIDL_GrayscaleTGA(AGIDL_TGA* tga);
-void AGIDL_GrayscaleTIM(AGIDL_TIM* tim);
-void AGIDL_GrayscalePCX(AGIDL_PCX* pcx);
-void AGIDL_GrayscaleLMP(AGIDL_LMP* lmp);
-void AGIDL_GrayscalePVR(AGIDL_PVR* pvr);
-void AGIDL_GrayscaleGXT(AGIDL_GXT* gxt);
-void AGIDL_GrayscaleBTI(AGIDL_BTI* bti);
-void AGIDL_Grayscale3DF(AGIDL_3DF* glide);
-void AGIDL_GrayscalePPM(AGIDL_PPM* ppm);
-void AGIDL_GrayscaleLBM(AGIDL_LBM* lbm);
+void AGIDL_GrayscaleBMP(const AGIDL_BMP* bmp);
+void AGIDL_GrayscaleTGA(const AGIDL_TGA* tga);
+void AGIDL_GrayscaleTIM(const AGIDL_TIM* tim);
+void AGIDL_GrayscalePCX(const AGIDL_PCX* pcx);
+void AGIDL_GrayscaleLMP(const AGIDL_LMP* lmp);
+void AGIDL_GrayscalePVR(const AGIDL_PVR* pvr);
+void AGIDL_GrayscaleGXT(const AGIDL_GXT* gxt);
+void AGIDL_GrayscaleBTI(const AGIDL_BTI* bti);
+void AGIDL_Grayscale3DF(const AGIDL_3DF* glide);
+void AGIDL_GrayscalePPM(const AGIDL_PPM* ppm);
+void AGIDL_GrayscaleLBM(const AGIDL_LBM* lbm);
 
-void AGIDL_FlipHorzBMP(AGIDL_BMP* bmp);
-void AGIDL_FlipHorzTGA(AGIDL_TGA* tga);
-void AGIDL_FlipHorzTIM(AGIDL_TIM* tim);
-void AGIDL_FlipHorzPCX(AGIDL_PCX* pcx);
-void AGIDL_FlipHorzLMP(AGIDL_LMP* lmp);
-void AGIDL_FlipHorzPVR(AGIDL_PVR* pvr);
-void AGIDL_FlipHorzGXT(AGIDL_GXT* gxt);
-void AGIDL_FlipHorzBTI(AGIDL_BTI* bti);
-void AGIDL_FlipHorz3DF(AGIDL_3DF* glide);
-void AGIDL_FlipHorzPPM(AGIDL_PPM* ppm);
-void AGIDL_FlipHorzLBM(AGIDL_LBM* lbm);
+void AGIDL_FlipHorzBMP(const AGIDL_BMP* bmp);
+void AGIDL_FlipHorzTGA(const AGIDL_TGA* tga);
+void AGIDL_FlipHorzTIM(const AGIDL_TIM* tim);
+void AGIDL_FlipHorzPCX(const AGIDL_PCX* pcx);
+void AGIDL_FlipHorzLMP(const AGIDL_LMP* lmp);
+void AGIDL_FlipHorzPVR(const AGIDL_PVR* pvr);
+void AGIDL_FlipHorzGXT(const AGIDL_GXT* gxt);
+void AGIDL_FlipHorzBTI(const AGIDL_BTI* bti);
+void AGIDL_FlipHorz3DF(const AGIDL_3DF* glide);
+void AGIDL_FlipHorzPPM(const AGIDL_PPM* ppm);
+void AGIDL_FlipHorzLBM(const AGIDL_LBM* lbm);
 
-void AGIDL_FlipVertBMP(AGIDL_BMP* bmp);
-void AGIDL_FlipVertTGA(AGIDL_TGA* tga);
-void AGIDL_FlipVertTIM(AGIDL_TIM* tim);
-void AGIDL_FlipVertPCX(AGIDL_PCX* pcx);
-void AGIDL_FlipVertLMP(AGIDL_LMP* lmp);
-void AGIDL_FlipVertPVR(AGIDL_PVR* pvr);
-void AGIDL_FlipVertGXT(AGIDL_GXT* gxt);
-void AGIDL_FlipVertBTI(AGIDL_BTI* bti);
-void AGIDL_FlipVert3DF(AGIDL_3DF* glide);
-void AGIDL_FlipVertPPM(AGIDL_PPM* ppm);
-void AGIDL_FlipVertLBM(AGIDL_LBM* lbm);
+void AGIDL_FlipVertBMP(const AGIDL_BMP* bmp);
+void AGIDL_FlipVertTGA(const AGIDL_TGA* tga);
+void AGIDL_FlipVertTIM(const AGIDL_TIM* tim);
+void AGIDL_FlipVertPCX(const AGIDL_PCX* pcx);
+void AGIDL_FlipVertLMP(const AGIDL_LMP* lmp);
+void AGIDL_FlipVertPVR(const AGIDL_PVR* pvr);
+void AGIDL_FlipVertGXT(const AGIDL_GXT* gxt);
+void AGIDL_FlipVertBTI(const AGIDL_BTI* bti);
+void AGIDL_FlipVert3DF(const AGIDL_3DF* glide);
+void AGIDL_FlipVertPPM(const AGIDL_PPM* ppm);
+void AGIDL_FlipVertLBM(const AGIDL_LBM* lbm);
 
-void AGIDL_FlipHorzAndVertBMP(AGIDL_BMP* bmp);
-void AGIDL_FlipHorzAndVertTGA(AGIDL_TGA* tga);
-void AGIDL_FlipHorzAndVertTIM(AGIDL_TIM* tim);
-void AGIDL_FlipHorzAndVertPCX(AGIDL_PCX* pcx);
-void AGIDL_FlipHorzAndVertLMP(AGIDL_LMP* lmp);
-void AGIDL_FlipHorzAndVertPVR(AGIDL_PVR* pvr);
-void AGIDL_FlipHorzAndVertGXT(AGIDL_GXT* gxt);
-void AGIDL_FlipHorzAndVertBTI(AGIDL_BTI* bti);
-void AGIDL_FlipHorzAndVert3DF(AGIDL_3DF* glide);
-void AGIDL_FlipHorzAndVertPPM(AGIDL_PPM* ppm);
-void AGIDL_FlipHorzAndVertLBM(AGIDL_LBM* lbm);
+void AGIDL_FlipHorzAndVertBMP(const AGIDL_BMP* bmp);
+void AGIDL_FlipHorzAndVertTGA(const AGIDL_TGA* tga);
+void AGIDL_FlipHorzAndVertTIM(const AGIDL_TIM* tim);
+void AGIDL_FlipHorzAndVertPCX(const AGIDL_PCX* pcx);
+void AGIDL_FlipHorzAndVertLMP(const AGIDL_LMP* lmp);
+void AGIDL_FlipHorzAndVertPVR(const AGIDL_PVR* pvr);
+void AGIDL_FlipHorzAndVertGXT(const AGIDL_GXT* gxt);
+void AGIDL_FlipHorzAndVertBTI(const AGIDL_BTI* bti);
+void AGIDL_FlipHorzAndVert3DF(const AGIDL_3DF* glide);
+void AGIDL_FlipHorzAndVertPPM(const AGIDL_PPM* ppm);
+void AGIDL_FlipHorzAndVertLBM(const AGIDL_LBM* lbm);
 
 void AGIDL_RotateBMP(AGIDL_BMP* bmp, AGIDL_ANGLE angle);
 void AGIDL_RotateTGA(AGIDL_TGA* tga, AGIDL_ANGLE angle);
@@ -110,29 +105,29 @@ void AGIDL_FastScale3DF(AGIDL_3DF* glide, float sx, float sy, AGIDL_SCALE scale)
 void AGIDL_FastScalePPM(AGIDL_PPM* ppm, float sx, float sy, AGIDL_SCALE scale);
 void AGIDL_FastScaleLBM(AGIDL_LBM* lbm, float sx, float sy, AGIDL_SCALE scale);
 
-void AGIDL_FilterBilerpBMP(AGIDL_BMP* bmp);
-void AGIDL_FilterBilerpTGA(AGIDL_TGA* tga);
-void AGIDL_FilterBilerpTIM(AGIDL_TIM* tim);
-void AGIDL_FilterBilerpPCX(AGIDL_PCX* pcx);
-void AGIDL_FilterBilerpLMP(AGIDL_LMP* lmp);
-void AGIDL_FilterBilerpPVR(AGIDL_PVR* pvr);
-void AGIDL_FilterBilerpGXT(AGIDL_GXT* gxt);
-void AGIDL_FilterBilerpBTI(AGIDL_BTI* bti);
-void AGIDL_FilterBilerp3DF(AGIDL_3DF* glide);
-void AGIDL_FilterBilerpPPM(AGIDL_PPM* ppm);
-void AGIDL_FilterBilerpLBM(AGIDL_LBM* lbm);
+void AGIDL_FilterBilerpBMP(const AGIDL_BMP* bmp);
+void AGIDL_FilterBilerpTGA(const AGIDL_TGA* tga);
+void AGIDL_FilterBilerpTIM(const AGIDL_TIM* tim);
+void AGIDL_FilterBilerpPCX(const AGIDL_PCX* pcx);
+void AGIDL_FilterBilerpLMP(const AGIDL_LMP* lmp);
+void AGIDL_FilterBilerpPVR(const AGIDL_PVR* pvr);
+void AGIDL_FilterBilerpGXT(const AGIDL_GXT* gxt);
+void AGIDL_FilterBilerpBTI(const AGIDL_BTI* bti);
+void AGIDL_FilterBilerp3DF(const AGIDL_3DF* glide);
+void AGIDL_FilterBilerpPPM(const AGIDL_PPM* ppm);
+void AGIDL_FilterBilerpLBM(const AGIDL_LBM* lbm);
 
-void AGIDL_FilterTrilerpBMP(AGIDL_BMP* bmp);
-void AGIDL_FilterTrilerpTGA(AGIDL_TGA* tga);
-void AGIDL_FilterTrilerpTIM(AGIDL_TIM* tim);
-void AGIDL_FilterTrilerpPCX(AGIDL_PCX* pcx);
-void AGIDL_FilterTrilerpLMP(AGIDL_LMP* lmp);
-void AGIDL_FilterTrilerpPVR(AGIDL_PVR* pvr);
-void AGIDL_FilterTrilerpGXT(AGIDL_GXT* gxt);
-void AGIDL_FilterTrilerpBTI(AGIDL_BTI* bti);
-void AGIDL_FilterBilerp3DF(AGIDL_3DF* glide);
-void AGIDL_FilterBilerpPPM(AGIDL_PPM* ppm);
-void AGIDL_FilterBilerpLBM(AGIDL_LBM* lbm);
+void AGIDL_FilterTrilerpBMP(const AGIDL_BMP* bmp);
+void AGIDL_FilterTrilerpTGA(const AGIDL_TGA* tga);
+void AGIDL_FilterTrilerpTIM(const AGIDL_TIM* tim);
+void AGIDL_FilterTrilerpPCX(const AGIDL_PCX* pcx);
+void AGIDL_FilterTrilerpLMP(const AGIDL_LMP* lmp);
+void AGIDL_FilterTrilerpPVR(const AGIDL_PVR* pvr);
+void AGIDL_FilterTrilerpGXT(const AGIDL_GXT* gxt);
+void AGIDL_FilterTrilerpBTI(const AGIDL_BTI* bti);
+void AGIDL_FilterBilerp3DF(const AGIDL_3DF* glide);
+void AGIDL_FilterBilerpPPM(const AGIDL_PPM* ppm);
+void AGIDL_FilterBilerpLBM(const AGIDL_LBM* lbm);
 
 void AGIDL_MirrorBMP(AGIDL_BMP* bmp, AGIDL_MIRROR mirror);
 void AGIDL_MirrorTGA(AGIDL_TGA* tga, AGIDL_MIRROR mirror);
@@ -170,16 +165,16 @@ void AGIDL_WrapAndMirror3DF(AGIDL_3DF* glide, u8 num_of_wraps, AGIDL_MIRROR mirr
 void AGIDL_WrapAndMirrorPPM(AGIDL_PPM* ppm, u8 num_of_wraps, AGIDL_MIRROR mirror);
 void AGIDL_WrapAndMirrorLBM(AGIDL_LBM* lbm, u8 num_of_wraps, AGIDL_MIRROR mirror);
 
-void AGIDL_HalftoneBMP(AGIDL_BMP* bmp);
-void AGIDL_HalftoneTGA(AGIDL_TGA* tga);
-void AGIDL_HalftoneTIM(AGIDL_TIM* tim);
-void AGIDL_HalftonePCX(AGIDL_PCX* pcx);
-void AGIDL_HalftoneLMP(AGIDL_LMP* lmp);
-void AGIDL_HalftonePVR(AGIDL_PVR* pvr);
-void AGIDL_HalftoneGXT(AGIDL_GXT* gxt);
-void AGIDL_HalftoneBTI(AGIDL_BTI* bti);
-void AGIDL_Halftone3DF(AGIDL_3DF* glide);
-void AGIDL_HalftonePPM(AGIDL_PPM* ppm);
-void AGIDL_HalftoneLBM(AGIDL_LBM* lbm);
+void AGIDL_HalftoneBMP(const AGIDL_BMP* bmp);
+void AGIDL_HalftoneTGA(const AGIDL_TGA* tga);
+void AGIDL_HalftoneTIM(const AGIDL_TIM* tim);
+void AGIDL_HalftonePCX(const AGIDL_PCX* pcx);
+void AGIDL_HalftoneLMP(const AGIDL_LMP* lmp);
+void AGIDL_HalftonePVR(const AGIDL_PVR* pvr);
+void AGIDL_HalftoneGXT(const AGIDL_GXT* gxt);
+void AGIDL_HalftoneBTI(const AGIDL_BTI* bti);
+void AGIDL_Halftone3DF(const AGIDL_3DF* glide);
+void AGIDL_HalftonePPM(const AGIDL_PPM* ppm);
+void AGIDL_HalftoneLBM(const AGIDL_LBM* lbm);
 
 #endif

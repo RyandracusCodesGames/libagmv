@@ -14,9 +14,9 @@
 *   Author: Ryandracus Chapman
 *
 ********************************************/
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_types.h"
+
+#include <agidl_cc_types.h>
+#include <agidl_types.h>
 
 typedef enum AGIDL_MIRROR{
 	MIRROR_LEFT_TO_RIGHT = 0x1,
@@ -25,6 +25,6 @@ typedef enum AGIDL_MIRROR{
 	MIRROR_BOTTOM_TO_TOP = 0x4,
 }AGIDL_MIRROR;
 
-void * AGIDL_MirrorImgData(void* data, u16* width, u16* height, AGIDL_CLR_FMT fmt, AGIDL_MIRROR mirror);
+void * AGIDL_MirrorImgData(void* data, u16* width, u16* height, AGIDL_CLR_FMT fmt, AGIDL_MIRROR mirrorType);
 
 #endif

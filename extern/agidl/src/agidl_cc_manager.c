@@ -1,13 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include "agidl_cc_manager.h"
-#include "agidl_math_utils.h"
-#include "agidl_img_types.h"
-#include "agidl_cc_converter.h"
-#include "agidl_file_utils.h"
-#include "agidl_img_error.h"
-
 /********************************************
 *   Adaptive Graphics Image Display Library
 *
@@ -22,97 +12,108 @@
 *
 ********************************************/
 
-u32 AGIDL_AcquireRedMask(AGIDL_CLR_FMT fmt){
+#include <agidl_cc_manager.h>
+
+#include <stdlib.h>
+#include <tgmath.h>
+
+#include <agidl_cc_converter.h>
+#include <agidl_file_utils.h>
+#include <agidl_img_error.h>
+#include <agidl_img_types.h>
+#include <agidl_math_utils.h>
+
+u32 AGIDL_AcquireRedMask(const AGIDL_CLR_FMT fmt){
 	switch(fmt){
 		case AGIDL_RGBA_8888:{
 			return 0xff000000;
-		}break;
+		}
 		case AGIDL_ARGB_8888:{
 			return  0xff0000;
 		}break;
 		case AGIDL_RGB_888:{
 			return 0xff0000;
-		}break;
+		}
 		case AGIDL_BGR_888:{
 			return 0xff;
-		}break;
+		}
 		case AGIDL_RGB_555:{
 			return 0x7c00;
-		}break;
+		}
 		case AGIDL_BGR_555:{
 			return 0x1f;
-		}break;
+		}
 		case AGIDL_RGB_565:{
 			return 0xf800;
-		}break;
+		}
 		case AGIDL_BGR_565:{
 			return 0x1f;
-		}break;
-		default: return 0; break;
+		}
+		default: return 0;
 	}
 }
 
-u32 AGIDL_AcquireGreenMask(AGIDL_CLR_FMT fmt){
+u32 AGIDL_AcquireGreenMask(const AGIDL_CLR_FMT fmt){
 	switch(fmt){
 		case AGIDL_RGBA_8888:{
 			return 0xff0000;
-		}break;
+		}
 		case AGIDL_ARGB_8888:{
 			return 0xff00;
-		}break;
+		}
 		case AGIDL_RGB_888:{
 			return 0xff00;
-		}break;
+		}
 		case AGIDL_BGR_888:{
 			return 0xff00;
-		}break;
+		}
 		case AGIDL_RGB_555:{
 			return 0x3e0;
-		}break;
+		}
 		case AGIDL_BGR_555:{
 			return 0x3e0;
-		}break;
+		}
 		case AGIDL_RGB_565:{
 			return 0x7e0;
-		}break;
+		}
 		case AGIDL_BGR_565:{
 			return 0x7e0;
-		}break;
-		default: return 0; break;
+		}
+		default: return 0;
 	}
 }
 
-u32 AGIDL_AcquireBlueMask(AGIDL_CLR_FMT fmt){
+u32 AGIDL_AcquireBlueMask(const AGIDL_CLR_FMT fmt){
 	switch(fmt){
 		case AGIDL_RGBA_8888:{
 			return 0xff00;
-		}break;
+		}
 		case AGIDL_ARGB_8888:{
 			return 0xff000000;
-		}break;
+		}
 		case AGIDL_RGB_888:{
 			return 0xff;
-		}break;
+		}
 		case AGIDL_BGR_888:{
 			return 0xff0000;
-		}break;
+		}
 		case AGIDL_RGB_555:{
 			return 0x1f;
-		}break;
+		}
 		case AGIDL_BGR_555:{
 			return 0x7c00;
-		}break;
+		}
 		case AGIDL_RGB_565:{
 			return 0x1f;
-		}break;
+		}
 		case AGIDL_BGR_565:{
 			return 0xf800;
-		}break;
-		default: return 0; break;
+		}
+		default: return 0;
 	}
 }
 
-u32 AGIDL_AcquireColorMask(AGIDL_CLR_FMT fmt, AGIDL_CLR_COMPONENT component){
+u32 AGIDL_AcquireColorMask(const AGIDL_CLR_FMT fmt, const AGIDL_CLR_COMPONENT component){
 	switch(component){
 		case CC_R:{
 			return AGIDL_AcquireRedMask(fmt);
@@ -123,11 +124,11 @@ u32 AGIDL_AcquireColorMask(AGIDL_CLR_FMT fmt, AGIDL_CLR_COMPONENT component){
 		case CC_B:{
 			return AGIDL_AcquireBlueMask(fmt);
 		}break;
-		default: return 0; break;
+		default: return 0;
 	}
 }
 
-u8 AGIDL_GetR(COLOR clr, AGIDL_CLR_FMT fmt){
+u8 AGIDL_GetR(const COLOR clr, const AGIDL_CLR_FMT fmt){
 	switch(fmt){
 		case AGIDL_RGB_888:{
 			return ((clr & 0xff0000) >> 16);
@@ -153,11 +154,11 @@ u8 AGIDL_GetR(COLOR clr, AGIDL_CLR_FMT fmt){
 		case AGIDL_BGR_565:{
 			return ((clr & 0x001F));
 		}break;
-		default: return 0; break;
+		default: return 0;
 	}
 }
 
-u8 AGIDL_GetG(COLOR clr, AGIDL_CLR_FMT fmt){
+u8 AGIDL_GetG(const COLOR clr, const AGIDL_CLR_FMT fmt){
 	switch(fmt){
 		case AGIDL_RGB_888:{
 			return ((clr & 0xff00) >> 8);
@@ -183,11 +184,11 @@ u8 AGIDL_GetG(COLOR clr, AGIDL_CLR_FMT fmt){
 		case AGIDL_BGR_565:{
 			return((clr & 0x7E0) >> 5);
 		}break;
-		default: return 0; break;
+		default: return 0;
 	}
 }
 
-u8 AGIDL_GetB(COLOR clr, AGIDL_CLR_FMT fmt){
+u8 AGIDL_GetB(const COLOR clr, const AGIDL_CLR_FMT fmt){
 	switch(fmt){
 		case AGIDL_RGB_888:{
 			return ((clr & 0xff));
@@ -213,207 +214,207 @@ u8 AGIDL_GetB(COLOR clr, AGIDL_CLR_FMT fmt){
 		case AGIDL_BGR_565:{
 			return ((clr & 0xF800) >> 11);
 		}break;
-		default: return 0; break;
+		default: return 0;
 	}
 }
 
-u8 AGIDL_GetA(COLOR clr, AGIDL_CLR_FMT fmt){
+u8 AGIDL_GetA(const COLOR clr, const AGIDL_CLR_FMT fmt){
 	if(fmt == AGIDL_RGBA_8888){
 		return ((clr & 0xff));
 	}
-	else if(fmt == AGIDL_ARGB_8888){
-		return ((clr >> 24) && 0xff);
+	if(fmt == AGIDL_ARGB_8888){
+		return clr >> 24;
 	}
-	else return 0;
+	return 0;
 }
 
-COLOR AGIDL_SetR(COLOR clr, u8 newR, AGIDL_CLR_FMT fmt){
+COLOR AGIDL_SetR(const COLOR clr, const u8 newR, const AGIDL_CLR_FMT fmt){
 	switch(fmt){
 		case AGIDL_RGB_888:{
-			u8 r = newR;
-			u8 g = AGIDL_GetG(clr,fmt);
-			u8 b = AGIDL_GetB(clr,fmt);
+			const u8 r = newR;
+			const u8 g = AGIDL_GetG(clr,fmt);
+			const u8 b = AGIDL_GetB(clr,fmt);
 			return AGIDL_RGB(r,g,b,fmt);
 		}break;
 		case AGIDL_BGR_888:{
-			u8 r = newR;
-			u8 g = AGIDL_GetG(clr,fmt);
-			u8 b = AGIDL_GetB(clr,fmt);
+			const u8 r = newR;
+			const u8 g = AGIDL_GetG(clr,fmt);
+			const u8 b = AGIDL_GetB(clr,fmt);
 			return AGIDL_RGB(r,g,b,fmt);
 		}break;
 		case AGIDL_RGBA_8888:{
-			u8 r = newR;
-			u8 g = AGIDL_GetG(clr,fmt);
-			u8 b = AGIDL_GetB(clr,fmt);
-			u8 a = AGIDL_GetA(clr,fmt);
+			const u8 r = newR;
+			const u8 g = AGIDL_GetG(clr,fmt);
+			const u8 b = AGIDL_GetB(clr,fmt);
+			const u8 a = AGIDL_GetA(clr,fmt);
 			return AGIDL_RGBA(r,g,b,a,fmt);
 		}break;
 		case AGIDL_ARGB_8888:{
-			u8 r = newR;
-			u8 g = AGIDL_GetG(clr,fmt);
-			u8 b = AGIDL_GetB(clr,fmt);
-			u8 a = AGIDL_GetA(clr,fmt);
+			const u8 r = newR;
+			const u8 g = AGIDL_GetG(clr,fmt);
+			const u8 b = AGIDL_GetB(clr,fmt);
+			const u8 a = AGIDL_GetA(clr,fmt);
 			return AGIDL_RGBA(r,g,b,a,fmt);
 		}break;
 		case AGIDL_RGB_555:{
-			u8 r = AGIDL_Clamp(0,newR,31);
-			u8 g = AGIDL_GetG(clr,fmt);
-			u8 b = AGIDL_GetB(clr,fmt);
+			const u8 r = AGIDL_Clamp(0,newR,31);
+			const u8 g = AGIDL_GetG(clr,fmt);
+			const u8 b = AGIDL_GetB(clr,fmt);
 			return AGIDL_RGB(r,g,b,fmt);
 		}break;
 		case AGIDL_BGR_555:{
-			u8 r = AGIDL_Clamp(0,newR,31);
-			u8 g = AGIDL_GetG(clr,fmt);
-			u8 b = AGIDL_GetB(clr,fmt);
-			return AGIDL_RGB(r,g,b,fmt); 
+			const u8 r = AGIDL_Clamp(0,newR,31);
+			const u8 g = AGIDL_GetG(clr,fmt);
+			const u8 b = AGIDL_GetB(clr,fmt);
+			return AGIDL_RGB(r,g,b,fmt);
 		}break;
 		case AGIDL_RGB_565:{
-			u8 r = AGIDL_Clamp(0,newR,31);
-			u8 g = AGIDL_GetG(clr,fmt);
-			u8 b = AGIDL_GetB(clr,fmt);
+			const u8 r = AGIDL_Clamp(0,newR,31);
+			const u8 g = AGIDL_GetG(clr,fmt);
+			const u8 b = AGIDL_GetB(clr,fmt);
 			return AGIDL_RGB(r,g,b,fmt);
 		}break;
 		case AGIDL_BGR_565:{
-			u8 r = AGIDL_Clamp(0,newR,31);
-			u8 g = AGIDL_GetG(clr,fmt);
-			u8 b = AGIDL_GetB(clr,fmt);
+			const u8 r = AGIDL_Clamp(0,newR,31);
+			const u8 g = AGIDL_GetG(clr,fmt);
+			const u8 b = AGIDL_GetB(clr,fmt);
 			return AGIDL_RGB(r,g,b,fmt);
 		}break;
-		default: return clr; break;
+		default: return clr;
 	}
 }
 
-COLOR AGIDL_SetG(COLOR clr, u8 newG, AGIDL_CLR_FMT fmt){
+COLOR AGIDL_SetG(const COLOR clr, const u8 newG, const AGIDL_CLR_FMT fmt){
 	switch(fmt){
 		case AGIDL_RGB_888:{
-			u8 r = AGIDL_GetR(clr,fmt);
-			u8 g = newG;
-			u8 b = AGIDL_GetB(clr,fmt);
+			const u8 r = AGIDL_GetR(clr,fmt);
+			const u8 g = newG;
+			const u8 b = AGIDL_GetB(clr,fmt);
 			return AGIDL_RGB(r,g,b,fmt);
 		}break;
 		case AGIDL_BGR_888:{
-			u8 r = AGIDL_GetR(clr,fmt);
-			u8 g = newG;
-			u8 b = AGIDL_GetB(clr,fmt);
+			const u8 r = AGIDL_GetR(clr,fmt);
+			const u8 g = newG;
+			const u8 b = AGIDL_GetB(clr,fmt);
 			return AGIDL_RGB(r,g,b,fmt);
 		}break;
 		case AGIDL_RGBA_8888:{
-			u8 r = AGIDL_GetR(clr,fmt);
-			u8 g = newG;
-			u8 b = AGIDL_GetB(clr,fmt);
-			u8 a = AGIDL_GetA(clr,fmt);
+			const u8 r = AGIDL_GetR(clr,fmt);
+			const u8 g = newG;
+			const u8 b = AGIDL_GetB(clr,fmt);
+			const u8 a = AGIDL_GetA(clr,fmt);
 			return AGIDL_RGBA(r,g,b,a,fmt);
 		}break;
 		case AGIDL_ARGB_8888:{
-			u8 r = AGIDL_GetR(clr,fmt);
-			u8 g = newG;
-			u8 b = AGIDL_GetB(clr,fmt);
-			u8 a = AGIDL_GetA(clr,fmt);
+			const u8 r = AGIDL_GetR(clr,fmt);
+			const u8 g = newG;
+			const u8 b = AGIDL_GetB(clr,fmt);
+			const u8 a = AGIDL_GetA(clr,fmt);
 			return AGIDL_RGBA(r,g,b,a,fmt);
 		}break;
 		case AGIDL_RGB_555:{
-			u8 r = AGIDL_GetR(clr,fmt);
-			u8 g = AGIDL_Clamp(0,newG,31);
-			u8 b = AGIDL_GetB(clr,fmt);
+			const u8 r = AGIDL_GetR(clr,fmt);
+			const u8 g = AGIDL_Clamp(0,newG,31);
+			const u8 b = AGIDL_GetB(clr,fmt);
 			return AGIDL_RGB(r,g,b,fmt);
 		}break;
 		case AGIDL_BGR_555:{
-			u8 r = AGIDL_GetR(clr,fmt);
-			u8 g = AGIDL_Clamp(0,newG,31);
-			u8 b = AGIDL_GetB(clr,fmt);
-			return AGIDL_RGB(r,g,b,fmt); 
+			const u8 r = AGIDL_GetR(clr,fmt);
+			const u8 g = AGIDL_Clamp(0,newG,31);
+			const u8 b = AGIDL_GetB(clr,fmt);
+			return AGIDL_RGB(r,g,b,fmt);
 		}break;
 		case AGIDL_RGB_565:{
-			u8 r = AGIDL_GetR(clr,fmt);
-			u8 g = AGIDL_Clamp(0,newG,63);
-			u8 b = AGIDL_GetB(clr,fmt);
+			const u8 r = AGIDL_GetR(clr,fmt);
+			const u8 g = AGIDL_Clamp(0,newG,63);
+			const u8 b = AGIDL_GetB(clr,fmt);
 			return AGIDL_RGB(r,g,b,fmt);
 		}break;
 		case AGIDL_BGR_565:{
-			u8 r = AGIDL_GetR(clr,fmt);
-			u8 g = AGIDL_Clamp(0,newG,63);
-			u8 b = AGIDL_GetB(clr,fmt);
-			return AGIDL_RGB(r,g,b,fmt); 
+			const u8 r = AGIDL_GetR(clr,fmt);
+			const u8 g = AGIDL_Clamp(0,newG,63);
+			const u8 b = AGIDL_GetB(clr,fmt);
+			return AGIDL_RGB(r,g,b,fmt);
 		}break;
-		default: return clr; break;
+		default: return clr;
 	}
 }
 
-COLOR AGIDL_SetB(COLOR clr, u8 newB, AGIDL_CLR_FMT fmt){
+COLOR AGIDL_SetB(const COLOR clr, const u8 newB, const AGIDL_CLR_FMT fmt){
 	switch(fmt){
 		case AGIDL_RGB_888:{
-			u8 r = AGIDL_GetR(clr,fmt);
-			u8 g = AGIDL_GetG(clr,fmt);
-			u8 b = newB;
+			const u8 r = AGIDL_GetR(clr,fmt);
+			const u8 g = AGIDL_GetG(clr,fmt);
+			const u8 b = newB;
 			return AGIDL_RGB(r,g,b,fmt);
 		}break;
 		case AGIDL_BGR_888:{
-			u8 r = AGIDL_GetR(clr,fmt);
-			u8 g = AGIDL_GetG(clr,fmt);
-			u8 b = newB;
+			const u8 r = AGIDL_GetR(clr,fmt);
+			const u8 g = AGIDL_GetG(clr,fmt);
+			const u8 b = newB;
 			return AGIDL_RGB(r,g,b,fmt);
 		}break;
 		case AGIDL_RGBA_8888:{
-			u8 r = AGIDL_GetR(clr,fmt);
-			u8 g = AGIDL_GetG(clr,fmt);
-			u8 b = newB;
-			u8 a = AGIDL_GetA(clr,fmt);
+			const u8 r = AGIDL_GetR(clr,fmt);
+			const u8 g = AGIDL_GetG(clr,fmt);
+			const u8 b = newB;
+			const u8 a = AGIDL_GetA(clr,fmt);
 			return AGIDL_RGBA(r,g,b,a,fmt);
 		}break;
 		case AGIDL_ARGB_8888:{
-			u8 r = AGIDL_GetR(clr,fmt);
-			u8 g = AGIDL_GetG(clr,fmt);
-			u8 b = newB;
-			u8 a = AGIDL_GetA(clr,fmt);
+			const u8 r = AGIDL_GetR(clr,fmt);
+			const u8 g = AGIDL_GetG(clr,fmt);
+			const u8 b = newB;
+			const u8 a = AGIDL_GetA(clr,fmt);
 			return AGIDL_RGBA(r,g,b,a,fmt);
 		}break;
 		case AGIDL_RGB_555:{
-			u8 r = AGIDL_GetR(clr,fmt);
-			u8 g = AGIDL_GetG(clr,fmt);
-			u8 b = AGIDL_Clamp(0,newB,31);
+			const u8 r = AGIDL_GetR(clr,fmt);
+			const u8 g = AGIDL_GetG(clr,fmt);
+			const u8 b = AGIDL_Clamp(0,newB,31);
 			return AGIDL_RGB(r,g,b,fmt);
 		}break;
 		case AGIDL_BGR_555:{
-			u8 r = AGIDL_GetR(clr,fmt);
-			u8 g = AGIDL_GetG(clr,fmt);
-			u8 b = AGIDL_Clamp(0,newB,31);
-			return AGIDL_RGB(r,g,b,fmt); 
+			const u8 r = AGIDL_GetR(clr,fmt);
+			const u8 g = AGIDL_GetG(clr,fmt);
+			const u8 b = AGIDL_Clamp(0,newB,31);
+			return AGIDL_RGB(r,g,b,fmt);
 		}break;
 		case AGIDL_RGB_565:{
-			u8 r = AGIDL_GetR(clr,fmt);
-			u8 g = AGIDL_GetG(clr,fmt);
-			u8 b = AGIDL_Clamp(0,newB,31);
-			return AGIDL_RGB(r,g,b,fmt); 
+			const u8 r = AGIDL_GetR(clr,fmt);
+			const u8 g = AGIDL_GetG(clr,fmt);
+			const u8 b = AGIDL_Clamp(0,newB,31);
+			return AGIDL_RGB(r,g,b,fmt);
 		}break;
 		case AGIDL_BGR_565:{
-			u8 r = AGIDL_GetR(clr,fmt);
-			u8 g = AGIDL_GetG(clr,fmt);
-			u8 b = AGIDL_Clamp(0,newB,31);
-			return AGIDL_RGB(r,g,b,fmt); 
+			const u8 r = AGIDL_GetR(clr,fmt);
+			const u8 g = AGIDL_GetG(clr,fmt);
+			const u8 b = AGIDL_Clamp(0,newB,31);
+			return AGIDL_RGB(r,g,b,fmt);
 		}break;
-		default: return clr; break;
+		default: return clr;
 	}
 }
 
-COLOR AGIDL_SetA(COLOR clr, u8 newA, AGIDL_CLR_FMT fmt){
+COLOR AGIDL_SetA(const COLOR clr, const u8 newA, const AGIDL_CLR_FMT fmt){
 	switch(fmt){
 		case AGIDL_RGBA_8888:{
-			u8 r = AGIDL_GetR(clr,fmt);
-			u8 g = AGIDL_GetG(clr,fmt);
-			u8 b = AGIDL_GetB(clr,fmt);
-			return AGIDL_RGBA(r,g,b,newA,fmt); 
+			const u8 r = AGIDL_GetR(clr,fmt);
+			const u8 g = AGIDL_GetG(clr,fmt);
+			const u8 b = AGIDL_GetB(clr,fmt);
+			return AGIDL_RGBA(r,g,b,newA,fmt);
 		}break;
 		case AGIDL_ARGB_8888:{
-			u8 r = AGIDL_GetR(clr,fmt);
-			u8 g = AGIDL_GetG(clr,fmt);
-			u8 b = AGIDL_GetB(clr,fmt);
-			return AGIDL_RGBA(r,g,b,newA,fmt); 
+			const u8 r = AGIDL_GetR(clr,fmt);
+			const u8 g = AGIDL_GetG(clr,fmt);
+			const u8 b = AGIDL_GetB(clr,fmt);
+			return AGIDL_RGBA(r,g,b,newA,fmt);
 		}break;
-		default: return clr; break;
+		default: return clr;
 	}
 }
 
-COLOR AGIDL_RGB(u8 r, u8 g, u8 b, AGIDL_CLR_FMT fmt){
+COLOR AGIDL_RGB(u8 r, u8 g, u8 b, const AGIDL_CLR_FMT fmt){
 	switch(fmt){
 		case AGIDL_RGB_888:{
 			return r << 16 | g << 8 | b;
@@ -451,18 +452,18 @@ COLOR AGIDL_RGB(u8 r, u8 g, u8 b, AGIDL_CLR_FMT fmt){
 		case AGIDL_ARGB_8888:{
 			return AGIDL_RGBA(r,g,b,0xff,fmt);
 		}break;
-		default: return 0; break;
+		default: return 0;
 	}
 }
 
-COLOR AGIDL_RGBA(u8 r, u8 g, u8 b, u8 a, AGIDL_CLR_FMT fmt){
+COLOR AGIDL_RGBA(const u8 r, const u8 g, const u8 b, const u8 a, const AGIDL_CLR_FMT fmt){
 	if(fmt == AGIDL_RGBA_8888){
 		return r << 24 | g << 16 | b << 8 | a;
 	}
-	else return a << 24 | r << 16 | g << 8 | b;
+	return a << 24 | r << 16 | g << 8 | b;
 }
 
-COLOR16 AGIDL_RGB16(u8 r, u8 g, u8 b, AGIDL_CLR_FMT fmt){
+COLOR16 AGIDL_RGB16(u8 r, u8 g, u8 b, const AGIDL_CLR_FMT fmt){
 	switch(fmt){
 		case AGIDL_RGB_555:{
 			r = AGIDL_Clamp(0,r,31);
@@ -488,46 +489,40 @@ COLOR16 AGIDL_RGB16(u8 r, u8 g, u8 b, AGIDL_CLR_FMT fmt){
 			b = AGIDL_Clamp(0,b,31);
 			return b << 11 | g << 5 | r;
 		}break;
-		default: return 0; break;
+		default: return 0;
 	}
 }
 
-COLOR AGIDL_Color3f(float r, float g, float b, AGIDL_CLR_FMT fmt){
+COLOR AGIDL_Color3f(float r, float g, float b, const AGIDL_CLR_FMT fmt){
 	r = AGIDL_Clampf(0.0f,r,1.0f);
 	g = AGIDL_Clampf(0.0f,g,1.0f);
 	b = AGIDL_Clampf(0.0f,b,1.0f);
-	
+
 	if(AGIDL_GetBitCount(fmt) == 24){
 		return AGIDL_RGB(r*255.0f,g*255.0f,b*255.0f,fmt);
 	}
-	else if(AGIDL_GetBitCount(fmt) == 32){
+	if(AGIDL_GetBitCount(fmt) == 32){
 		return AGIDL_RGBA(r*255.0f,g*255.0f,b*255.0f,0xff,fmt);
 	}
-	else{
-		if(fmt == AGIDL_RGB_565 || fmt == AGIDL_BGR_565){
-			return AGIDL_RGB16(r*31.0f,g*63.0f,b*31.0f,fmt);
-		}
-		else{
-			return AGIDL_RGB16(r*31.0f,g*31.0f,b*31.0f,fmt);
-		}
+	if(fmt == AGIDL_RGB_565 || fmt == AGIDL_BGR_565){
+		return AGIDL_RGB16(r*31.0f,g*63.0f,b*31.0f,fmt);
 	}
+	return AGIDL_RGB16(r*31.0f,g*31.0f,b*31.0f,fmt);
 }
 
-COLOR AGIDL_Color4f(float r, float g, float b, float a, AGIDL_CLR_FMT fmt){
+COLOR AGIDL_Color4f(float r, float g, float b, float a, const AGIDL_CLR_FMT fmt){
 	r = AGIDL_Clampf(0.0f,r,1.0f);
 	g = AGIDL_Clampf(0.0f,g,1.0f);
 	b = AGIDL_Clampf(0.0f,b,1.0f);
 	a = AGIDL_Clampf(0.0f,a,1.0f);
-	
+
 	if(AGIDL_GetBitCount(fmt) == 32){
 		return AGIDL_RGBA(r*255.0f,g*255.0f,b*255.0f,a*255.0f,fmt);
 	}
-	else{
-		return AGIDL_Color3f(r,g,b,fmt);
-	}
+	return AGIDL_Color3f(r,g,b,fmt);
 }
 
-COLOR AGIDL_GetColor(AGIDL_CLR clr, AGIDL_CLR_FMT fmt){
+COLOR AGIDL_GetColor(const AGIDL_CLR clr, const AGIDL_CLR_FMT fmt){
 	switch(clr){
 		case BLACK:{
 			switch(fmt){
@@ -841,442 +836,404 @@ COLOR AGIDL_GetColor(AGIDL_CLR clr, AGIDL_CLR_FMT fmt){
 	return 0;
 }
 
-COLOR AGIDL_GammaCorrectColor(COLOR clr, f32 gamma, AGIDL_CLR_FMT fmt){
+COLOR AGIDL_GammaCorrectColor(const COLOR clr, const f32 gamma, const AGIDL_CLR_FMT fmt){
 	switch(AGIDL_GetBitCount(fmt)){
 		case 24:{
 			u8 r = AGIDL_GetR(clr,fmt);
 			u8 g = AGIDL_GetG(clr,fmt);
 			u8 b = AGIDL_GetB(clr,fmt);
-			
+
 			r = pow((r/255.0f),1/gamma)*255;
 			g = pow((g/255.0f),1/gamma)*255;
 			b = pow((b/255.0f),1/gamma)*255;
-			
 			return AGIDL_RGB(r,g,b,fmt);
 		}break;
 		case 16:{
 			u8 r = AGIDL_GetR(clr,fmt);
 			u8 g = AGIDL_GetG(clr,fmt);
 			u8 b = AGIDL_GetB(clr,fmt);
-			
+
 			r = pow((r/31.0f),1/gamma)*31;
 			g = pow((g/31.0f),1/gamma)*31;
 			b = pow((b/31.0f),1/gamma)*31;
-			
 			return AGIDL_RGB16(r,g,b,fmt);
 		}break;
 		case 32:{
 			u8 r = AGIDL_GetR(clr,fmt);
 			u8 g = AGIDL_GetG(clr,fmt);
 			u8 b = AGIDL_GetB(clr,fmt);
-			u8 a = AGIDL_GetA(clr,fmt);
-			
+			const u8 a = AGIDL_GetA(clr,fmt);
+
 			r = pow((r/255.0f),1/gamma)*255;
 			g = pow((g/255.0f),1/gamma)*255;
 			b = pow((b/255.0f),1/gamma)*255;
-			
 			return AGIDL_RGBA(r,g,b,a,fmt);
 		}break;
 	}
 	return 0;
 }
 
-COLOR AGIDL_DarkenColor(COLOR clr, AGIDL_CLR_FMT fmt){
+COLOR AGIDL_DarkenColor(const COLOR clr, const AGIDL_CLR_FMT fmt){
 	if(AGIDL_GetBitCount(fmt) != 32){
 		u8 r = AGIDL_GetR(clr,fmt);
 		u8 g = AGIDL_GetG(clr,fmt);
 		u8 b = AGIDL_GetB(clr,fmt);
-		
+
 		r *= 0.75;
 		g *= 0.75;
 		b *= 0.75;
-		
+
 		return AGIDL_RGB(r,g,b,fmt);
 	}
-	else{
-		u8 r = AGIDL_GetR(clr,fmt);
-		u8 g = AGIDL_GetG(clr,fmt);
-		u8 b = AGIDL_GetB(clr,fmt);
-		u8 a = AGIDL_GetA(clr,fmt);
-		
-		r *= 0.75;
-		g *= 0.75;
-		b *= 0.75;
-		
-		return AGIDL_RGBA(r,g,b,a,fmt);
-	}
+	u8 r = AGIDL_GetR(clr,fmt);
+	u8 g = AGIDL_GetG(clr,fmt);
+	u8 b = AGIDL_GetB(clr,fmt);
+	const u8 a = AGIDL_GetA(clr,fmt);
+
+	r *= 0.75;
+	g *= 0.75;
+	b *= 0.75;
+
+	return AGIDL_RGBA(r,g,b,a,fmt);
 }
 
-COLOR AGIDL_BrightenColor(COLOR clr, AGIDL_CLR_FMT fmt){
+COLOR AGIDL_BrightenColor(const COLOR clr, const AGIDL_CLR_FMT fmt){
 	if(AGIDL_GetBitCount(fmt) != 32){
 		u8 r = AGIDL_GetR(clr,fmt);
 		u8 g = AGIDL_GetG(clr,fmt);
 		u8 b = AGIDL_GetB(clr,fmt);
-		
+
 		r *= 1.25;
 		g *= 1.25;
 		b *= 1.25;
-		
+
 		return AGIDL_RGB(r,g,b,fmt);
 	}
-	else{
-		u8 r = AGIDL_GetR(clr,fmt);
-		u8 g = AGIDL_GetG(clr,fmt);
-		u8 b = AGIDL_GetB(clr,fmt);
-		u8 a = AGIDL_GetA(clr,fmt);
-		
-		r *= 1.25;
-		g *= 1.25;
-		b *= 1.25;
-		
-		return AGIDL_RGBA(r,g,b,a,fmt);
-	}
+	u8 r = AGIDL_GetR(clr,fmt);
+	u8 g = AGIDL_GetG(clr,fmt);
+	u8 b = AGIDL_GetB(clr,fmt);
+	const u8 a = AGIDL_GetA(clr,fmt);
+
+	r *= 1.25;
+	g *= 1.25;
+	b *= 1.25;
+
+	return AGIDL_RGBA(r,g,b,a,fmt);
 }
 
-int AGIDL_IsInThreshold(COLOR clr1, COLOR clr2, AGIDL_CLR_FMT fmt, AGIDL_CLR_FMT fmt2, u8 max_diff){
+int AGIDL_IsInThreshold(COLOR clr1, COLOR clr2, const AGIDL_CLR_FMT fmt, const AGIDL_CLR_FMT fmt2, const u8 max_diff){
 	if((AGIDL_GetBitCount(fmt) == 24 || AGIDL_GetBitCount(fmt) == 32) && (AGIDL_GetBitCount(fmt2) == 24 || AGIDL_GetBitCount(fmt2) == 32)){
-		u8 r = AGIDL_GetR(clr1,fmt);
-		u8 g = AGIDL_GetG(clr1,fmt);
-		u8 b = AGIDL_GetB(clr1,fmt);
-		
-		u8 r2 = AGIDL_GetR(clr2,fmt2);
-		u8 g2 = AGIDL_GetG(clr2,fmt2);
-		u8 b2 = AGIDL_GetB(clr2,fmt2);
-		
+		const u8 r = AGIDL_GetR(clr1,fmt);
+		const u8 g = AGIDL_GetG(clr1,fmt);
+		const u8 b = AGIDL_GetB(clr1,fmt);
+
+		const u8 r2 = AGIDL_GetR(clr2,fmt2);
+		const u8 g2 = AGIDL_GetG(clr2,fmt2);
+		const u8 b2 = AGIDL_GetB(clr2,fmt2);
+
 		if(AGIDL_Abs(r-r2) <= max_diff && AGIDL_Abs(g-g2) <= max_diff && AGIDL_Abs(b-b2) <= max_diff){
 			return 0;
 		}
-		else return 1;
+		return 1;
 	}
-	else if(AGIDL_GetBitCount(fmt) == 16 && (AGIDL_GetBitCount(fmt2) == 24 || AGIDL_GetBitCount(fmt2) == 32)){
-		clr2 = AGIDL_CLR_TO_CLR16(clr2,fmt2,fmt); 
-		
-		u8 r = AGIDL_GetR(clr1,fmt);
-		u8 g = AGIDL_GetG(clr1,fmt);
-		u8 b = AGIDL_GetB(clr1,fmt);
-		
-		u8 r2 = AGIDL_GetR(clr2,fmt);
-		u8 g2 = AGIDL_GetG(clr2,fmt);
-		u8 b2 = AGIDL_GetB(clr2,fmt);
-		
+	if(AGIDL_GetBitCount(fmt) == 16 && (AGIDL_GetBitCount(fmt2) == 24 || AGIDL_GetBitCount(fmt2) == 32)){
+		clr2 = AGIDL_CLR_TO_CLR16(clr2,fmt2,fmt);
+
+		const u8 r = AGIDL_GetR(clr1,fmt);
+		const u8 g = AGIDL_GetG(clr1,fmt);
+		const u8 b = AGIDL_GetB(clr1,fmt);
+
+		const u8 r2 = AGIDL_GetR(clr2,fmt);
+		const u8 g2 = AGIDL_GetG(clr2,fmt);
+		const u8 b2 = AGIDL_GetB(clr2,fmt);
+
 		if(AGIDL_Abs(r-r2) <= max_diff && AGIDL_Abs(g-g2) <= max_diff && AGIDL_Abs(b-b2) <= max_diff){
 			return 0;
 		}
-		else return 1;
+		return 1;
 	}
-	else{
-		clr1 = AGIDL_CLR_TO_CLR16(clr1,fmt,fmt2); 
-		
-		u8 r = AGIDL_GetR(clr1,fmt2);
-		u8 g = AGIDL_GetG(clr1,fmt2);
-		u8 b = AGIDL_GetB(clr1,fmt2);
-		
-		u8 r2 = AGIDL_GetR(clr2,fmt2);
-		u8 g2 = AGIDL_GetG(clr2,fmt2);
-		u8 b2 = AGIDL_GetB(clr2,fmt2);
-		
-		if(AGIDL_Abs(r-r2) <= max_diff && AGIDL_Abs(g-g2) <= max_diff && AGIDL_Abs(b-b2) <= max_diff){
-			return 0;
-		}
-		else return 1;
+	clr1 = AGIDL_CLR_TO_CLR16(clr1,fmt,fmt2);
+
+	const u8 r = AGIDL_GetR(clr1,fmt2);
+	const u8 g = AGIDL_GetG(clr1,fmt2);
+	const u8 b = AGIDL_GetB(clr1,fmt2);
+
+	const u8 r2 = AGIDL_GetR(clr2,fmt2);
+	const u8 g2 = AGIDL_GetG(clr2,fmt2);
+	const u8 b2 = AGIDL_GetB(clr2,fmt2);
+
+	if(AGIDL_Abs(r-r2) <= max_diff && AGIDL_Abs(g-g2) <= max_diff && AGIDL_Abs(b-b2) <= max_diff){
+		return 0;
 	}
+	return 1;
 }
 
-void AGIDL_SetICPMode(AGIDL_ICP* palette, int mode, AGIDL_CLR_FMT fmt){
+void AGIDL_SetICPMode(AGIDL_ICP* palette, const int mode, const AGIDL_CLR_FMT fmt){
 	palette->mode = mode;
 	palette->fmt = fmt;
 }
 
-void AGIDL_ClearICP(AGIDL_ICP* palette, COLOR clr){
+void AGIDL_ClearICP(AGIDL_ICP* palette, const COLOR clr){
 	switch(palette->mode){
 		case AGIDL_ICP_256:{
-			int i;
-			for(i = 0; i < 256; i++){
+			for(int i = 0; i < 256; i++){
 				palette->icp.palette_256[i] = clr;
 			}
 		}break;
 		case AGIDL_ICP_16:{
-			int i;
-			for(i = 0; i < 16; i++){
+			for(int i = 0; i < 16; i++){
 				palette->icp.palette_16[i] = clr;
 			}
 		}break;
 		case AGIDL_ICP_16b_256:{
-			int i;
-			for(i = 0; i < 256; i++){
+			for(int i = 0; i < 256; i++){
 				palette->icp.palette_16b_256[i] = (COLOR16)clr;
 			}
 		}break;
 		case AGIDL_ICP_16b_16:{
-			int i;
-			for(i = 0; i < 16; i++){
+			for(int i = 0; i < 16; i++){
 				palette->icp.palette_16b_16[i] = (COLOR16)clr;
 			}
 		}break;
 	}
 }
 
-void AGIDL_ClearColorICP(AGIDL_ICP* palette, float r, float g, float b){
+void AGIDL_ClearColorICP(AGIDL_ICP* palette, const float r, const float g, const float b){
 	switch(palette->mode){
 		case AGIDL_ICP_256:{
-			int i;
-			for(i = 0; i < 256; i++){
+			for(int i = 0; i < 256; i++){
 				palette->icp.palette_256[i] = AGIDL_Color3f(r,g,b,palette->mode);
 			}
 		}break;
 		case AGIDL_ICP_16:{
-			int i;
-			for(i = 0; i < 16; i++){
+			for(int i = 0; i < 16; i++){
 				palette->icp.palette_16[i] = AGIDL_Color3f(r,g,b,palette->mode);
 			}
 		}break;
 		case AGIDL_ICP_16b_256:{
-			int i;
-			for(i = 0; i < 256; i++){
+			for(int i = 0; i < 256; i++){
 				palette->icp.palette_16b_256[i] = (COLOR16)AGIDL_Color3f(r,g,b,palette->mode);
 			}
 		}break;
 		case AGIDL_ICP_16b_16:{
-			int i;
-			for(i = 0; i < 16; i++){
+			for(int i = 0; i < 16; i++){
 				palette->icp.palette_16b_16[i] = (COLOR16)AGIDL_Color3f(r,g,b,palette->mode);
 			}
 		}break;
 	}
 }
 
-void AGIDL_ClearRGBICP(AGIDL_ICP* palette, u8 r, u8 g, u8 b){
+void AGIDL_ClearRGBICP(AGIDL_ICP* palette, const u8 r, const u8 g, const u8 b){
 	switch(palette->mode){
 		case AGIDL_ICP_256:{
-			int i;
-			for(i = 0; i < 256; i++){
+			for(int i = 0; i < 256; i++){
 				palette->icp.palette_256[i] = AGIDL_RGB(r,g,b,palette->mode);
 			}
 		}break;
 		case AGIDL_ICP_16:{
-			int i;
-			for(i = 0; i < 16; i++){
+			for(int i = 0; i < 16; i++){
 				palette->icp.palette_16[i] = AGIDL_RGB(r,g,b,palette->mode);
 			}
 		}break;
 		case AGIDL_ICP_16b_256:{
-			int i;
-			for(i = 0; i < 256; i++){
+			for(int i = 0; i < 256; i++){
 				palette->icp.palette_16b_256[i] = (COLOR16)AGIDL_RGB(r,g,b,palette->mode);
 			}
 		}break;
 		case AGIDL_ICP_16b_16:{
-			int i;
-			for(i = 0; i < 16; i++){
+			for(int i = 0; i < 16; i++){
 				palette->icp.palette_16b_16[i] = (COLOR16)AGIDL_RGB(r,g,b,palette->mode);
 			}
 		}break;
 	}
 }
 
-AGIDL_CLR_MDL AGIDL_GetClrMDL(AGIDL_CLR_FMT fmt){
+AGIDL_CLR_MDL AGIDL_GetClrMDL(const AGIDL_CLR_FMT fmt){
 	if(fmt == AGIDL_RGB_888 || fmt == AGIDL_RGB_555 || fmt == AGIDL_RGB_565){
 		return AGIDL_CLR_RGB;
 	}
-	else if(fmt == AGIDL_BGR_888 || fmt == AGIDL_BGR_555 || fmt == AGIDL_BGR_565){
+	if(fmt == AGIDL_BGR_888 || fmt == AGIDL_BGR_555 || fmt == AGIDL_BGR_565){
 		return AGIDL_CLR_BGR;
 	}
-	else if(fmt == AGIDL_RGBA_8888){
+	if(fmt == AGIDL_RGBA_8888){
 		return AGIDL_CLR_RGBA;
 	}
-	else{
-		return AGIDL_CLR_ARGB;
-	}
+	return AGIDL_CLR_ARGB;
 }
 
-AGIDL_CLR_FMT AGIDL_GetClrFmt(AGIDL_CLR_MDL mdl, AGIDL_BITS bits){
+AGIDL_CLR_FMT AGIDL_GetClrFmt(const AGIDL_CLR_MDL mdl, const AGIDL_BITS bits){
 	if(mdl == AGIDL_CLR_RGB && bits == 16){
-		return AGIDL_RGB_565;	
+		return AGIDL_RGB_565;
 	}
-	else if(mdl == AGIDL_CLR_RGB && bits == 15){
-		return AGIDL_RGB_555;	
+	if(mdl == AGIDL_CLR_RGB && bits == 15){
+		return AGIDL_RGB_555;
 	}
-	else if(mdl == AGIDL_CLR_BGR && bits == 16){
-		return AGIDL_BGR_565;	
+	if(mdl == AGIDL_CLR_BGR && bits == 16){
+		return AGIDL_BGR_565;
 	}
-	else if(mdl == AGIDL_CLR_RGB && bits == 15){
-		return AGIDL_BGR_555;	
+	if(mdl == AGIDL_CLR_RGB && bits == 15){
+		return AGIDL_BGR_555;
 	}
-	else if(mdl == AGIDL_CLR_RGB && bits == 24){
+	if(mdl == AGIDL_CLR_RGB && bits == 24){
 		return AGIDL_RGB_888;
 	}
-	else if(mdl == AGIDL_CLR_BGR && bits == 24){
+	if(mdl == AGIDL_CLR_BGR && bits == 24){
 		return AGIDL_BGR_888;
 	}
-	else if(mdl == AGIDL_CLR_RGBA && bits == 32){
+	if(mdl == AGIDL_CLR_RGBA && bits == 32){
 		return AGIDL_RGBA_8888;
 	}
-	else{
-		return AGIDL_ARGB_8888;
-	}
+	return AGIDL_ARGB_8888;
 }
 
-void AGIDL_ExportICP(const char* name, AGIDL_ICP icp){
+void AGIDL_ExportICP(const char* name, const AGIDL_ICP icp){
 	char* filename = AGIDL_StrCpy(name,".icp");
 	FILE* file = fopen(filename,"wb");
-	
-	u8 clrmdl = AGIDL_GetClrMDL(icp.fmt);
-	u8 bits = AGIDL_GetBitCount(icp.fmt);
-	
+
+	const u8 clrmdl = AGIDL_GetClrMDL(icp.fmt);
+	const u8 bits = AGIDL_GetBitCount(icp.fmt);
+
 	AGIDL_WriteByte(file,clrmdl);
 	AGIDL_WriteByte(file,bits);
-	
+
 	u16 num_of_clrs = 0;
-		
+
 	if(icp.mode == AGIDL_ICP_256 || icp.mode == AGIDL_ICP_16b_256){
 		num_of_clrs = 256;
 	}
 	else{
 		num_of_clrs = 16;
 	}
-	
+
 	AGIDL_WriteShort(file,num_of_clrs);
-	
+
 	switch(icp.mode){
 		case AGIDL_ICP_256:{
-			int i;
-			for(i = 0; i < 256; i++){
-				COLOR clr = icp.icp.palette_256[i];
+			for(int i = 0; i < 256; i++){
+				const COLOR clr = icp.icp.palette_256[i];
 				AGIDL_WriteRGB(file,clr,icp.fmt,icp.fmt);
 			}
 		}break;
 		case AGIDL_ICP_16:{
-			int i;
-			for(i = 0; i < 16; i++){
-				COLOR clr = icp.icp.palette_256[i];
+			for(int i = 0; i < 16; i++){
+				const COLOR clr = icp.icp.palette_256[i];
 				AGIDL_WriteRGB(file,clr,icp.fmt,icp.fmt);
 			}
 		}break;
 		case AGIDL_ICP_16b_256:{
-			int i;
-			for(i = 0; i < 256; i++){
-				COLOR16 clr = icp.icp.palette_16b_256[i];
+			for(int i = 0; i < 256; i++){
+				const COLOR16 clr = icp.icp.palette_16b_256[i];
 				AGIDL_WriteShort(file,clr);
 			}
 		}break;
 		case AGIDL_ICP_16b_16:{
-			int i;
-			for(i = 0; i < 16; i++){
-				COLOR16 clr = icp.icp.palette_16b_256[i];
+			for(int i = 0; i < 16; i++){
+				const COLOR16 clr = icp.icp.palette_16b_256[i];
 				AGIDL_WriteShort(file,clr);
 			}
 		}break;
 	}
 	fclose(file);
-	
+
 	free(filename);
 }
 
 AGIDL_ICP AGIDL_LoadICP(const char* filename){
 	FILE* file = fopen(filename,"rb");
-	
-	AGIDL_ICP icp;
-	
+
+	AGIDL_ICP icp = {};
+
 	if(file == NULL){
 		printf("%s - %s!\n",AGIDL_Error2Str(FILE_NOT_LOCATED_IMG_ERROR),filename);
 		return icp;
 	}
-	
-	u8 clrmdl = AGIDL_ReadByte(file);
-    u8 bits = AGIDL_ReadByte(file);
-	u16 num_of_colors = AGIDL_ReadShort(file);
-	
-	if(!(bits == 16 || bits == 24 || bits == 32) || num_of_colors <= 0 || num_of_colors > 256 || 
+
+	const u8 clrmdl = AGIDL_ReadByte(file);
+	const u8 bits = AGIDL_ReadByte(file);
+	const u16 num_of_colors = AGIDL_ReadShort(file);
+
+	if(!(bits == 16 || bits == 24 || bits == 32) || num_of_colors <= 0 || num_of_colors > 256 ||
 	!(clrmdl == AGIDL_CLR_RGB || clrmdl == AGIDL_CLR_BGR || clrmdl == AGIDL_CLR_RGBA)){
 		printf("%s - %s\n",AGIDL_Error2Str(INVALID_IMG_FORMATTING_ERROR),filename);
 		return icp;
 	}
-	
+
 	icp.fmt = AGIDL_GetClrFmt(clrmdl,bits);
-	
+
 	if(num_of_colors == 256 && bits != 16){
 		icp.mode = AGIDL_ICP_256;
-		
-		int i;
-		for(i = 0; i < num_of_colors; i++){
+
+		for(int i = 0; i < num_of_colors; i++){
 			icp.icp.palette_256[i] = AGIDL_ReadRGB(file,icp.fmt);
 		}
 	}
 	else if(num_of_colors == 16 && bits != 16){
 		icp.mode = AGIDL_ICP_16;
-		
-		int i;
-		for(i = 0; i < num_of_colors; i++){
+
+		for(int i = 0; i < num_of_colors; i++){
 			icp.icp.palette_16[i] = AGIDL_ReadRGB(file,icp.fmt);
 		}
 	}
 	else if(num_of_colors == 16 && bits != 256){
 		icp.mode = AGIDL_ICP_16b_256;
-		
-		int i;
-		for(i = 0; i < num_of_colors; i++){
+
+		for(int i = 0; i < num_of_colors; i++){
 			icp.icp.palette_16b_256[i] = AGIDL_ReadShort(file);
 		}
 	}
 	else{
 		icp.mode = AGIDL_ICP_16b_16;
-		
-		int i;
-		for(i = 0; i < num_of_colors; i++){
+
+		for(int i = 0; i < num_of_colors; i++){
 			icp.icp.palette_16b_16[i] = AGIDL_ReadShort(file);
 		}
 	}
-	
+
 	fclose(file);
-	
+
 	return icp;
 }
 
-void AGIDL_InitICP(AGIDL_ICP *palette, int mode){
+void AGIDL_InitICP(AGIDL_ICP *palette, const int mode){
 	palette->mode = mode;
-	
+
 	if(mode == AGIDL_ICP_16){
-		int i;
-		for(i = 0; i < 16; i++){
+		for(int i = 0; i < 16; i++){
 			palette->icp.palette_16[i] = 0;
 		}
 	}
 	else if(mode == AGIDL_ICP_256){
-		int i;
-		for(i = 0; i < 256; i++){
+		for(int i = 0; i < 256; i++){
 			palette->icp.palette_256[i] = 0;
 		}
 	}
 	else if(mode == AGIDL_ICP_16b_16){
-		int i;
-		for(i = 0; i < 16; i++){
+		for(int i = 0; i < 16; i++){
 			palette->icp.palette_16b_16[i] = 0;
 		}
 	}
 	else{
-		int i;
-		for(i = 0; i < 256; i++){
+		for(int i = 0; i < 256; i++){
 			palette->icp.palette_16b_256[i] = 0;
 		}
 	}
 }
 
 void QSwap(u32* a, u32* b){
-	u32 temp = *a;
+	const u32 temp = *a;
 	*a = *b;
 	*b = temp;
 }
 
-int partition(u32* data, u32* gram, int low, int high)
+int partition(u32* data, u32* gram, const int low, const int high)
 {
     // choose the pivot
-    int pivot = data[high];
+    const int pivot = data[high];
 
     // Index of smaller element and Indicate
     // the right position of pivot found so far
     int i = (low - 1);
-	int j;
-    for (j = low; j <= high; j++) {
+    for (int j = low; j <= high; j++) {
         // If current element is smaller than the pivot
         if (data[j] < pivot) {
             // Increment index of smaller element
@@ -1290,13 +1247,13 @@ int partition(u32* data, u32* gram, int low, int high)
     return (i + 1);
 }
 
-void quickSort(u32* data, u32* gram, int low, int high)
+void quickSort(u32* data, u32* gram, const int low, const int high)
 {
     // when low is less than high
     if (low < high) {
         // pi is the partition return index of pivot
 
-        int pi = partition(data, gram, low, high);
+        const int pi = partition(data, gram, low, high);
 
         // Recursion Call
         // smaller element than pivot goes left and
@@ -1306,137 +1263,135 @@ void quickSort(u32* data, u32* gram, int low, int high)
     }
 }
 
-void AGIDL_EncodeHistogramICP(AGIDL_ICP* palette, void* data, u32 width, u32 height, AGIDL_CLR_FMT fmt){
+void AGIDL_EncodeHistogramICP(AGIDL_ICP* palette, const void* data, const u32 width, const u32 height, const AGIDL_CLR_FMT fmt){
 	if(AGIDL_GetBitCount(fmt) == 16){
-		u16* clr_data = (u16*)data;
-		
+		const u16* clr_data = data;
+
 		u32 histogram[MAX_HIGH_CLR];
 		u32 colorgram[MAX_HIGH_CLR];
-		
+
 		int i;
 		for(i = 0; i < MAX_HIGH_CLR; i++){
 			histogram[i] = 1;
 			colorgram[i] = i;
 		}
-		
+
 		//ITERATE THROUGH ENTIRE BUFFER OF IMAGE DATA AND TRACK ITS NUMBER OF OCCURENCES IN A HISTOGRAM
 		for(i = 0; i < width*height; i++){
-			u32 color16 = clr_data[i];
+			const u32 color16 = clr_data[i];
 			histogram[color16] = histogram[color16] + 1;
-		}  
+		}
 
 		//PERFORM QUICK SORT TO LIST THE 256 MOST IMPORTANT COLORS IN ORDER OF LEAST TO MOST FREQUENTLY OCCURING COLORS
 		quickSort(histogram,colorgram,0,MAX_HIGH_CLR);
 
-		
+
 		AGIDL_InitICP(palette,AGIDL_ICP_16b_256);
-		
+
 		int count = 0;
 		for(i = MAX_HIGH_CLR; i > 0; i--){
 			AGIDL_Bool skip = FALSE;
-			
-			u16 clr = colorgram[i];
-			
-			int r = AGIDL_GetR(clr,fmt);
-			int g = AGIDL_GetG(clr,fmt);
-			int b = AGIDL_GetB(clr,fmt);
-			
-			int j;
-			for(j = 0; j < 256; j++){
-				u16 palclr = palette->icp.palette_16b_256[j];
-				
-				int palr = AGIDL_GetR(palclr,fmt);
-				int palg = AGIDL_GetG(palclr,fmt);
-				int palb = AGIDL_GetB(palclr,fmt);
-				
+
+			const u16 clr = colorgram[i];
+
+			const int r = AGIDL_GetR(clr,fmt);
+			const int g = AGIDL_GetG(clr,fmt);
+			const int b = AGIDL_GetB(clr,fmt);
+
+			for(int j = 0; j < 256; j++){
+				const u16 palclr = palette->icp.palette_16b_256[j];
+
+				const int palr = AGIDL_GetR(palclr,fmt);
+				const int palg = AGIDL_GetG(palclr,fmt);
+				const int palb = AGIDL_GetB(palclr,fmt);
+
 				int rdiff = r-palr;
 				int gdiff = g-palg;
 				int bdiff = b-palb;
-				
+
 				if(rdiff < 0){
 					rdiff += (rdiff*rdiff);
 				}
-				
+
 				if(gdiff < 0){
 					gdiff += (gdiff*gdiff);
 				}
-				
+
 				if(bdiff < 0){
 					bdiff += (bdiff*bdiff);
 				}
-				
+
 				if(rdiff <= 1 && gdiff <= 1 && bdiff <= 1){
 					skip = TRUE;
 				}
 			}
-			
+
 			if(skip == FALSE){
 				palette->icp.palette_16b_256[count] = clr;
 				count++;
 			}
-			
+
 			if(count >= 255){
 				break;
 			}
 		}
-		
+
 		palette->fmt = fmt;
 	}
 	else{
-		u32* clr_data = (u32*)data;
-		
+		const u32* clr_data = data;
+
 		u32 histogram[32767];
 		u32 colorgram[32767];
-		
+
 		int i;
 		for(i = 0; i < 32767; i++){
 			histogram[i] = 1;
 			colorgram[i] = i;
 		}
-		
+
 		//ITERATE THROUGH ENTIRE BUFFER OF IMAGE DATA AND TRACK ITS NUMBER OF OCCURENCES IN A HISTOGRAM
 		for(i = 0; i < width*height; i++){
-			u32 color = clr_data[i];
-			u16 color16 = AGIDL_CLR_TO_CLR16(color,fmt,AGIDL_RGB_555);
+			const u32 color = clr_data[i];
+			const u16 color16 = AGIDL_CLR_TO_CLR16(color,fmt,AGIDL_RGB_555);
 			histogram[color16] = histogram[color16] + 1;
-		}  
+		}
 
 		//PERFORM QUICK SORT TO LIST THE 256 MOST IMPORTANT COLORS IN ORDER OF LEAST TO MOST FREQUENTLY OCCURING COLORS
 		quickSort(histogram,colorgram,0,32767);
 
-		
+
 		AGIDL_InitICP(palette,AGIDL_ICP_256);
-		
+
 		int count = 0;
 		for(i = 32767; i > 0; i--){
 			AGIDL_Bool skip = FALSE;
-			
-			u16 clr = colorgram[i];
-			
-			int r = AGIDL_GetR(clr,AGIDL_RGB_555);
-			int g = AGIDL_GetG(clr,AGIDL_RGB_555);
-			int b = AGIDL_GetB(clr,AGIDL_RGB_555);
-			
-			int j;
-			for(j = 0; j < 256; j++){
-				u16 palclr = palette->icp.palette_256[j];
-				
-				int palr = AGIDL_GetR(palclr,AGIDL_RGB_555);
-				int palg = AGIDL_GetG(palclr,AGIDL_RGB_555);
-				int palb = AGIDL_GetB(palclr,AGIDL_RGB_555);
-				
+
+			const u16 clr = colorgram[i];
+
+			const int r = AGIDL_GetR(clr,AGIDL_RGB_555);
+			const int g = AGIDL_GetG(clr,AGIDL_RGB_555);
+			const int b = AGIDL_GetB(clr,AGIDL_RGB_555);
+
+			for(int j = 0; j < 256; j++){
+				const u16 palclr = palette->icp.palette_256[j];
+
+				const int palr = AGIDL_GetR(palclr,AGIDL_RGB_555);
+				const int palg = AGIDL_GetG(palclr,AGIDL_RGB_555);
+				const int palb = AGIDL_GetB(palclr,AGIDL_RGB_555);
+
 				int rdiff = r-palr;
 				int gdiff = g-palg;
 				int bdiff = b-palb;
-				
+
 				if(rdiff < 0){
 					rdiff += (rdiff*rdiff);
 				}
-				
+
 				if(gdiff < 0){
 					gdiff += (gdiff*gdiff);
 				}
-				
+
 				if(bdiff < 0){
 					bdiff += (bdiff*bdiff);
 				}
@@ -1455,9 +1410,8 @@ void AGIDL_EncodeHistogramICP(AGIDL_ICP* palette, void* data, u32 width, u32 hei
 				break;
 			}
 		}
-		
-		int j;
-		for(j = 0; j < 256; j++){
+
+		for(int j = 0; j < 256; j++){
 			palette->icp.palette_256[j] = AGIDL_CLR16_TO_CLR(palette->icp.palette_256[j],AGIDL_RGB_555,fmt);
 		}
 	}
@@ -1465,20 +1419,19 @@ void AGIDL_EncodeHistogramICP(AGIDL_ICP* palette, void* data, u32 width, u32 hei
 	palette->fmt = fmt;
 }
 
-void AGIDL_AddColorICP(AGIDL_ICP *palette, u8 index, COLOR clr, AGIDL_CLR_FMT fmt, int max_diff, int *pass){
+void AGIDL_AddColorICP(AGIDL_ICP *palette, const u8 index, const COLOR clr, const AGIDL_CLR_FMT fmt, const int max_diff, int *pass){
 	/*Extract Individual RGB components of clr*/
-	u8 r = AGIDL_GetR(clr,fmt);
-	u8 g = AGIDL_GetG(clr,fmt);
-	u8 b = AGIDL_GetB(clr,fmt);
+	const u8 r = AGIDL_GetR(clr,fmt);
+	const u8 g = AGIDL_GetG(clr,fmt);
+	const u8 b = AGIDL_GetB(clr,fmt);
 	
 	switch(palette->mode){
 		case AGIDL_ICP_16:{
-			int i;
-			for(i = 0; i < 16; i++){
-				COLOR palclr = palette->icp.palette_16[i];
-				u8 palr = AGIDL_GetR(palclr,fmt);
-				u8 palg = AGIDL_GetG(palclr,fmt);
-				u8 palb = AGIDL_GetB(palclr,fmt);
+			for(int i = 0; i < 16; i++){
+				const COLOR palclr = palette->icp.palette_16[i];
+				const u8 palr = AGIDL_GetR(palclr,fmt);
+				const u8 palg = AGIDL_GetG(palclr,fmt);
+				const u8 palb = AGIDL_GetB(palclr,fmt);
 				if(AGIDL_Abs(r-palr) <= max_diff && AGIDL_Abs(g-palg) <= max_diff && AGIDL_Abs(b-palb) <= max_diff){
 					*pass = 0;
 					return;
@@ -1490,12 +1443,11 @@ void AGIDL_AddColorICP(AGIDL_ICP *palette, u8 index, COLOR clr, AGIDL_CLR_FMT fm
 			*pass = 1;
 		}break;
 		case AGIDL_ICP_256:{
-			int i;
-			for(i = 0; i < 256; i++){
-				COLOR palclr = palette->icp.palette_256[i];
-				u8 palr = AGIDL_GetR(palclr,fmt);
-				u8 palg = AGIDL_GetG(palclr,fmt);
-				u8 palb = AGIDL_GetB(palclr,fmt);
+			for(int i = 0; i < 256; i++){
+				const COLOR palclr = palette->icp.palette_256[i];
+				const u8 palr = AGIDL_GetR(palclr,fmt);
+				const u8 palg = AGIDL_GetG(palclr,fmt);
+				const u8 palb = AGIDL_GetB(palclr,fmt);
 				if(AGIDL_Abs(r-palr) <= max_diff && AGIDL_Abs(g-palg) <= max_diff && AGIDL_Abs(b-palb) <= max_diff){
 					*pass = 0;
 					return;
@@ -1507,12 +1459,11 @@ void AGIDL_AddColorICP(AGIDL_ICP *palette, u8 index, COLOR clr, AGIDL_CLR_FMT fm
 			*pass = 1;
 		}break;
 		case AGIDL_ICP_16b_16:{
-			int i;
-			for(i = 0; i < 16; i++){
-				COLOR16 palclr = palette->icp.palette_16b_16[i];
-				u8 palr = AGIDL_GetR(palclr,fmt);
-				u8 palg = AGIDL_GetG(palclr,fmt);
-				u8 palb = AGIDL_GetB(palclr,fmt);
+			for(int i = 0; i < 16; i++){
+				const COLOR16 palclr = palette->icp.palette_16b_16[i];
+				const u8 palr = AGIDL_GetR(palclr,fmt);
+				const u8 palg = AGIDL_GetG(palclr,fmt);
+				const u8 palb = AGIDL_GetB(palclr,fmt);
 				if(AGIDL_Abs(r-palr) <= max_diff && AGIDL_Abs(g-palg) <= max_diff && AGIDL_Abs(b-palb) <= max_diff){
 					*pass = 0;
 					return;
@@ -1524,12 +1475,11 @@ void AGIDL_AddColorICP(AGIDL_ICP *palette, u8 index, COLOR clr, AGIDL_CLR_FMT fm
 			*pass = 1;
 		}break;
 		case AGIDL_ICP_16b_256:{
-			int i;
-			for(i = 0; i < 256; i++){
-				COLOR16 palclr = palette->icp.palette_16b_256[i];
-				u8 palr = AGIDL_GetR(palclr,fmt);
-				u8 palg = AGIDL_GetG(palclr,fmt);
-				u8 palb = AGIDL_GetB(palclr,fmt);
+			for(int i = 0; i < 256; i++){
+				const COLOR16 palclr = palette->icp.palette_16b_256[i];
+				const u8 palr = AGIDL_GetR(palclr,fmt);
+				const u8 palg = AGIDL_GetG(palclr,fmt);
+				const u8 palb = AGIDL_GetB(palclr,fmt);
 				if(AGIDL_Abs(r-palr) <= max_diff && AGIDL_Abs(g-palg) <= max_diff && AGIDL_Abs(b-palb) <= max_diff){
 					*pass = 0;
 					return;
@@ -1543,19 +1493,18 @@ void AGIDL_AddColorICP(AGIDL_ICP *palette, u8 index, COLOR clr, AGIDL_CLR_FMT fm
 	}
 }
 
-void AGIDL_AddColorICP16(AGIDL_ICP *palette, u8 index, COLOR16 clr, AGIDL_CLR_FMT fmt, int max_diff, int *pass){
+void AGIDL_AddColorICP16(AGIDL_ICP *palette, const u8 index, const COLOR16 clr, const AGIDL_CLR_FMT fmt, const int max_diff, int *pass){
 	/*Extract Individual RGB components of clr*/
-	u8 r = AGIDL_GetR(clr,fmt);
-	u8 g = AGIDL_GetG(clr,fmt);
-	u8 b = AGIDL_GetB(clr,fmt);
+	const u8 r = AGIDL_GetR(clr,fmt);
+	const u8 g = AGIDL_GetG(clr,fmt);
+	const u8 b = AGIDL_GetB(clr,fmt);
 	switch(palette->mode){
 		case AGIDL_ICP_16b_16:{
-			int i;
-			for(i = 0; i < 16; i++){
-				COLOR16 palclr = palette->icp.palette_16b_16[i];
-				u8 palr = AGIDL_GetR(palclr,fmt);
-				u8 palg = AGIDL_GetG(palclr,fmt);
-				u8 palb = AGIDL_GetB(palclr,fmt);
+			for(int i = 0; i < 16; i++){
+				const COLOR16 palclr = palette->icp.palette_16b_16[i];
+				const u8 palr = AGIDL_GetR(palclr,fmt);
+				const u8 palg = AGIDL_GetG(palclr,fmt);
+				const u8 palb = AGIDL_GetB(palclr,fmt);
 				if(AGIDL_Abs(r-palr) <= max_diff && AGIDL_Abs(g-palg) <= max_diff && AGIDL_Abs(b-palb) <= max_diff){
 					*pass = 0;
 					return;
@@ -1567,12 +1516,11 @@ void AGIDL_AddColorICP16(AGIDL_ICP *palette, u8 index, COLOR16 clr, AGIDL_CLR_FM
 			*pass = 1;
 		}break;
 		case AGIDL_ICP_16b_256:{
-			int i;
-			for(i = 0; i < 256; i++){
-				COLOR palclr = palette->icp.palette_16b_256[i];
-				u8 palr = AGIDL_GetR(palclr,fmt);
-				u8 palg = AGIDL_GetG(palclr,fmt);
-				u8 palb = AGIDL_GetB(palclr,fmt);
+			for(int i = 0; i < 256; i++){
+				const COLOR palclr = palette->icp.palette_16b_256[i];
+				const u8 palr = AGIDL_GetR(palclr,fmt);
+				const u8 palg = AGIDL_GetG(palclr,fmt);
+				const u8 palb = AGIDL_GetB(palclr,fmt);
 				if(AGIDL_Abs(r-palr) <= max_diff && AGIDL_Abs(g-palg) <= max_diff && AGIDL_Abs(b-palb) <= max_diff){
 					*pass = 0;
 					return;
@@ -1586,7 +1534,7 @@ void AGIDL_AddColorICP16(AGIDL_ICP *palette, u8 index, COLOR16 clr, AGIDL_CLR_FM
 	}
 }
 
-void AGIDL_ForceAddColor(AGIDL_ICP* palette, COLOR clr, u8 index){
+void AGIDL_ForceAddColor(AGIDL_ICP* palette, const COLOR clr, u8 index){
 	if(palette->mode == AGIDL_ICP_16 || palette->mode == AGIDL_ICP_16b_16){
 		index = AGIDL_Max(index,16);
 		
@@ -1607,21 +1555,20 @@ void AGIDL_ForceAddColor(AGIDL_ICP* palette, COLOR clr, u8 index){
 	}
 }
 
-u8 AGIDL_FindClosestColor(AGIDL_ICP palette, COLOR clr, AGIDL_CLR_FMT fmt, int max_difference){
+u8 AGIDL_FindClosestColor(const AGIDL_ICP palette, const COLOR clr, const AGIDL_CLR_FMT fmt, const int max_difference){
 	/*Extract Individual RGB Components of Color*/
-	u8 r = AGIDL_GetR(clr,fmt);
-	u8 g = AGIDL_GetG(clr,fmt);
-	u8 b = AGIDL_GetB(clr,fmt);
+	const u8 r = AGIDL_GetR(clr,fmt);
+	const u8 g = AGIDL_GetG(clr,fmt);
+	const u8 b = AGIDL_GetB(clr,fmt);
 	
 	switch(palette.mode){
 		case AGIDL_ICP_256:{
-			int i;
-			for(i = 0; i < 256; i++){
-				COLOR palclr = palette.icp.palette_256[i];
-			
-				u8 palr = AGIDL_GetR(palclr,fmt);
-				u8 palg = AGIDL_GetG(palclr,fmt);
-				u8 palb = AGIDL_GetB(palclr,fmt);
+			for(int i = 0; i < 256; i++){
+				const COLOR palclr = palette.icp.palette_256[i];
+
+				const u8 palr = AGIDL_GetR(palclr,fmt);
+				const u8 palg = AGIDL_GetG(palclr,fmt);
+				const u8 palb = AGIDL_GetB(palclr,fmt);
 				
 				if(AGIDL_Abs(r-palr) <= max_difference && AGIDL_Abs(g-palg) <= max_difference && AGIDL_Abs(b-palb) <= max_difference){
 					return i;
@@ -1633,13 +1580,12 @@ u8 AGIDL_FindClosestColor(AGIDL_ICP palette, COLOR clr, AGIDL_CLR_FMT fmt, int m
 			}
 		}break;
 		case AGIDL_ICP_16:{
-			int i;
-			for(i = 0; i < 16; i++){
-				COLOR palclr = palette.icp.palette_16[i];
-			
-				u8 palr = AGIDL_GetR(palclr,fmt);
-				u8 palg = AGIDL_GetG(palclr,fmt);
-				u8 palb = AGIDL_GetB(palclr,fmt);
+			for(int i = 0; i < 16; i++){
+				const COLOR palclr = palette.icp.palette_16[i];
+
+				const u8 palr = AGIDL_GetR(palclr,fmt);
+				const u8 palg = AGIDL_GetG(palclr,fmt);
+				const u8 palb = AGIDL_GetB(palclr,fmt);
 				
 				if(AGIDL_Abs(r-palr) <= max_difference && AGIDL_Abs(g-palg) <= max_difference && AGIDL_Abs(b-palb) <= max_difference){
 					return i;
@@ -1647,13 +1593,12 @@ u8 AGIDL_FindClosestColor(AGIDL_ICP palette, COLOR clr, AGIDL_CLR_FMT fmt, int m
 			}
 		}break;
 		case AGIDL_ICP_16b_256:{
-			int i;
-			for(i = 0; i < 256; i++){
-				COLOR16 palclr = palette.icp.palette_16b_256[i];
-			
-				u8 palr = AGIDL_GetR(palclr,fmt);
-				u8 palg = AGIDL_GetG(palclr,fmt);
-				u8 palb = AGIDL_GetB(palclr,fmt);
+			for(int i = 0; i < 256; i++){
+				const COLOR16 palclr = palette.icp.palette_16b_256[i];
+
+				const u8 palr = AGIDL_GetR(palclr,fmt);
+				const u8 palg = AGIDL_GetG(palclr,fmt);
+				const u8 palb = AGIDL_GetB(palclr,fmt);
 				
 				if(AGIDL_Abs(r-palr) <= max_difference && AGIDL_Abs(g-palg) <= max_difference && AGIDL_Abs(b-palb) <= max_difference){
 					return i;
@@ -1661,45 +1606,44 @@ u8 AGIDL_FindClosestColor(AGIDL_ICP palette, COLOR clr, AGIDL_CLR_FMT fmt, int m
 			}
 		}break;
 		case AGIDL_ICP_16b_16:{
-			int i;
-			for(i = 0; i < 16; i++){
-				COLOR16 palclr = palette.icp.palette_16b_16[i];
-			
-				u8 palr = AGIDL_GetR(palclr,fmt);
-				u8 palg = AGIDL_GetG(palclr,fmt);
-				u8 palb = AGIDL_GetB(palclr,fmt);
+			for(int i = 0; i < 16; i++){
+				const COLOR16 palclr = palette.icp.palette_16b_16[i];
+
+				const u8 palr = AGIDL_GetR(palclr,fmt);
+				const u8 palg = AGIDL_GetG(palclr,fmt);
+				const u8 palb = AGIDL_GetB(palclr,fmt);
 				
 				if(AGIDL_Abs(r-palr) <= max_difference && AGIDL_Abs(g-palg) <= max_difference && AGIDL_Abs(b-palb) <= max_difference){
 					return i;
 				}
 			}
 		}break;
-		default: return 0; break;
+		default: break;
 	}
+	return 0;
 }
 
-u8 AGIDL_FindNearestColor(AGIDL_ICP palette, COLOR clr, AGIDL_CLR_FMT fmt){
-	int r = AGIDL_GetR(clr,fmt);
-	int g = AGIDL_GetG(clr,fmt);
-	int b = AGIDL_GetB(clr,fmt);
+u8 AGIDL_FindNearestColor(const AGIDL_ICP palette, const COLOR clr, const AGIDL_CLR_FMT fmt){
+	const int r = AGIDL_GetR(clr,fmt);
+	const int g = AGIDL_GetG(clr,fmt);
+	const int b = AGIDL_GetB(clr,fmt);
 	
 	switch(palette.mode){
 		case AGIDL_ICP_256:{
 			u32 min = 255*255 + 255*255 + 255*255 + 1;
 			u8 index = 0;
-			int i;
-			for(i = 0; i < 256; i++){
-				COLOR palclr = palette.icp.palette_256[i];
-				
-				int palr = AGIDL_GetR(palclr,fmt);
-				int palg = AGIDL_GetG(palclr,fmt);
-				int palb = AGIDL_GetB(palclr,fmt);
-				
-				int rdiff = r-palr;
-				int gdiff = g-palg;
-				int bdiff = b-palb;
-				
-				u32 dist = rdiff*rdiff + gdiff*gdiff + bdiff*bdiff;
+			for(int i = 0; i < 256; i++){
+				const COLOR palclr = palette.icp.palette_256[i];
+
+				const int palr = AGIDL_GetR(palclr,fmt);
+				const int palg = AGIDL_GetG(palclr,fmt);
+				const int palb = AGIDL_GetB(palclr,fmt);
+
+				const int rdiff = r-palr;
+				const int gdiff = g-palg;
+				const int bdiff = b-palb;
+
+				const u32 dist = rdiff*rdiff + gdiff*gdiff + bdiff*bdiff;
 				
 				if(dist < min){
 					min = dist;
@@ -1707,24 +1651,23 @@ u8 AGIDL_FindNearestColor(AGIDL_ICP palette, COLOR clr, AGIDL_CLR_FMT fmt){
 				}
 			}
 			return index;
-		}break;
+		}
 		case AGIDL_ICP_16:{
 			u32 min = 255*255 + 255*255 + 255*255 + 1;
 			u8 index = 0;
-			
-			int i;
-			for(i = 0; i < 16; i++){
-				COLOR palclr = palette.icp.palette_16[i];
-				
-				int palr = AGIDL_GetR(palclr,fmt);
-				int palg = AGIDL_GetG(palclr,fmt);
-				int palb = AGIDL_GetB(palclr,fmt);
-				
-				int rdiff = AGIDL_Abs(r-palr);
-				int gdiff = AGIDL_Abs(g-palg);
-				int bdiff = AGIDL_Abs(b-palb);
-				
-				u32 dist = rdiff*rdiff + gdiff*gdiff + bdiff*bdiff;
+
+			for(int i = 0; i < 16; i++){
+				const COLOR palclr = palette.icp.palette_16[i];
+
+				const int palr = AGIDL_GetR(palclr,fmt);
+				const int palg = AGIDL_GetG(palclr,fmt);
+				const int palb = AGIDL_GetB(palclr,fmt);
+
+				const int rdiff = AGIDL_Abs(r-palr);
+				const int gdiff = AGIDL_Abs(g-palg);
+				const int bdiff = AGIDL_Abs(b-palb);
+
+				const u32 dist = rdiff*rdiff + gdiff*gdiff + bdiff*bdiff;
 				
 				if(dist < min){
 					min = dist;
@@ -1732,24 +1675,23 @@ u8 AGIDL_FindNearestColor(AGIDL_ICP palette, COLOR clr, AGIDL_CLR_FMT fmt){
 				}
 			}
 			return index;
-		}break;
+		}
 		case AGIDL_ICP_16b_256:{
 			u32 min = 31*31 + 31*31 + 31*31 + 1;
 			u8 index = 0;
-			
-			int i;
-			for(i = 0; i < 256; i++){
-				COLOR16 palclr = palette.icp.palette_16b_256[i];
-				
-				int palr = AGIDL_GetR(palclr,fmt);
-				int palg = AGIDL_GetG(palclr,fmt);
-				int palb = AGIDL_GetB(palclr,fmt);
-				
-				int rdiff = AGIDL_Abs(r-palr);
-				int gdiff = AGIDL_Abs(g-palg);
-				int bdiff = AGIDL_Abs(b-palb);
-				
-				u32 dist = rdiff*rdiff + gdiff*gdiff + bdiff*bdiff;
+
+			for(int i = 0; i < 256; i++){
+				const COLOR16 palclr = palette.icp.palette_16b_256[i];
+
+				const int palr = AGIDL_GetR(palclr,fmt);
+				const int palg = AGIDL_GetG(palclr,fmt);
+				const int palb = AGIDL_GetB(palclr,fmt);
+
+				const int rdiff = AGIDL_Abs(r-palr);
+				const int gdiff = AGIDL_Abs(g-palg);
+				const int bdiff = AGIDL_Abs(b-palb);
+
+				const u32 dist = rdiff*rdiff + gdiff*gdiff + bdiff*bdiff;
 				
 				if(dist < min){
 					min = dist;
@@ -1757,24 +1699,23 @@ u8 AGIDL_FindNearestColor(AGIDL_ICP palette, COLOR clr, AGIDL_CLR_FMT fmt){
 				}
 			}
 			return index;
-		}break;
+		}
 		case AGIDL_ICP_16b_16:{
 			u32 min = 31*31 + 31*31 + 31*31 + 1;
 			u8 index = 0;
-			
-			int i;
-			for(i = 0; i < 16; i++){
-				COLOR16 palclr = palette.icp.palette_16b_16[i];
-				
-				int palr = AGIDL_GetR(palclr,fmt);
-				int palg = AGIDL_GetG(palclr,fmt);
-				int palb = AGIDL_GetB(palclr,fmt);
-				
-				int rdiff = AGIDL_Abs(r-palr);
-				int gdiff = AGIDL_Abs(g-palg);
-				int bdiff = AGIDL_Abs(b-palb);
-				
-				u32 dist = rdiff*rdiff + gdiff*gdiff + bdiff*bdiff;
+
+			for(int i = 0; i < 16; i++){
+				const COLOR16 palclr = palette.icp.palette_16b_16[i];
+
+				const int palr = AGIDL_GetR(palclr,fmt);
+				const int palg = AGIDL_GetG(palclr,fmt);
+				const int palb = AGIDL_GetB(palclr,fmt);
+
+				const int rdiff = AGIDL_Abs(r-palr);
+				const int gdiff = AGIDL_Abs(g-palg);
+				const int bdiff = AGIDL_Abs(b-palb);
+
+				const u32 dist = rdiff*rdiff + gdiff*gdiff + bdiff*bdiff;
 				
 				if(dist < min){
 					min = dist;
@@ -1783,7 +1724,7 @@ u8 AGIDL_FindNearestColor(AGIDL_ICP palette, COLOR clr, AGIDL_CLR_FMT fmt){
 			}
 			
 			return index;
-		}break;
+		}
 	}
 	
 	return 0;
@@ -1811,10 +1752,9 @@ AGIDL_ICP AGIDL_GenerateVGAICP(){
 	AGIDL_ICP pal;
 	pal.mode = AGIDL_ICP_256;
 	pal.fmt = AGIDL_RGB_888;
-	
-	
-	int i;
-	for(i = 0; i < 256; i++){
+
+
+	for(int i = 0; i < 256; i++){
 		pal.icp.palette_256[i] = icp[i];
 	}
 	
@@ -1845,10 +1785,9 @@ AGIDL_ICP AGIDL_GenerateAloneInTheDarkICP(){
 	AGIDL_ICP pal;
 	pal.mode = AGIDL_ICP_256;
 	pal.fmt = AGIDL_RGB_888;
-	
-	
-	int i;
-	for(i = 0; i < 256; i++){
+
+
+	for(int i = 0; i < 256; i++){
 		pal.icp.palette_256[i] = icp[i];
 	}
 	
@@ -1894,9 +1833,8 @@ AGIDL_ICP AGIDL_GenerateWin95ICP(){
 	AGIDL_ICP pal;
 	pal.mode = AGIDL_ICP_256;
 	pal.fmt = AGIDL_RGB_888;
-	
-	int i;
-	for(i = 0; i < 256; i++){
+
+	for(int i = 0; i < 256; i++){
 		pal.icp.palette_256[i] = icp[i];
 	}
 	
@@ -1925,28 +1863,27 @@ AGIDL_ICP AGIDL_GenerateVGAICP16(){
 	AGIDL_ICP pal;
 	pal.mode = AGIDL_ICP_16b_256;
 	pal.fmt = AGIDL_RGB_555;
-	
-	int i;
-	for(i = 0; i < 256; i++){
+
+	for(int i = 0; i < 256; i++){
 		pal.icp.palette_16b_256[i] = icp[i];
 	}
 	
 	return pal;
 }
 
-void AGIDL_SetY(AGIDL_YCbCr *ycbcr, u8 y){
+void AGIDL_SetY(AGIDL_YCbCr *ycbcr, const u8 y){
 	ycbcr->y = y;
 }
 
-void AGIDL_SetCb(AGIDL_YCbCr *ycbcr, u8 cb){
+void AGIDL_SetCb(AGIDL_YCbCr *ycbcr, const u8 cb){
 	ycbcr->cb = cb;
 }
 
-void AGIDL_SetCr(AGIDL_YCbCr *ycbcr, u8 cr){
+void AGIDL_SetCr(AGIDL_YCbCr *ycbcr, const u8 cr){
 	ycbcr->cr = cr;
 }
 
-void AGIDL_SetYCbCr(AGIDL_YCbCr *ycbcr, u8 y, u8 cb, u8 cr){
+void AGIDL_SetYCbCr(AGIDL_YCbCr *ycbcr, const u8 y, const u8 cb, const u8 cr){
 	AGIDL_SetY(ycbcr,y);
 	AGIDL_SetCb(ycbcr,cb);
 	AGIDL_SetCr(ycbcr,cr);

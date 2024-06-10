@@ -15,11 +15,12 @@
 *
 ********************************************/
 
+#include <agidl_cc_manager.h>
+#include <agidl_cc_types.h>
+#include <agidl_img_types.h>
+#include <agidl_types.h>
+
 #include <stdio.h>
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_types.h"
-#include "agidl_cc_manager.h"
 
 typedef struct PCXHEADER{
 	u8 id;
@@ -60,24 +61,24 @@ void AGIDL_PCXSetClrFmt(AGIDL_PCX *pcx, AGIDL_CLR_FMT fmt);
 void AGIDL_PCXSetICPMode(AGIDL_PCX *pcx, int mode);
 void AGIDL_PCXSetICPEncoding(AGIDL_PCX* pcx, AGIDL_ICP_ENCODE encode);
 void AGIDL_PCXSetMaxDiff(AGIDL_PCX* pcx, int max_diff);
-void AGIDL_PCXSetClr(AGIDL_PCX *pcx, int x, int y, COLOR clr);
-void AGIDL_PCXSetClr16(AGIDL_PCX *pcx, int x, int y, COLOR16 clr);
-void AGIDL_PCXSetRGB(AGIDL_PCX *pcx, int x, int y, u8 r, u8 g, u8 b);
-void AGIDL_ClearPCX(AGIDL_PCX *pcx, COLOR clr);
-void AGIDL_ClearPCX16(AGIDL_PCX *pcx, COLOR16 clr);
-void AGIDL_ClearColorPCX(AGIDL_PCX* pcx, float r, float g, float b);
-void AGIDL_FlushPCX(AGIDL_PCX* pcx);
-void AGIDL_PCXSyncPix(AGIDL_PCX *pcx, COLOR *clrs);
-void AGIDL_PCXSyncPix16(AGIDL_PCX *pcx, COLOR16 *clrs);
-void AGIDL_PCXCopyPix(AGIDL_PCX* pcx, COLOR* clrs, u32 count);
-void AGIDL_PCXCopyPix16(AGIDL_PCX* pcx, COLOR16* clrs, u32 count);
-int AGIDL_PCXGetWidth(AGIDL_PCX *pcx);
-int AGIDL_PCXGetHeight(AGIDL_PCX *pcx);
-u32 AGIDL_PCXGetSize(AGIDL_PCX* pcx);
-int AGIDL_PCXGetMaxDiff(AGIDL_PCX* pcx);
-AGIDL_CLR_FMT AGIDL_PCXGetClrFmt(AGIDL_PCX* pcx);
-COLOR AGIDL_PCXGetClr(AGIDL_PCX *pcx, int x, int y);
-COLOR16 AGIDL_PCXGetClr16(AGIDL_PCX *pcx, int x, int y);
+void AGIDL_PCXSetClr(const AGIDL_PCX *pcx, int x, int y, COLOR clr);
+void AGIDL_PCXSetClr16(const AGIDL_PCX *pcx, int x, int y, COLOR16 clr);
+void AGIDL_PCXSetRGB(const AGIDL_PCX *pcx, int x, int y, u8 r, u8 g, u8 b);
+void AGIDL_ClearPCX(const AGIDL_PCX *pcx, COLOR clr);
+void AGIDL_ClearPCX16(const AGIDL_PCX *pcx, COLOR16 clr);
+void AGIDL_ClearColorPCX(const AGIDL_PCX* pcx, float r, float g, float b);
+void AGIDL_FlushPCX(const AGIDL_PCX* pcx);
+void AGIDL_PCXSyncPix(const AGIDL_PCX *pcx, const COLOR *clrs);
+void AGIDL_PCXSyncPix16(const AGIDL_PCX *pcx, const COLOR16 *clrs);
+void AGIDL_PCXCopyPix(const AGIDL_PCX* pcx, const COLOR* clrs, u32 count);
+void AGIDL_PCXCopyPix16(const AGIDL_PCX* pcx, const COLOR16* clrs, u32 count);
+int AGIDL_PCXGetWidth(const AGIDL_PCX *pcx);
+int AGIDL_PCXGetHeight(const AGIDL_PCX *pcx);
+u32 AGIDL_PCXGetSize(const AGIDL_PCX* pcx);
+int AGIDL_PCXGetMaxDiff(const AGIDL_PCX* pcx);
+AGIDL_CLR_FMT AGIDL_PCXGetClrFmt(const AGIDL_PCX* pcx);
+COLOR AGIDL_PCXGetClr(const AGIDL_PCX *pcx, int x, int y);
+COLOR16 AGIDL_PCXGetClr16(const AGIDL_PCX *pcx, int x, int y);
 void AGIDL_FreePCX(AGIDL_PCX *pcx);
 void AGIDL_PCXRGB2BGR(AGIDL_PCX *pcx);
 void AGIDL_PCXBGR2RGB(AGIDL_PCX *pcx);
@@ -89,17 +90,17 @@ void AGIDL_ColorConvertPCX(AGIDL_PCX* pcx, AGIDL_CLR_FMT dest);
 AGIDL_PCX * AGIDL_LoadPCX(char *filename);
 AGIDL_PCX * AGIDL_CreatePCX(const char *filename, int width, int height, AGIDL_CLR_FMT fmt);
 void AGIDL_ExportPCX(AGIDL_PCX *pcx);
-AGIDL_PCX* AGIDL_PCXCpyImg(AGIDL_PCX* pcx);
+AGIDL_PCX* AGIDL_PCXCpyImg(const AGIDL_PCX* pcx);
 void AGIDL_PCXEncodeHeader(AGIDL_PCX* pcx, FILE* file);
 void AGIDL_PCXEncodeICP(AGIDL_PCX* pcx);
 void AGIDL_PCXEncodeImg(AGIDL_PCX* pcx, FILE* file);
 int AGIDL_PCXDecodeHeader(AGIDL_PCX* pcx, FILE* file);
 void AGIDL_PCXDecodeIMG(AGIDL_PCX* pcx, FILE* file);
 /*HELPER FUNCTIONS THAT ARE FINE-TUNED EXPLICITLY FOR USAGE WITH PCX IMAGES*/
-u16 bin2dec(char *binary);
+u16 bin2dec(const char *binary);
 char* dec2bin(u16 number);
 u16 little_endianify(u16 number);
 u16 big_endianify(u16 number);
-char* pcxrlebits(char *binary);
+char* pcxrlebits(const char *binary);
 
 #endif

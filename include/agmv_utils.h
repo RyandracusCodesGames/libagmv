@@ -15,8 +15,9 @@
 *
 ********************************************/
 
+#include <agmv_defines.h>
+
 #include <stdio.h>
-#include "agmv_defines.h"
 
 /*-------FILE READING UTILITY FUNCTIONS------*/
 
@@ -71,20 +72,20 @@ void DestroyAGMV(AGMV* agmv);
 
 /*------PRIMARY FUNCTIONS TO RETRIEVE AGMV ATTRIBUTES----------*/
 
-u32 AGMV_GetWidth(AGMV* agmv);
-u32 AGMV_GetHeight(AGMV* agmv);
-u32 AGMV_GetFramesPerSecond(AGMV* agmv);
-u32 AGMV_GetNumberOfFrames(AGMV* agmv);
-u32 AGMV_GetTotalAudioDuration(AGMV* agmv);
-u32 AGMV_GetSampleRate(AGMV* agmv);
-u16 AGMV_GetNumberOfChannels(AGMV* agmv);
-u32 AGMV_GetAudioSize(AGMV* agmv);
-f32 AGMV_GetLeniency(AGMV* agmv);
-u8 AGMV_GetVersion(AGMV* agmv);
-AGMV_OPT AGMV_GetOPT(AGMV* agmv);
-AGMV_COMPRESSION AGMV_GetCompression(AGMV* agmv);
-Bool AGMV_GetAudioState(AGMV* agmv);
-f32 AGMV_GetVolume(AGMV* agmv);
+u32 AGMV_GetWidth(const AGMV* agmv);
+u32 AGMV_GetHeight(const AGMV* agmv);
+u32 AGMV_GetFramesPerSecond(const AGMV* agmv);
+u32 AGMV_GetNumberOfFrames(const AGMV* agmv);
+u32 AGMV_GetTotalAudioDuration(const AGMV* agmv);
+u32 AGMV_GetSampleRate(const AGMV* agmv);
+u16 AGMV_GetNumberOfChannels(const AGMV* agmv);
+u32 AGMV_GetAudioSize(const AGMV* agmv);
+f32 AGMV_GetLeniency(const AGMV* agmv);
+u8 AGMV_GetVersion(const AGMV* agmv);
+AGMV_OPT AGMV_GetOPT(const AGMV* agmv);
+AGMV_COMPRESSION AGMV_GetCompression(const AGMV* agmv);
+Bool AGMV_GetAudioState(const AGMV* agmv);
+f32 AGMV_GetVolume(const AGMV* agmv);
 
 /*-----------------VARIOUS UTILITY FUNCTIONS-----------------*/
 int AGMV_NextIFrame(int n, int frame_count);
@@ -94,9 +95,9 @@ u8 AGMV_GetVersionFromOPT(AGMV_OPT opt, AGMV_COMPRESSION compression);
 f32 AGMV_ClampVolume(f32 volume);
 u16 AGMV_SwapShort(u16 word);
 u32 AGMV_SwapLong(u32 dword);
-void AGMV_CopyImageData(u32* dest, u32* src, u32 size);
-void AGMV_SyncFrameAndImage(AGMV* agmv, u32* img_data);
-void AGMV_SyncAudioTrack(AGMV* agmv, u16* pcm);
+void AGMV_CopyImageData(u32* dest, const u32* src, u32 size);
+void AGMV_SyncFrameAndImage(const AGMV* agmv, const u32* img_data);
+void AGMV_SyncAudioTrack(const AGMV* agmv, const u16* pcm);
 int AGMV_Abs(int a);
 int AGMV_Min(int a, int b);
 u8 AGMV_GetR(u32 color);
@@ -112,8 +113,8 @@ u8 AGMV_FindSmallestColor(u32 palette[256], u32 color);
 AGMV_ENTRY AGMV_FindNearestEntry(u32 palette0[256], u32 palette1[256], u32 color);
 AGMV_ENTRY AGMV_FindSmallestEntry(u32 palette0[256], u32 palette1[256], u32 color);
 u32 AGMV_CalculateTotalAudioDuration(u32 size, u32 sample_rate, u16 num_of_channels, u16 bits_per_sample);
-f32 AGMV_CompareFrameSimilarity(u32* frame1, u32* frame2 , u32 width, u32 height);
-void AGMV_InterpFrame(u32* interp, u32* frame1, u32* frame2, u32 width, u32 height);
+f32 AGMV_CompareFrameSimilarity(const u32* frame1, const u32* frame2 , u32 width, u32 height);
+void AGMV_InterpFrame(u32* interp, const u32* frame1, const u32* frame2, u32 width, u32 height);
 void AGMV_QuickSort(u32* data, u32* gram, int low, int high);
 char* AGMV_Error2Str(Error error);
 u32 AGMV_GetNumberOfBytesRead(u32 bits);
@@ -124,9 +125,9 @@ void AGMV_AIFFToAudioTrack(const char* filename, AGMV* agmv);
 void AGMV_Raw8PCMToAudioTrack(const char* filename, AGMV* agmv);
 void AGMV_Export8PCMWav(const char* filename);
 void AGMV_ExportRaw8PCM(const char* filename, u32 total_num_frames);
-AGMV_INFO AGMV_GetVideoInfo(AGMV* agmv);
+AGMV_INFO AGMV_GetVideoInfo(const AGMV* agmv);
 int AGMV_ResetFrameRate(const char* filename, u32 frames_per_second);
-void AGMV_ExportAudioType(FILE* audio, AGMV* agmv, AGMV_AUDIO_TYPE audio_type);
+void AGMV_ExportAudioType(FILE* audio, const AGMV* agmv, AGMV_AUDIO_TYPE audio_type);
 void AGMV_ExportAGMVToHeader(const char* filename);
 
- #endif
+#endif

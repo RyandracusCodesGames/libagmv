@@ -11,20 +11,25 @@
 *   Author: Ryandracus Chapman
 *
 ********************************************/
+
+#include <agidl_imgp_font.h>
+
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "agidl_imgp_font.h"
-#include "agidl_cc_core.h"
+
+#include <agidl_cc_core.h>
+#include <agidl_img_types.h>
 
 AGIDL_GlyphList* AGIDL_CreateGlyphList(){
-	AGIDL_GlyphList* list = (AGIDL_GlyphList*)malloc(sizeof(AGIDL_GlyphList));
+	AGIDL_GlyphList* list = malloc(sizeof(AGIDL_GlyphList));
 	list->len = 0;
 	list->head = NULL;
 	return list;
 }
 
-AGIDL_GlyphNode* AGIDL_CreateGlyphNode(char c, void* data, u32 width, u32 height){
-	AGIDL_GlyphNode* node = (AGIDL_GlyphNode*)malloc(sizeof(AGIDL_GlyphNode));
+AGIDL_GlyphNode* AGIDL_CreateGlyphNode(const char c, void* data, const u32 width, const u32 height){
+	AGIDL_GlyphNode* node = malloc(sizeof(AGIDL_GlyphNode));
 	node->glyph.c = c;
 	node->glyph.img_data = data;
 	node->glyph.width = width;
@@ -33,7 +38,7 @@ AGIDL_GlyphNode* AGIDL_CreateGlyphNode(char c, void* data, u32 width, u32 height
 	return node;
 }
 
-void AGIDL_AddNode(AGIDL_GlyphList* list, char c, void* data, u32 width, u32 height){
+void AGIDL_AddNode(AGIDL_GlyphList* list, const char c, void* data, const u32 width, const u32 height){
 	AGIDL_GlyphNode* newNode = AGIDL_CreateGlyphNode(c,data,width,height);
 	if(list->head == NULL){
 		list->head = newNode;
@@ -49,7 +54,7 @@ void AGIDL_AddNode(AGIDL_GlyphList* list, char c, void* data, u32 width, u32 hei
 	}
 }
 
-int AGIDL_DeleteNode(AGIDL_GlyphList* list, char c){
+int AGIDL_DeleteNode(AGIDL_GlyphList* list, const char c){
 	if(list->head == NULL || list == NULL){
 		return 0;
 	}
@@ -89,12 +94,12 @@ void AGIDL_Pop(AGIDL_GlyphList* list){
 	free(temp);
 }
 
-u32 AGIDL_GetGlyphListLength(AGIDL_GlyphList* list){
+u32 AGIDL_GetGlyphListLength(const AGIDL_GlyphList* list){
 	return list->len;
 }
 
-void AGIDL_PrintGlyphList(AGIDL_GlyphList* list){
-	AGIDL_GlyphNode* temp = list->head;
+void AGIDL_PrintGlyphList(const AGIDL_GlyphList* list){
+	const AGIDL_GlyphNode* temp = list->head;
 	
 	while(temp != NULL){
 		printf("%c\n",temp->glyph.c);
@@ -102,8 +107,8 @@ void AGIDL_PrintGlyphList(AGIDL_GlyphList* list){
 	}
 }
 
-int AGIDL_FindNode(AGIDL_GlyphList* list, char c){
-	AGIDL_GlyphNode* temp = list->head;
+int AGIDL_FindNode(const AGIDL_GlyphList* list, const char c){
+	const AGIDL_GlyphNode* temp = list->head;
 	
 	while(temp != NULL){
 		if(temp->glyph.c == c){
@@ -114,8 +119,8 @@ int AGIDL_FindNode(AGIDL_GlyphList* list, char c){
 	return 0;
 }
 
-AGIDL_GLYPH AGIDL_FindLetter(AGIDL_FONT* font, char c){
-	AGIDL_GlyphNode* temp = font->list->head;
+AGIDL_GLYPH AGIDL_FindLetter(const AGIDL_FONT* font, const char c){
+	const AGIDL_GlyphNode* temp = font->list->head;
 	
 	while(temp != NULL){
 		if(temp->glyph.c == c){
@@ -123,13 +128,13 @@ AGIDL_GLYPH AGIDL_FindLetter(AGIDL_FONT* font, char c){
 		}
 		temp = temp->next;
 	}
-	AGIDL_GLYPH glyph = {};
+	const AGIDL_GLYPH glyph = {};
 	return glyph;
 }
 
 void AGIDL_DestroyGlyphList(AGIDL_GlyphList* list){
-	int i, len = AGIDL_GetGlyphListLength(list);
-	for(i = 0; i < len; i++){
+	const int len = AGIDL_GetGlyphListLength(list);
+	for(int i = 0; i < len; i++){
 		AGIDL_Pop(list);
 	}
 	
@@ -140,8 +145,8 @@ void AGIDL_DestroyGlyphList(AGIDL_GlyphList* list){
 	}
 }
 
-AGIDL_FONT* AGIDL_CreateFont(u32 width, u32 height, AGIDL_CLR_FMT fmt){
-	AGIDL_FONT* font = (AGIDL_FONT*)malloc(sizeof(AGIDL_FONT));
+AGIDL_FONT* AGIDL_CreateFont(const u32 width, const u32 height, const AGIDL_CLR_FMT fmt){
+	AGIDL_FONT* font = malloc(sizeof(AGIDL_FONT));
 	font->width = width;
 	font->height = height;
 	font->fmt = fmt;
@@ -150,7 +155,7 @@ AGIDL_FONT* AGIDL_CreateFont(u32 width, u32 height, AGIDL_CLR_FMT fmt){
 	return font;
 }
 
-void AGIDL_SetExportMode(AGIDL_FONT* font, int mode){
+void AGIDL_SetExportMode(AGIDL_FONT* font, const int mode){
 	font->mode = mode;
 }
 
@@ -163,18 +168,18 @@ void AGIDL_DestroyFont(AGIDL_FONT* font){
 	}
 }
 
-void AGIDL_AddLetter(AGIDL_FONT* font, char c, void* data){
+void AGIDL_AddLetter(AGIDL_FONT* font, const char c, const void* data){
 	if(AGIDL_FindNode(font->list,c) != 1){
 		if(AGIDL_GetBitCount(font->fmt) == 16){
-			COLOR16 clrdata = (COLOR16*)data;
-			COLOR16 cpy = (COLOR16*)malloc(sizeof(COLOR16)*font->width*font->height);
+			const COLOR16* clrdata = data;
+			COLOR16* cpy = malloc(sizeof(COLOR16)*font->width*font->height);
 			AGIDL_ClrMemcpy16(cpy,clrdata,font->width*font->height);
 			AGIDL_AddNode(font->list,c,cpy,font->width,font->height);
 			font->num_of_letters++;
 		}
 		else{
-			COLOR clrdata = (COLOR*)data;
-			COLOR cpy = (COLOR*)malloc(sizeof(COLOR)*font->width*font->height);
+			const COLOR* clrdata = data;
+			COLOR* cpy = malloc(sizeof(COLOR)*font->width*font->height);
 			AGIDL_ClrMemcpy(cpy,clrdata,font->width*font->height);
 			AGIDL_AddNode(font->list,c,cpy,font->width,font->height);
 			font->num_of_letters++;
@@ -182,50 +187,48 @@ void AGIDL_AddLetter(AGIDL_FONT* font, char c, void* data){
 	}
 }
 
-void AGIDL_DeleteLetter(AGIDL_FONT* font, char c){
+void AGIDL_DeleteLetter(AGIDL_FONT* font, const char c){
 	if(AGIDL_FindNode(font->list,c) == 1){
 		AGIDL_DeleteNode(font->list,c);
 		font->num_of_letters--;
 	}
 }
 
-void AGIDL_PrintFont(AGIDL_FONT* font){
+void AGIDL_PrintFont(const AGIDL_FONT* font){
 	AGIDL_PrintGlyphList(font->list);
 }
 
-int AGIDL_GetFontLen(AGIDL_FONT* font){
+int AGIDL_GetFontLen(const AGIDL_FONT* font){
 	return font->num_of_letters;
 }
 
 int AGIDL_InsideClipBounds(u32 x, u32 y, u32 width, u32 height);
 
-void AGIDL_BlitFont(AGIDL_FONT* font, char c, void* data, u32 x, u32 y, u32 width, u32 height, AGIDL_CLR_FMT fmt){
+void AGIDL_BlitFont(const AGIDL_FONT* font, const char c, void* data, const u32 x, const u32 y, const u32 width, const u32 height, const AGIDL_CLR_FMT fmt){
 	if(AGIDL_GetBitCount(fmt) != 16){
-		COLOR* clrdata = (COLOR*)data;
+		COLOR* clrdata = data;
 		
 		if(AGIDL_InsideClipBounds(x,y,width,height) && AGIDL_InsideClipBounds(x+font->width-1,y+font->height-1,width,height)){
 			if(AGIDL_FindNode(font->list,c)){
-				AGIDL_GLYPH glyph = AGIDL_FindLetter(font,c);
+				const AGIDL_GLYPH glyph = AGIDL_FindLetter(font,c);
 				
 				if(AGIDL_GetBitCount(font->fmt) != 16){
-					COLOR* fnt = (COLOR*)glyph.img_data;
-					
-					int fx, fy;
-					for(fy = 0; fy < font->height; fy++){
-						for(fx = 0; fx < font->width; fx++){
-							COLOR clr = AGIDL_GetClr(fnt,fx,fy,font->width,font->height);
+					const COLOR* fnt = glyph.img_data;
+
+					for(int fy = 0; fy < font->height; fy++){
+						for(int fx = 0; fx < font->width; fx++){
+							const COLOR clr = AGIDL_GetClr(fnt,fx,fy,font->width,font->height);
 							AGIDL_SetClr(clrdata,clr,x+fx,y+fy,width,height);
 						}
 					}
 				}
 				else{
-					COLOR16* fnt = (COLOR16*)glyph.img_data;
-					
-					int fx, fy;
-					for(fy = 0; fy < font->height; fy++){
-						for(fx = 0; fx < font->width; fx++){
-							COLOR16 clr16 = AGIDL_GetClr16(fnt,fx,fy,font->width,font->height);
-							COLOR clr = AGIDL_CLR16_TO_CLR(clr16,fmt,AGIDL_BGR_888);
+					const COLOR16* fnt = glyph.img_data;
+
+					for(int fy = 0; fy < font->height; fy++){
+						for(int fx = 0; fx < font->width; fx++){
+							const COLOR16 clr16 = AGIDL_GetClr16(fnt,fx,fy,font->width,font->height);
+							const COLOR clr = AGIDL_CLR16_TO_CLR(clr16,fmt,AGIDL_BGR_888);
 							AGIDL_SetClr(clrdata,clr,x+fx,y+fy,width,height);
 						}
 					}
@@ -234,31 +237,29 @@ void AGIDL_BlitFont(AGIDL_FONT* font, char c, void* data, u32 x, u32 y, u32 widt
 		}
 	}
 	else{
-		COLOR16* clrdata = (COLOR16*)data;
+		COLOR16* clrdata = data;
 		
 		if(AGIDL_InsideClipBounds(x,y,width,height) && AGIDL_InsideClipBounds(x+width,y+height,width,height)){
 			if(AGIDL_FindNode(font->list,c)){
-				AGIDL_GLYPH glyph = AGIDL_FindLetter(font,c);
+				const AGIDL_GLYPH glyph = AGIDL_FindLetter(font,c);
 				
 				if(AGIDL_GetBitCount(font->fmt) != 16){
-					COLOR* fnt = (COLOR*)glyph.img_data;
-					
-					int fx, fy;
-					for(fy = 0; fy < font->width; fy++){
-						for(fx = 0; fx < font->height; fx++){
-							COLOR clr24 = AGIDL_GetClr(fnt,fx,fy,font->width,font->height);
-							COLOR16 clr = AGIDL_CLR_TO_CLR16(clr24,fmt,AGIDL_RGB_555);
+					const COLOR* fnt = glyph.img_data;
+
+					for(int fy = 0; fy < font->width; fy++){
+						for(int fx = 0; fx < font->height; fx++){
+							const COLOR clr24 = AGIDL_GetClr(fnt,fx,fy,font->width,font->height);
+							const COLOR16 clr = AGIDL_CLR_TO_CLR16(clr24,fmt,AGIDL_RGB_555);
 							AGIDL_SetClr16(clrdata,clr,x+fx,y+fy,width,height);
 						}
 					}
 				}
 				else{
-					COLOR16* fnt = (COLOR16*)glyph.img_data;
-					
-					int fx, fy;
-					for(fy = 0; fy < font->width; fy++){
-						for(fx = 0; fx < font->height; fx++){
-							COLOR16 clr = AGIDL_GetClr16(fnt,fx,fy,font->width,font->height);
+					const COLOR16* fnt = glyph.img_data;
+
+					for(int fy = 0; fy < font->width; fy++){
+						for(int fx = 0; fx < font->height; fx++){
+							const COLOR16 clr = AGIDL_GetClr16(fnt,fx,fy,font->width,font->height);
 							AGIDL_SetClr16(clrdata,clr,x+fx,y+fy,width,height);
 						}
 					}
@@ -268,10 +269,10 @@ void AGIDL_BlitFont(AGIDL_FONT* font, char c, void* data, u32 x, u32 y, u32 widt
 	}
 }
 
-void AGIDL_FontPrint(char* string, void* data, u32 width, u32 height, AGIDL_CLR_FMT fmt, AGIDL_FONT* font){
-	int i, x = 0, y = height - (font->height) - 1;
-	for(i = 0; i < strlen(string); i++){
-		char c = string[i];
+void AGIDL_FontPrint(const char* string, void* data, const u32 width, const u32 height, const AGIDL_CLR_FMT fmt, const AGIDL_FONT* font){
+	int x = 0, y = height - (font->height) - 1;
+	for(int i = 0; i < strlen(string); i++){
+		const char c = string[i];
 		if(AGIDL_FindNode(font->list,c) == 1){
 			AGIDL_BlitFont(font,c,data,x,y,width,height,fmt);
 			
@@ -301,7 +302,7 @@ void AGIDL_FontPrint(char* string, void* data, u32 width, u32 height, AGIDL_CLR_
 AGIDL_FONT* AGIDL_GenerateDefaultFont(){
 	AGIDL_FONT* font = AGIDL_CreateFont(8,11,AGIDL_BGR_888);
 	
-	COLOR* color = (COLOR*)malloc(sizeof(COLOR)*8*11);
+	COLOR* color = malloc(sizeof(COLOR)*8*11);
 	
 	color[0] = AGIDL_RGB(0,0,0,AGIDL_BGR_888); color[1] = AGIDL_RGB(0,0,0,AGIDL_BGR_888); color[2] = AGIDL_RGB(0,0,0,AGIDL_BGR_888); color[3] = AGIDL_RGB(0,0,0,AGIDL_BGR_888); color[4] = AGIDL_RGB(0,0,0,AGIDL_BGR_888); color[5] = AGIDL_RGB(0,0,0,AGIDL_BGR_888); color[6] = AGIDL_RGB(0,0,0,AGIDL_BGR_888); color[7] = AGIDL_RGB(0,0,0,AGIDL_BGR_888); 
 	color[8] = AGIDL_RGB(0,0,0,AGIDL_BGR_888); color[9] = AGIDL_RGB(255,255,255,AGIDL_BGR_888); color[10] = AGIDL_RGB(0,0,0,AGIDL_BGR_888); color[11] = AGIDL_RGB(0,0,0,AGIDL_BGR_888); color[12] = AGIDL_RGB(0,0,0,AGIDL_BGR_888); color[13] = AGIDL_RGB(0,0,0,AGIDL_BGR_888); color[14] = AGIDL_RGB(255,255,255,AGIDL_BGR_888); color[15] = AGIDL_RGB(0,0,0,AGIDL_BGR_888); 

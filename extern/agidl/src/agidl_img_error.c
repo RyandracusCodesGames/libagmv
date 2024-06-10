@@ -11,9 +11,10 @@
 *   Author: Ryandracus Chapman
 *
 ********************************************/
-#include "agidl_img_error.h"
 
-const char* AGIDL_Error2Str(AGIDL_IMG_ERROR error){
+#include <agidl_img_error.h>
+
+const char* AGIDL_Error2Str(const AGIDL_IMG_ERROR error){
 	switch(error){
 		case NO_IMG_ERROR:{
 			return "NO IMG ERROR";
