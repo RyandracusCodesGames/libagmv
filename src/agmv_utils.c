@@ -327,7 +327,13 @@ AGMV* CreateAGMV(const u32 num_of_frames, const u32 width, const u32 height, con
 	agmv->iframe_entries = (AGMV_ENTRY*)malloc(sizeof(AGMV_ENTRY)*width*height);
 
 	agmv->frame_count = 0;
+	agmv->audio_chunk->fourcc[0] = 0;
+	agmv->audio_chunk->size = 0;
+	agmv->audio_chunk->atsample = NULL;
+	agmv->audio_chunk->satsample = NULL;
+	agmv->audio_track->total_audio_duration = 0;
 	agmv->audio_track->start_point = 0;
+	agmv->audio_track->pcm = NULL;
 
 	AGMV_SetWidth(agmv,width);
 	AGMV_SetHeight(agmv,height);
@@ -371,17 +377,16 @@ void DestroyAGMV(AGMV* agmv){
 
 		free(agmv->bitstream);
 		free(agmv->frame_chunk);
-		free(agmv->audio_chunk);
 
 		if(agmv->audio_track->pcm != NULL){
 			free(agmv->audio_track->pcm);
 		}
+		free(agmv->audio_track);
 
 		if(agmv->audio_chunk->atsample != NULL){
 			free(agmv->audio_chunk->atsample);
 		}
-
-		free(agmv->audio_track);
+		free(agmv->audio_chunk);
 
 		agmv = NULL;
 	}
@@ -921,7 +926,7 @@ void QQSwap(u32* a, u32* b){
 int ppartition(u32* data, u32* gram, const int low, const int high)
 {
     // choose the pivot
-    const int pivot = data[high];
+    const u32 pivot = data[high];
 
     // Index of smaller element and Indicate
     // the right position of pivot found so far

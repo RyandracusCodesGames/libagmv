@@ -681,6 +681,15 @@ void AGMV_EncodeAudioChunk(FILE* file, const AGMV* agmv){
 	}
 }
 
+typedef struct histogram_colorgram_pair_type {
+	u32 histogram;
+	u32 colorgram;
+} histogram_colorgram_pair_type;
+
+static int histogram_colorgram_pair_compare(const void* lhs, const void* rhs) {
+	return ((histogram_colorgram_pair_type*) lhs)->histogram - ((histogram_colorgram_pair_type*) rhs)->histogram;
+}
+
 void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basename, u8 img_type, u32 start_frame, u32 end_frame, u32 width, u32 height, u32 frames_per_second, AGMV_OPT opt, AGMV_QUALITY quality, AGMV_COMPRESSION compression){
 	u32 i, palette0[256], palette1[256], n, count = 0, num_of_frames_encoded = 0, w, h, num_of_pix, max_clr;
 	u32 pal[512];
@@ -704,8 +713,7 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 		}break;
 	}
 
-	u32* colorgram = malloc(sizeof(u32)*max_clr);
-	u32* histogram = malloc(sizeof(u32)*max_clr);
+	histogram_colorgram_pair_type* histogram_colorgram_pair = malloc(sizeof(histogram_colorgram_pair)*max_clr);
 
 	switch(opt){
 		case AGMV_OPT_I:{
@@ -771,8 +779,8 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 	}
 
 	for(i = 0; i < max_clr; i++){
-		histogram[i] = 1;
-		colorgram[i] = i;
+		histogram_colorgram_pair[i].histogram = 1;
+		histogram_colorgram_pair[i].colorgram = i;
 	}
 
 	char* ext = AGIDL_GetImgExtension(img_type);
@@ -799,7 +807,7 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 				for(n = 0; n < width*height; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
-					histogram[hcolor] = histogram[hcolor] + 1;
+					histogram_colorgram_pair[hcolor].histogram = histogram_colorgram_pair[hcolor].histogram + 1;
 				}
 
 				AGIDL_FreeBMP(bmp);
@@ -816,7 +824,7 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 				for(n = 0; n < width*height; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
-					histogram[hcolor] = histogram[hcolor] + 1;
+					histogram_colorgram_pair[hcolor].histogram = histogram_colorgram_pair[hcolor].histogram + 1;
 				}
 
 				AGIDL_FreeTGA(tga);
@@ -832,7 +840,7 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 				for(n = 0; n < width*height; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
-					histogram[hcolor] = histogram[hcolor] + 1;
+					histogram_colorgram_pair[hcolor].histogram = histogram_colorgram_pair[hcolor].histogram + 1;
 				}
 
 				AGIDL_FreeTIM(tim);
@@ -848,7 +856,7 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 				for(n = 0; n < width*height; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
-					histogram[hcolor] = histogram[hcolor] + 1;
+					histogram_colorgram_pair[hcolor].histogram = histogram_colorgram_pair[hcolor].histogram + 1;
 				}
 
 				AGIDL_FreePCX(pcx);
@@ -864,7 +872,7 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 				for(n = 0; n < width*height; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
-					histogram[hcolor] = histogram[hcolor] + 1;
+					histogram_colorgram_pair[hcolor].histogram = histogram_colorgram_pair[hcolor].histogram + 1;
 				}
 
 				AGIDL_FreeLMP(lmp);
@@ -880,7 +888,7 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 				for(n = 0; n < width*height; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
-					histogram[hcolor] = histogram[hcolor] + 1;
+					histogram_colorgram_pair[hcolor].histogram = histogram_colorgram_pair[hcolor].histogram + 1;
 				}
 
 				AGIDL_FreePVR(pvr);
@@ -896,7 +904,7 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 				for(n = 0; n < width*height; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
-					histogram[hcolor] = histogram[hcolor] + 1;
+					histogram_colorgram_pair[hcolor].histogram = histogram_colorgram_pair[hcolor].histogram + 1;
 				}
 
 				AGIDL_FreeGXT(gxt);
@@ -912,7 +920,7 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 				for(n = 0; n < width*height; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
-					histogram[hcolor] = histogram[hcolor] + 1;
+					histogram_colorgram_pair[hcolor].histogram = histogram_colorgram_pair[hcolor].histogram + 1;
 				}
 
 				AGIDL_FreeBTI(bti);
@@ -928,7 +936,7 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 				for(n = 0; n < width*height; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
-					histogram[hcolor] = histogram[hcolor] + 1;
+					histogram_colorgram_pair[hcolor].histogram = histogram_colorgram_pair[hcolor].histogram + 1;
 				}
 
 				AGIDL_Free3DF(glide);
@@ -944,7 +952,7 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 				for(n = 0; n < width*height; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
-					histogram[hcolor] = histogram[hcolor] + 1;
+					histogram_colorgram_pair[hcolor].histogram = histogram_colorgram_pair[hcolor].histogram + 1;
 				}
 
 				AGIDL_FreePPM(ppm);
@@ -960,7 +968,7 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 				for(n = 0; n < width*height; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
-					histogram[hcolor] = histogram[hcolor] + 1;
+					histogram_colorgram_pair[hcolor].histogram = histogram_colorgram_pair[hcolor].histogram + 1;
 				}
 
 				AGIDL_FreeLBM(lbm);
@@ -968,12 +976,13 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 		}
 	}
 
-	AGMV_QuickSort(histogram,colorgram,0,max_clr);
+	qsort(histogram_colorgram_pair, max_clr, sizeof(histogram_colorgram_pair_type), histogram_colorgram_pair_compare);
+	// AGMV_QuickSort(histogram,colorgram,0,max_clr);
 
 	for(n = max_clr; n > 0; n--){
 		Bool skip = FALSE;
 
-		u32 clr = colorgram[n];
+		u32 clr = histogram_colorgram_pair[n].colorgram;
 
 		int r = AGMV_GetQuantizedR(clr,quality);
 		int g = AGMV_GetQuantizedG(clr,quality);
@@ -1056,8 +1065,7 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 		}
 	}
 
-	free(colorgram);
-	free(histogram);
+	free(histogram_colorgram_pair);
 
 	FILE* file = fopen(filename,"wb");
 
