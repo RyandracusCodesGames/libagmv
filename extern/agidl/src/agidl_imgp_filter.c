@@ -6,18 +6,18 @@
 *   Library: libagidl
 *   File: agidl_imgp_filter.c
 *   Date: 12/13/2023
-*   Version: 0.2b
-*   Updated: 1/31/2024
+*   Version: 0.4b
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 #include <stdlib.h>
 #include <math.h>
-#include "agidl_imgp_filter.h"
-#include "agidl_imgp_scale.h"
-#include "agidl_img_bmp.h"
-#include "agidl_cc_mixer.h"
-#include "agidl_math_utils.h"
+#include <agidl_imgp_filter.h>
+#include <agidl_imgp_scale.h>
+#include <agidl_img_bmp.h>
+#include <agidl_cc_mixer.h>
+#include <agidl_math_utils.h>
 
 COLOR AGIDL_SamplePointNearest(void* data, float u, float v, u32 width, u32 height, AGIDL_CLR_FMT fmt){
 	u = AGIDL_Clampf(0.0f,u,1.0f);
@@ -228,7 +228,7 @@ COLOR AGIDL_SamplePointTrilerp(void* data, float u, float v, u32 width, u32 heig
 		COLOR16* clrscpy = (COLOR16*)malloc(sizeof(COLOR16)*width*height);
 		AGIDL_ClrMemcpy16(clrscpy,clrdata,width*height);
 		
-		u16 w = width, h = height;
+		u32 w = width, h = height;
 		
 		COLOR16* clrscale = (COLOR16*)malloc(sizeof(COLOR16)*w*h);
 		clrscale = (COLOR16*)AGIDL_ScaleImgDataBilerp(clrscpy,&w,&h,0.5f,0.5f,fmt);
@@ -328,7 +328,7 @@ COLOR AGIDL_SamplePointTrilerp(void* data, float u, float v, u32 width, u32 heig
 		COLOR* clrscpy = (COLOR*)malloc(sizeof(COLOR)*width*height);
 		AGIDL_ClrMemcpy(clrscpy,clrdata,width*height);
 		
-		u16 w = width, h = height;
+		u32 w = width, h = height;
 		
 		COLOR* clrscale = (COLOR*)malloc(sizeof(COLOR16)*w*h);
 		clrscale = (COLOR*)AGIDL_ScaleImgDataBilerp(clrscpy,&w,&h,0.5f,0.5f,fmt);
@@ -583,7 +583,7 @@ void AGIDL_FilterImgDataTrilerp(void* data, u32 width, u32 height, AGIDL_CLR_FMT
 		
 		AGIDL_ClrMemcpy(clr_cpy,clr_data,width*height);
 		
-		u16 w = width, h = height;
+		u32 w = width, h = height;
 		
 		COLOR* scale = (COLOR*)AGIDL_ScaleImgDataBilerp(clr_cpy,&w,&h,2.0f,2.0f,fmt);
 		
@@ -777,7 +777,7 @@ void AGIDL_FilterImgDataTrilerp(void* data, u32 width, u32 height, AGIDL_CLR_FMT
 		
 		AGIDL_ClrMemcpy16(clr_cpy,clr_data,width*height);
 		
-		u16 w = width, h = height;
+		u32 w = width, h = height;
 		
 		COLOR16* scale = (COLOR16*)AGIDL_ScaleImgDataBilerp(clr_cpy,&w,&h,2.0f,2.0f,fmt);
 		
@@ -974,7 +974,7 @@ void AGIDL_FastFilterImgDataTrilerp(void* data, u32 width, u32 height, AGIDL_CLR
 		
 		AGIDL_ClrMemcpy(clrscpy,clrs,width*height);
 		
-		u16 w = width, h = height;
+		u32 w = width, h = height;
 		
 		COLOR* clrscale = (COLOR*)malloc(sizeof(COLOR)*w*h);
 		clrscale = (COLOR*)AGIDL_ScaleImgDataNearest(clrscpy,&w,&h,2.0f,2.0f,fmt);
@@ -1097,7 +1097,7 @@ void AGIDL_FastFilterImgDataTrilerp(void* data, u32 width, u32 height, AGIDL_CLR
 		
 		AGIDL_ClrMemcpy16(clrscpy,clrs,width*height);
 		
-		u16 w = width, h = height;
+		u32 w = width, h = height;
 		
 		COLOR16* clrscale = (COLOR16*)malloc(sizeof(COLOR16)*w*h);
 		clrscale = (COLOR16*)AGIDL_ScaleImgDataNearest(clrscpy,&w,&h,2.0f,2.0f,fmt);

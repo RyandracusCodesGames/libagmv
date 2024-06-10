@@ -9,14 +9,14 @@
 *   Library: libagidl
 *   File: agidl_imgp_font.h
 *   Date: 12/25/2023
-*   Version: 0.2b
-*   Updated: 1/19/2024
+*   Version: 0.4b
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_types.h"
+#include <agidl_types.h>
+#include <agidl_cc_types.h>
+#include <agidl_img_types.h>
 
 #define FONT_MODE_IMAGE = 0x1
 #define FONT_MODE_FILE = 0x2

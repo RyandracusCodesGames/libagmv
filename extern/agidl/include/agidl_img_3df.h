@@ -15,11 +15,11 @@
 *
 ********************************************/
 #include <stdio.h>
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_types.h"
-#include "agidl_cc_manager.h"
-#include "agidl_imgp_mipmap.h"
+#include <agidl_types.h>
+#include <agidl_cc_types.h>
+#include <agidl_img_types.h>
+#include <agidl_cc_manager.h>
+#include <agidl_imgp_mipmap.h>
 
 typedef enum GLIDE_3DF_CLR_FMT{
 	GLIDE_I8 = 0x1,
@@ -60,8 +60,8 @@ typedef struct GLIDE_3DF_HEADER{
 
 typedef struct AGIDL_3DF{
 	GLIDE_3DF_HEADER header;
-	u16 width;
-	u16 height;
+	u32 width;
+	u32 height;
 	AGIDL_CLR_FMT fmt;
 	AGIDL_Bool icp;
 	AGIDL_ICP_ENCODE encode;
@@ -74,8 +74,8 @@ typedef struct AGIDL_3DF{
 }AGIDL_3DF;
 
 void AGIDL_Set3DFFilename(AGIDL_3DF* glide, const char* filename);
-void AGIDL_3DFSetWidth(AGIDL_3DF* glide, int width);
-void AGIDL_3DFSetHeight(AGIDL_3DF* glide, int height);
+void AGIDL_3DFSetWidth(AGIDL_3DF* glide, u32 width);
+void AGIDL_3DFSetHeight(AGIDL_3DF* glide, u32 height);
 void AGIDL_3DFSetClrFmt(AGIDL_3DF* glide, AGIDL_CLR_FMT fmt);
 void AGIDL_3DFSetICPMode(AGIDL_3DF* glide, AGIDL_Bool icp);
 void AGIDL_3DFSetICPEncoding(AGIDL_3DF* glide, AGIDL_ICP_ENCODE encode);

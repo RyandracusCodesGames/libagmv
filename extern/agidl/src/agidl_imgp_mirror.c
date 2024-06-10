@@ -6,16 +6,16 @@
 *   Library: libagidl
 *   File: agidl_imgp_mirror.c
 *   Date: 12/13/2023
-*   Version: 0.2b
-*   Updated: 1/19/2024
+*   Version: 0.4b
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 #include <stdlib.h>
-#include "agidl_imgp_mirror.h"
-#include "agidl_imgp_rotate.h"
+#include <agidl_imgp_mirror.h>
+#include <agidl_imgp_rotate.h>
 
-void * AGIDL_MirrorImgData(void* data, u16* width, u16* height, AGIDL_CLR_FMT fmt, AGIDL_MIRROR mirror){
+void * AGIDL_MirrorImgData(void* data, u32* width, u32* height, AGIDL_CLR_FMT fmt, AGIDL_MIRROR mirror){
 	if(AGIDL_GetBitCount(fmt) == 24 || AGIDL_GetBitCount(fmt) == 32){
 		switch(mirror){
 			case MIRROR_LEFT_TO_RIGHT:{
@@ -252,4 +252,6 @@ void * AGIDL_MirrorImgData(void* data, u16* width, u16* height, AGIDL_CLR_FMT fm
 			}break;
 		}
 	}
+	
+	return NULL;
 }

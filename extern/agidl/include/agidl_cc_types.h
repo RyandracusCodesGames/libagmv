@@ -9,13 +9,13 @@
 *   Library: libagidl
 *   File: agidl_cc_types.h
 *   Date: 9/8/2023
-*   Version: 0.1b
-*   Updated: 2/11/2024
+*   Version: 0.4b
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 
-#include "agidl_types.h"
+#include <agidl_types.h>
 
 /********************************************
 *		 		COLOR FORMATS		        *       
@@ -46,12 +46,6 @@ typedef enum AGIDL_CLR_FMT{
 	AGIDL_BGR_555 = 0x6, /*15-Bit BGR*/
 	AGIDL_RGB_565 = 0x7, /*16-Bit RGB*/
 	AGIDL_BGR_565 = 0x8, /*16-Bit BGR*/
-	AGIDL_YCbCr_FMT = 0x9, /*Luminance/Chrominance color space*/
-	AGIDL_YIQ_FMT = 0x10,
-	AGIDL_CMYK_FMT = 0x11,
-	AGIDL_HSL_FMT = 0x12,
-	AGIDL_HSV_FMT = 0x13,
-	AGIDL_ICP_FMT = 0x14,
 }AGIDL_CLR_FMT;
 
 typedef enum AGIDL_CLR_MDL{
@@ -224,21 +218,5 @@ typedef struct AGIDL_RGBf{
 typedef struct AGIDL_RGBA{
 	u8 r,g,b,a;
 }AGDIDL_RGBA;
-
-typedef struct AGIDL_YCbCr{
-	u8 y,cb,cr;
-}AGIDL_YCbCr;
-
-typedef struct AGIDL_HSL{
-	f32 h,s,l;
-}AGIDL_HSL;
-
-typedef struct AGIDL_CMYK{
-	f32 c,m,y,k;
-}AGIDL_CMYK;
-
-typedef struct AGIDL_HSV{
-	f32 h,s,v;
-}AGIDL_HSV;
 
 #endif

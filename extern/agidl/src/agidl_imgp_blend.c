@@ -6,14 +6,14 @@
 *   Library: libagidl
 *   File: agidl_imgp_blend.h
 *   Date: 12/13/2023
-*   Version: 0.2b
-*   Updated: 2/2/2024
+*   Version: 0.4b
+*   Updated: 6/10/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
-#include "agidl_imgp_blend.h"
-#include "agidl_cc_manager.h"
-#include "agidl_cc_mixer.h"
+#include <agidl_imgp_blend.h>
+#include <agidl_cc_manager.h>
+#include <agidl_cc_mixer.h>
 
 void AGIDL_BlendChromaImg(void* data, void* chromadata, u32 width, u32 height, u32 width2, u32 height2, AGIDL_CLR_FMT fmt1, AGIDL_CLR_FMT fmt2, u16 x_off, u16 y_off, COLOR chromaclr){
 	if(AGIDL_GetBitCount(fmt1) == 24 || AGIDL_GetBitCount(fmt1) == 32){

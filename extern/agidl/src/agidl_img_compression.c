@@ -1,5 +1,5 @@
-#include "agidl_img_compression.h"
-#include "agidl_img_types.h"
+#include <agidl_img_compression.h>
+#include <agidl_img_types.h>
 
 /********************************************
 *   Adaptive Graphics Image Display Library
@@ -9,8 +9,8 @@
 *   Library: libagidl
 *   File: agidl_img_compression.c
 *   Date: 11/25/2023
-*   Version: 0.1b
-*   Updated: 3/7/2024
+*   Version: 0.4b
+*   Updated: 6/10/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/

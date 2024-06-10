@@ -9,16 +9,16 @@
 *   Library: libagidl
 *   File: agidl_img_quake.h
 *   Date: 10/3/2023
-*   Version: 0.1b
-*   Updated: 2/21/2024
+*   Version: 0.4b
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 
 #include <stdio.h>
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_types.h"
+#include <agidl_types.h>
+#include <agidl_cc_types.h>
+#include <agidl_img_types.h>
 
 #define MAX_PICS 300
 
@@ -62,8 +62,8 @@ typedef struct AGIDL_SPR{
 }AGIDL_SPR;
 
 void AGIDL_SetLMPFilename(AGIDL_LMP *lmp, const char *filename);
-void AGDIL_LMPSetWidth(AGIDL_LMP *lmp, int width);
-void AGIDL_LMPSetHeight(AGIDL_LMP *lmp, int height);
+void AGDIL_LMPSetWidth(AGIDL_LMP *lmp, u32 width);
+void AGIDL_LMPSetHeight(AGIDL_LMP *lmp, u32 height);
 void AGIDL_LMPSetClrFmt(AGIDL_LMP *lmp, AGIDL_CLR_FMT fmt);
 void AGIDL_LMPSetClr(AGIDL_LMP *lmp, int x, int y, COLOR clr);
 void AGIDL_LMPSetClr16(AGIDL_LMP *lmp, int x, int y, COLOR16 clr);
@@ -73,8 +73,8 @@ void AGIDL_ClearLMP(AGIDL_LMP *lmp, COLOR clr);
 void AGIDL_ClearLMP16(AGIDL_LMP *lmp, COLOR16 clr);
 void AGIDL_ClearColorLMP(AGIDL_LMP* lmp, float r, float g, float b);
 void AGIDL_FlushLMP(AGIDL_LMP* lmp);
-int AGIDL_LMPGetWidth(AGIDL_LMP *lmp);
-int AGIDL_LMPGetHeight(AGIDL_LMP *lmp);
+u32 AGIDL_LMPGetWidth(AGIDL_LMP *lmp);
+u32 AGIDL_LMPGetHeight(AGIDL_LMP *lmp);
 u32 AGIDL_LMPGetSize(AGIDL_LMP* lmp);
 AGIDL_CLR_FMT AGIDL_LMPGetClrFmt(AGIDL_LMP* lmp);
 COLOR AGIDL_LMPGetClr(AGIDL_LMP *lmp, int x, int y);

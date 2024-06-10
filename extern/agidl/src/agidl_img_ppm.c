@@ -6,30 +6,37 @@
 *   Library: libagidl
 *   File: agidl_img_ppm.c
 *   Date: 2/19/2024
-*   Version: 0.3b
-*   Updated: 2/21/2024
+*   Version: 0.4b
+*   Updated: 6/10/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 #include <stdlib.h>
 #include <string.h>
-#include "agidl_img_ppm.h"
-#include "agidl_img_error.h"
-#include "agidl_file_utils.h"
-#include "agidl_mmu_utils.h"
-#include "agidl_cc_manager.h"
-#include "agidl_cc_converter.h"
+#include <agidl_img_ppm.h>
+#include <agidl_img_error.h>
+#include <agidl_file_utils.h>
+#include <agidl_mmu_utils.h>
+#include <agidl_cc_manager.h>
+#include <agidl_cc_converter.h>
 
 void AGIDL_SetPPMFilename(AGIDL_PPM* ppm, const char* filename){
-	ppm->filename = (char*)realloc(ppm->filename,strlen(filename));
-	AGIDL_FilenameCpy(ppm->filename,filename);
+	if(ppm->filename != NULL){
+		free(ppm->filename);
+		ppm->filename = (char*)malloc(strlen(filename)+1);
+		AGIDL_FilenameCpy(ppm->filename,filename);
+	}
+	else{
+		ppm->filename = (char*)malloc(strlen(filename)+1);
+		AGIDL_FilenameCpy(ppm->filename,filename);
+	}
 }
 
-void AGIDL_PPMSetWidth(AGIDL_PPM* ppm, int width){
+void AGIDL_PPMSetWidth(AGIDL_PPM* ppm, u32 width){
 	ppm->width = width;
 }
 
-void AGIDL_PPMSetHeight(AGIDL_PPM* ppm, int height){
+void AGIDL_PPMSetHeight(AGIDL_PPM* ppm, u32 height){
 	ppm->height = height;
 }
 
@@ -186,13 +193,22 @@ void AGIDL_PPMCopyPix16(AGIDL_PPM* ppm, COLOR16* clrs, u32 count){
 }
 
 void AGIDL_FreePPM(AGIDL_PPM* ppm){
-	free(ppm->filename);
+	if(ppm->filename != NULL){
+		free(ppm->filename);
+		ppm->filename = NULL;
+	}
 	
 	if(AGIDL_GetBitCount(AGIDL_PPMGetClrFmt(ppm)) == 16){
-		free(ppm->pixels.pix16);
+		if(ppm->pixels.pix16 != NULL){
+			free(ppm->pixels.pix16);
+			ppm->pixels.pix16 = NULL;
+		}
 	}
 	else{
-		free(ppm->pixels.pix32);
+		if(ppm->pixels.pix32 != NULL){
+			free(ppm->pixels.pix32);
+			ppm->pixels.pix32 = NULL;
+		}
 	}
 	
 	if(ppm != NULL){
@@ -294,6 +310,8 @@ int AGIDL_PPMDecodeHeader(AGIDL_PPM* ppm, FILE* file){
 	
 	fseek(file,1,SEEK_CUR);
 	
+	u32 pos = ftell(file);
+	
 	u32 count = 0, byte = AGIDL_ReadByte(file);
 	
 	char* comment = (char*)malloc(60);
@@ -308,17 +326,13 @@ int AGIDL_PPMDecodeHeader(AGIDL_PPM* ppm, FILE* file){
 	count = 0; byte = 0;
 	u8 lod[4] = {0,0,0,0};
 	
-	u32 pos = ftell(file);
-	
-	fseek(file,pos-1,SEEK_SET);
+	fseek(file,pos,SEEK_SET);
 	
 	while(byte != 32 && count < 4){
 		byte = AGIDL_ReadByte(file);
-		lod[count++] = byte;
-	}
-	
-	if(count != 4){
-		count--;
+		if(byte != 32){
+			lod[count++] = byte;
+		}
 	}
 	
 	switch(count){
@@ -335,17 +349,15 @@ int AGIDL_PPMDecodeHeader(AGIDL_PPM* ppm, FILE* file){
 			ppm->width = (AGIDL_PPMGetNum(lod[0])*1000)+(AGIDL_PPMGetNum(lod[1])*100)+(AGIDL_PPMGetNum(lod[2])*10)+(AGIDL_PPMGetNum(lod[3]));
 		}break;
 		default: return INVALID_IMG_FORMATTING_ERROR;
-	}	
+	}
 	
 	count = 0; byte = 0;
 	
 	while(byte != 10 && count < 4){
 		byte = AGIDL_ReadByte(file);
-		lod[count++] = byte;
-	}
-	
-	if(count != 4){
-		count--;
+		if(byte != 10){
+			lod[count++] = byte;
+		}
 	}
 	
 	switch(count){
@@ -369,7 +381,9 @@ int AGIDL_PPMDecodeHeader(AGIDL_PPM* ppm, FILE* file){
 	
 	while(byte != 10 && count < 3){
 		byte = AGIDL_ReadByte(file);
-		bpp[count++] = byte;
+		if(count != 10){
+			bpp[count++] = byte;
+		}
 	}
 	
 	AGIDL_ReadByte(file);

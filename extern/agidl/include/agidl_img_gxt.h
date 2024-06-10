@@ -10,15 +10,15 @@
 *   File: agidl_img_gxt.h
 *   Date: 11/19/2023
 *   Version: 0.1b
-*   Updated: 2/21/2024
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 
 #include <stdio.h>
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_types.h"
+#include <agidl_types.h>
+#include <agidl_cc_types.h>
+#include <agidl_img_types.h>
 
 #define GXT_TEXTURE_BASE_FORMAT 0x0010
 
@@ -51,8 +51,8 @@ typedef struct GXT_TEXTURE_HEADER{
 	u32 tex_flags;
 	GXT_TEXTURE_TYPE type;
 	GXT_CLR_FMT fmt;
-	u16 width;
-	u16 height;
+	u32 width;
+	u32 height;
 	u16 mipmaps;
 	u16 blank;
 }GXT_TEXTURE_HEADER;	
@@ -80,8 +80,8 @@ typedef struct AGIDL_GXT{
 }AGIDL_GXT;
 
 void AGIDL_SetGXTFilename(AGIDL_GXT* gtx, const char* filename);
-void AGIDL_GXTSetWidth(AGIDL_GXT* gxt, int width);
-void AGIDL_GXTSetHeight(AGIDL_GXT* gxt, int height);
+void AGIDL_GXTSetWidth(AGIDL_GXT* gxt, u32 width);
+void AGIDL_GXTSetHeight(AGIDL_GXT* gxt, u32 height);
 void AGIDL_GXTSetClrFmt(AGIDL_GXT* gxt, AGIDL_CLR_FMT fmt);
 void AGIDL_GXTSetICPMode(AGIDL_GXT* gxt, int mode);
 void AGIDL_GXTSetMaxDiff(AGIDL_GXT* gxt, int max_diff);
@@ -92,8 +92,8 @@ void AGIDL_ClearGXT(AGIDL_GXT* gxt, COLOR clr);
 void AGIDL_ClearGXT16(AGIDL_GXT* gxt, COLOR16 clr);
 void AGIDL_ClearColorGXT(AGIDL_GXT* gxt, float r, float g, float b);
 void AGIDL_FlushGXT(AGIDL_GXT* gxt);
-int AGIDL_GXTGetWidth(AGIDL_GXT* gxt);
-int AGIDL_GXTGetHeight(AGIDL_GXT* gxt);
+u32 AGIDL_GXTGetWidth(AGIDL_GXT* gxt);
+u32 AGIDL_GXTGetHeight(AGIDL_GXT* gxt);
 u32 AGIDL_GXTGetSize(AGIDL_GXT* gxt);
 AGIDL_CLR_FMT AGIDL_GXTGetClrFmt(AGIDL_GXT* gxt);
 int AGIDL_GXTGetMaxDiff(AGIDL_GXT* gxt);

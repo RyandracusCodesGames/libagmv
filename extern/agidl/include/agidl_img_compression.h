@@ -15,7 +15,7 @@
 *
 ********************************************/
 
-#include "agidl_types.h"
+#include <agidl_types.h>
 
 u32 AGIDL_EncodeRLE(void* data, u32 bit_count, u32 x, u32 y, u32 width, u32 height, u16 max_rle);
 u32 AGIDL_EncodeByteRLE(u8* data, u32 i, u32 max_rle);

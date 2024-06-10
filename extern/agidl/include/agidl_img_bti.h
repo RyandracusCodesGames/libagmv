@@ -16,10 +16,10 @@
 ********************************************/
 
 #include <stdio.h>
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_types.h"
-#include "agidl_cc_manager.h"
+#include <agidl_types.h>
+#include <agidl_cc_types.h>
+#include <agidl_img_types.h>
+#include <agidl_cc_manager.h>
 
 typedef enum BTI_CLR_FMT{
 	BTI_I4 = 0x00,
@@ -44,8 +44,8 @@ typedef enum BTI_ICP_FMT{
 typedef struct BTI_HEADER{
 	BTI_CLR_FMT fmt;
 	u16 alpha;
-	u16 width;
-	u16 height;
+	u32 width;
+	u32 height;
 	u8 wraps;
 	u8 wrapt;
 	BTI_ICP_FMT icp_fmt;
@@ -74,8 +74,8 @@ typedef struct AGIDL_BTI{
 }AGIDL_BTI;
 
 void AGIDL_SetBTIFilename(AGIDL_BTI* bti, const char* filename);
-void AGIDL_BTISetWidth(AGIDL_BTI* bti, u16 width);
-void AGIDL_BTISetHeight(AGIDL_BTI* bti, u16 height);
+void AGIDL_BTISetWidth(AGIDL_BTI* bti, u32 width);
+void AGIDL_BTISetHeight(AGIDL_BTI* bti, u32 height);
 void AGIDL_BTISetClrFmt(AGIDL_BTI* bti, AGIDL_CLR_FMT fmt);
 void AGIDL_BTISetMaxDiff(AGIDL_BTI* bti, int max_diff);
 void AGIDL_BTISetICPMode(AGIDL_BTI* bti, int mode);
@@ -89,8 +89,8 @@ void AGIDL_ClearBTI(AGIDL_BTI* bti, COLOR clr);
 void AGIDL_ClearBTI16(AGIDL_BTI* bti, COLOR16 clr);
 void AGIDL_ClearColorBTI(AGIDL_BTI* bti, float r, float g, float b);
 void AGIDL_FlushBTI(AGIDL_BTI* bti);
-int AGIDL_BTIGetWidth(AGIDL_BTI* bti);
-int AGIDL_BTIGetHeight(AGIDL_BTI* bti);
+u32 AGIDL_BTIGetWidth(AGIDL_BTI* bti);
+u32 AGIDL_BTIGetHeight(AGIDL_BTI* bti);
 u32 AGIDL_BTIGetSize(AGIDL_BTI* bti);
 AGIDL_CLR_FMT AGIDL_BTIGetClrFmt(AGIDL_BTI* bti);
 int AGIDL_BTIGetMaxDiff(AGIDL_BTI* bti);

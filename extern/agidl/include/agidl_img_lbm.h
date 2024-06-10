@@ -10,16 +10,16 @@
 *   File: agidl_img_lbm.h
 *   Date: 2/24/2024
 *   Version: 0.3b
-*   Updated: 2/24/2024
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 
 #include <stdio.h>
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_types.h"
-#include "agidl_cc_manager.h"
+#include <agidl_types.h>
+#include <agidl_cc_types.h>
+#include <agidl_img_types.h>
+#include <agidl_cc_manager.h>
 
 typedef enum AGIDL_ILBM_TYPE{
 	TYPE_ILBM = 0x1,
@@ -35,8 +35,8 @@ typedef struct AGIDL_FORM{
 typedef struct AGIDL_BMHD{
 	char bmhdid[4];
 	u32 size;
-	u16 width;
-	u16 height;
+	u32 width;
+	u32 height;
 	u16 x_off;
 	u16 y_off;
 	u8 bpp;
@@ -119,8 +119,8 @@ typedef struct AGIDL_LBM{
 }AGIDL_LBM;
 
 void AGIDL_SetLBMFilename(AGIDL_LBM* lbm, const char* filename);
-void AGIDL_LBMSetWidth(AGIDL_LBM* lbm, int width);
-void AGIDL_LBMSetHeight(AGIDL_LBM* lbm, int height);
+void AGIDL_LBMSetWidth(AGIDL_LBM* lbm, u32 width);
+void AGIDL_LBMSetHeight(AGIDL_LBM* lbm, u32 height);
 void AGIDL_LBMSetClrFmt(AGIDL_LBM* lbm, AGIDL_CLR_FMT fmt);
 void AGIDL_LBMSetICPMode(AGIDL_LBM* lbm, AGIDL_Bool icp);
 void AGIDL_LBMSetICPEncoding(AGIDL_LBM* lbm, AGIDL_ICP_ENCODE encode);

@@ -6,14 +6,13 @@
 *   Library: libagidl
 *   File: agidl_imgp_impl.c
 *   Date: 12/17/2023
-*   Version: 0.2b
-*   Updated: 4/14/2024
+*   Version: 0.4b
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 
-#include "agidl_imgp_impl.h"
-
+#include <agidl_imgp_impl.h>
 #include <stdlib.h>
 
 void AGIDL_GrayscaleBMP(AGIDL_BMP* bmp){

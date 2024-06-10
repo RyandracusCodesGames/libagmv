@@ -7,13 +7,13 @@
 *   File: agidl_img_export.c
 *   Date: 3/28/2024
 *   Version: 0.4b
-*   Updated: 3/28/2024
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 #include <stdio.h>
-#include "agidl_img_export.h"
-#include "agidl_img_converter.h"
+#include <agidl_img_export.h>
+#include <agidl_img_converter.h>
 
 u32 expcount = 0;
 

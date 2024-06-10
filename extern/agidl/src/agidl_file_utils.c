@@ -6,13 +6,13 @@
 *   Library: libagidl
 *   File: agidl_file_utils.c
 *   Date: 1/25/2024
-*   Version: 0.2b
-*   Updated: 3/15/2024
+*   Version: 0.4b
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
-#include "agidl_file_utils.h"
-#include "agidl_cc_manager.h"
+#include <agidl_file_utils.h>
+#include <agidl_cc_manager.h>
 
 AGIDL_Bool useBigEndArch = FALSE;
 
@@ -134,37 +134,37 @@ void AGIDL_ReadBufRGB16(FILE* file, COLOR16* buf, u32 width, u32 height){
 }
 
 void AGIDL_ReadBufClr16(FILE* file, COLOR16* buf, u32 width, u32 height){
-	int i;
-	for(i = 0; i < width*height; i++){
+	u32 size = width*height, i;
+	for(i = 0; i < size; i++){
 		buf[i] = AGIDL_ReadShort(file);
 	}
 }
 
 void AGIDL_ReadBufRGB(FILE* file, COLOR* clr, u32 width, u32 height){
-	int i;
-	for(i = 0; i < width*height; i++){
+	u32 size = width*height, i;
+	for(i = 0; i < size; i++){
 		clr[i] = AGIDL_ReadRGB(file,AGIDL_RGB_888);
 	}
 }
 
 
 void AGIDL_ReadBufBGR(FILE* file, COLOR* clr, u32 width, u32 height){
-	int i;
-	for(i = 0; i < width*height; i++){
+	u32 size = width*height, i;
+	for(i = 0; i < size; i++){
 		clr[i] = AGIDL_ReadRGB(file,AGIDL_BGR_888);
 	}
 }
 
 void AGIDL_ReadBufRGBA(FILE* file, COLOR* clr, u32 width, u32 height){
-	int i;
-	for(i = 0; i < width*height; i++){
+	u32 size = width*height, i;
+	for(i = 0; i <size; i++){
 		clr[i] = AGIDL_ReadLong(file);
 	}
 }
 
 void AGIDL_ReadBufBGRA(FILE* file, COLOR* clr, u32 width, u32 height){
-	int i;
-	for(i = 0; i < width*height; i++){
+	u32 size = width*height, i;
+	for(i = 0; i < size; i++){
 		u8 b = AGIDL_ReadByte(file);
 		u8 g = AGIDL_ReadByte(file);
 		u8 r = AGIDL_ReadByte(file);
@@ -175,41 +175,41 @@ void AGIDL_ReadBufBGRA(FILE* file, COLOR* clr, u32 width, u32 height){
 }
 
 
-void AGIDL_WriteBufClr16(FILE* file, COLOR16* buf, u32 width, u32 height){
+void AGIDL_WriteBufClr16(FILE* file, const COLOR16* buf, u32 width, u32 height){
 	fwrite(buf,2,width*height,file);
 }
 
-void AGIDL_WriteBufRGB16(FILE* file, COLOR16* buf, u32 width, u32 height){
-	int i;
-	for(i = 0; i < width*height; i++){
+void AGIDL_WriteBufRGB16(FILE* file, const COLOR16* buf, u32 width, u32 height){
+	u32 size = width*height, i;
+	for(i = 0; i < size; i++){
 		AGIDL_WriteShort(file,buf[i]);
 	}
 }
 
-void AGIDL_WriteBufRGB(FILE* file, COLOR* clr, u32 width, u32 height){
-	int i;
-	for(i = 0; i < width*height; i++){
+void AGIDL_WriteBufRGB(FILE* file, const COLOR* clr, u32 width, u32 height){
+	u32 size = width*height, i;
+	for(i = 0; i < size; i++){
 		AGIDL_WriteRGB(file,clr[i],AGIDL_RGB_888,AGIDL_RGB_888);
 	}
 }
 
-void AGIDL_WriteBufBGR(FILE* file, COLOR* clr, u32 width, u32 height){
-	int i;
-	for(i = 0; i < width*height; i++){
+void AGIDL_WriteBufBGR(FILE* file, const COLOR* clr, u32 width, u32 height){
+	u32 size = width*height, i;
+	for(i = 0; i < size; i++){
 		AGIDL_WriteRGB(file,clr[i],AGIDL_BGR_888,AGIDL_BGR_888);
 	}
 }
 
-void AGIDL_WriteBufRGBA(FILE* file, COLOR* clr, u32 width, u32 height){
-	int i;
-	for(i = 0; i < width*height; i++){
+void AGIDL_WriteBufRGBA(FILE* file, const COLOR* clr, u32 width, u32 height){
+	u32 size = width*height, i;
+	for(i = 0; i < size; i++){
 		AGIDL_WriteLong(file,clr[i]);
 	}
 }
 
-void AGIDL_WriteBufBGRA(FILE* file, COLOR* clr, u32 width, u32 height, AGIDL_CLR_FMT fmt){
-	int i;
-	for(i = 0; i < width*height; i++){
+void AGIDL_WriteBufBGRA(FILE* file, const COLOR* clr, u32 width, u32 height, AGIDL_CLR_FMT fmt){
+	u32 size = width*height, i;
+	for(i = 0; i < size; i++){
 		u32 color = clr[i];
 		
 		u8 r = AGIDL_GetR(color,fmt);

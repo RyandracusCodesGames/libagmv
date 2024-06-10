@@ -6,31 +6,38 @@
 *   Library: libagidl
 *   File: agidl_img_lbm.c
 *   Date: 2/24/2024
-*   Version: 0.3b
-*   Updated: 2/25/2024
+*   Version: 0.4b
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 #include <stdlib.h>
 #include <string.h>
-#include "agidl_img_lbm.h"
-#include "agidl_img_error.h"
-#include "agidl_file_utils.h"
-#include "agidl_mmu_utils.h"
-#include "agidl_cc_converter.h"
-#include "agidl_math_utils.h"
-#include "agidl_img_compression.h"
+#include <agidl_img_lbm.h>
+#include <agidl_img_error.h>
+#include <agidl_file_utils.h>
+#include <agidl_mmu_utils.h>
+#include <agidl_cc_converter.h>
+#include <agidl_math_utils.h>
+#include <agidl_img_compression.h>
 
 void AGIDL_SetLBMFilename(AGIDL_LBM* lbm, const char* filename){
-	lbm->filename = (char*)realloc(lbm->filename,strlen(filename));
-	AGIDL_FilenameCpy(lbm->filename,filename);
+	if(lbm->filename != NULL){
+		free(lbm->filename);
+		lbm->filename = (char*)malloc(strlen(filename)+1);
+		AGIDL_FilenameCpy(lbm->filename,filename);
+	}
+	else{
+		lbm->filename = (char*)malloc(strlen(filename)+1);
+		AGIDL_FilenameCpy(lbm->filename,filename);
+	}
 }
 
-void AGIDL_LBMSetWidth(AGIDL_LBM* lbm, int width){
+void AGIDL_LBMSetWidth(AGIDL_LBM* lbm, u32 width){
 	lbm->header.bmhd.width = width;
 }
 
-void AGIDL_LBMSetHeight(AGIDL_LBM* lbm, int height){
+void AGIDL_LBMSetHeight(AGIDL_LBM* lbm, u32 height){
 	lbm->header.bmhd.height = height;
 }
 
@@ -574,14 +581,25 @@ void AGIDL_LBMDecodeIMG(AGIDL_LBM* lbm){
 }
 
 void AGIDL_FreeLBM(AGIDL_LBM* lbm){
-	if(lbm != NULL){
+	if(lbm->filename != NULL){
 		free(lbm->filename);
-		if(AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm)) == 16){
+		lbm->filename = NULL;
+	}
+	
+	if(AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm)) == 16){
+		if(lbm->pixels.pix16 != NULL){
 			free(lbm->pixels.pix16);
+			lbm->pixels.pix16 = NULL;
 		}
-		else{
+	}
+	else{
+		if(lbm->pixels.pix32 != NULL){
 			free(lbm->pixels.pix32);
+			lbm->pixels.pix32 = NULL;
 		}
+	}
+	
+	if(lbm != NULL){
 		free(lbm);
 		lbm = NULL;
 	}

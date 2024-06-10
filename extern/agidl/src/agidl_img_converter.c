@@ -6,15 +6,15 @@
 *   Library: libagidl
 *   File: agidl_img_converter.c
 *   Date: 11/3/2023
-*   Version: 0.1b
-*   Updated: 3/2/2024
+*   Version: 0.4b
+*   Updated: 6/10/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "agidl_img_converter.h"
+#include <agidl_img_converter.h>
 
 AGIDL_TGA* AGIDL_ConvertBMP2TGA(AGIDL_BMP* bmp){
 	char* imgname = AGIDL_GetImgName(bmp->filename);

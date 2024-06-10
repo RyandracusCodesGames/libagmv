@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
-#include "agidl_math_utils.h"
-#include "agidl_math_trig_tables.h"
+#include <agidl_math_utils.h>
+#include <agidl_math_trig_tables.h>
 
 #include <stdio.h>
 
@@ -13,8 +13,8 @@
 *   Library: libagidl
 *   File: agidl_math_utils.c
 *   Date: 10/22/2023
-*   Version: 0.1b
-*   Updated: 4/4/2024
+*   Version: 0.4b
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
@@ -235,7 +235,7 @@ void AGIDL_PrintBin(u32 num){
 	}
 	
 	int i;
-	for(i = 8; i >= 0; i--){
+	for(i = num_of_bits; i >= 0; i--){
 		int k = num >> i;
 		if(k & 1){
 			printf("1");

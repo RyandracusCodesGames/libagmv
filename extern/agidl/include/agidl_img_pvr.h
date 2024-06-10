@@ -9,17 +9,17 @@
 *   Library: libagidl
 *   File: agidl_img_pvr.h
 *   Date: 10/28/2023
-*   Version: 0.1b
-*   Updated: 3/14/2024
+*   Version: 0.4b
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 
 #include <stdio.h>
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_types.h"
-#include "agidl_imgp_mipmap.h"
+#include <agidl_types.h>
+#include <agidl_cc_types.h>
+#include <agidl_img_types.h>
+#include <agidl_imgp_mipmap.h>
 
 typedef enum PVR_TYPE{
 	DREAMCAST_PVR = 0x0,
@@ -69,8 +69,8 @@ typedef struct PVR_DREAMCAST_HEADER{
 	u32 file_size;
 	u8 pvr_clr_fmt;
 	u8 pvr_img_type;
-	u16 width;
-	u16 height;
+	u32 width;
+	u32 height;
 }PVR_DREAMCAST_HEADER;
 
 typedef struct PVR_MODERN_HEADER{
@@ -109,8 +109,8 @@ typedef struct AGIDL_PVR{
 }AGIDL_PVR;
 
 void AGIDL_SetPVRFilename(AGIDL_PVR* pvr, const char* filename);
-void AGIDL_PVRSetWidth(AGIDL_PVR* pvr, int width);
-void AGIDL_PVRSetHeight(AGIDL_PVR* pvr, int height);
+void AGIDL_PVRSetWidth(AGIDL_PVR* pvr, u32 width);
+void AGIDL_PVRSetHeight(AGIDL_PVR* pvr, u32 height);
 void AGIDL_PVRSetClrFmt(AGIDL_PVR* pvr, AGIDL_CLR_FMT fmt);
 void AGIDL_PVRSetMaxDiff(AGIDL_PVR* pvr, int max_diff);
 void AGIDL_PVRSetICPMode(AGIDL_PVR* pvr, int mode);
@@ -125,8 +125,8 @@ void AGIDL_ClearPVR(AGIDL_PVR* pvr, COLOR clr);
 void AGIDL_ClearPVR16(AGIDL_PVR* pvr, COLOR16 clr);
 void AGIDL_ClearColorPVR(AGIDL_PVR* pvr, float r, float g, float b);
 void AGIDL_FlushPVR(AGIDL_PVR* pvr);
-int AGIDL_PVRGetWidth(AGIDL_PVR* pvr);
-int AGIDL_PVRGetHeight(AGIDL_PVR* pvr);
+u32 AGIDL_PVRGetWidth(AGIDL_PVR* pvr);
+u32 AGIDL_PVRGetHeight(AGIDL_PVR* pvr);
 u32 AGIDL_PVRGetSize(AGIDL_PVR* pvr);
 AGIDL_CLR_FMT AGIDL_PVRGetClrFmt(AGIDL_PVR* pvr);
 PVR_TYPE AGIDL_PVRGetType(AGIDL_PVR* pvr);

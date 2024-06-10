@@ -10,15 +10,15 @@
 *   File: agidl_vid_str.h
 *   Date: 3/15/2024
 *   Version: 0.4b
-*   Updated: 3/15/2024
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 
 #include <stdio.h>
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_types.h"
+#include <agidl_types.h>
+#include <agidl_cc_types.h>
+#include <agidl_img_types.h>
 
 #define MDEC_MAGIC 				0x80010160
 #define MDEC_CONST 	 			0x3800

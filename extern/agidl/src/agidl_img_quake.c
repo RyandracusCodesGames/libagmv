@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "agidl_cc_core.h"
-#include "agidl_img_quake.h"
-#include "agidl_file_utils.h"
-#include "agidl_mmu_utils.h"
+#include <agidl_cc_core.h>
+#include <agidl_img_quake.h>
+#include <agidl_file_utils.h>
+#include <agidl_mmu_utils.h>
 
 /********************************************
 *   Adaptive Graphics Image Display Library
@@ -14,22 +14,29 @@
 *   Library: libagidl
 *   File: agidl_img_quake.c
 *   Date: 10/3/2023
-*   Version: 0.1b
-*   Updated: 4/7/2024
+*   Version: 0.4b
+*   Updated: 6/10/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 
 void AGIDL_SetLMPFilename(AGIDL_LMP *lmp, const char *filename){
-	lmp->filename = (char*)realloc(lmp->filename,strlen(filename));
-	AGIDL_FilenameCpy(lmp->filename,filename);
+	if(lmp->filename != NULL){
+		free(lmp->filename);
+		lmp->filename = (char*)malloc(strlen(filename)+1);
+		AGIDL_FilenameCpy(lmp->filename,filename);
+	}
+	else{
+		lmp->filename = (char*)malloc(strlen(filename)+1);
+		AGIDL_FilenameCpy(lmp->filename,filename);
+	}
 }
 
-void AGIDL_LMPSetWidth(AGIDL_LMP *lmp, int width){
+void AGIDL_LMPSetWidth(AGIDL_LMP *lmp, u32 width){
 	lmp->width = width;
 }
 
-void AGIDL_LMPSetHeight(AGIDL_LMP *lmp, int height){
+void AGIDL_LMPSetHeight(AGIDL_LMP *lmp, u32 height){
 	lmp->height = height;
 }
 
@@ -100,11 +107,11 @@ void AGIDL_FlushLMP(AGIDL_LMP* lmp){
 	AGIDL_ClearLMP(lmp,0);
 }
 
-int AGIDL_LMPGetWidth(AGIDL_LMP *lmp){
+u32 AGIDL_LMPGetWidth(AGIDL_LMP *lmp){
 	return lmp->width;
 }
 
-int AGIDL_LMPGetHeight(AGIDL_LMP *lmp){
+u32 AGIDL_LMPGetHeight(AGIDL_LMP *lmp){
 	return lmp->height;
 }
 
@@ -129,18 +136,26 @@ COLOR16 AGIDL_LMPGetClr16(AGIDL_LMP *lmp, int x, int y){
 }
 
 void AGIDL_FreeLMP(AGIDL_LMP *lmp){
-	free(lmp->filename);
+	if(lmp->filename != NULL){
+		free(lmp->filename);
+		lmp->filename = NULL;
+	}
 	
 	if(AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp)) == 16){
-		free(lmp->pixels.pix16);
+		if(lmp->pixels.pix16 != NULL){
+			free(lmp->pixels.pix16);
+			lmp->pixels.pix16 = NULL;
+		}
 	}
 	else{
-		free(lmp->pixels.pix32);
+		if(lmp->pixels.pix32 != NULL){
+			free(lmp->pixels.pix32);
+			lmp->pixels.pix32 = NULL;
+		}
 	}
 	
-	free(lmp);
-	
 	if(lmp != NULL){
+		free(lmp);
 		lmp = NULL;
 	}
 }

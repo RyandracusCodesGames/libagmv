@@ -1,14 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "agidl_cc_core.h"
-#include "agidl_img_tim.h"
-
+#include <agidl_cc_core.h>
+#include <agidl_img_tim.h>
 #include <agidl_mmu_utils.h>
+#include <agidl_img_error.h>
+#include <agidl_file_utils.h>
+#include <agidl_imgp_scale.h>
 
-#include "agidl_img_error.h"
-#include "agidl_file_utils.h"
-#include "agidl_imgp_scale.h"
 /********************************************
 *   Adaptive Graphics Image Display Library
 *
@@ -17,22 +16,29 @@
 *   Library: libagidl
 *   File: agidl_img_tim.c
 *   Date: 9/19/2023
-*   Version: 0.1b
-*   Updated: 2/26/2024
+*   Version: 0.4b
+*   Updated: 6/10/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 
 void AGIDL_SetTIMFilename(AGIDL_TIM *tim, const char *filename){
-	tim->filename = (char*)realloc(tim->filename,strlen(filename));
-	AGIDL_FilenameCpy(tim->filename,filename);
+	if(tim->filename != NULL){
+		free(tim->filename);
+		tim->filename = (char*)malloc(strlen(filename)+1);
+		AGIDL_FilenameCpy(tim->filename,filename);
+	}
+	else{
+		tim->filename = (char*)malloc(strlen(filename)+1);
+		AGIDL_FilenameCpy(tim->filename,filename);
+	}
 }
 
-void AGIDL_TIMSetWidth(AGIDL_TIM *tim, int width){
+void AGIDL_TIMSetWidth(AGIDL_TIM *tim, u32 width){
 	tim->img_header.width = width;
 }
 
-void AGIDL_TIMSetHeight(AGIDL_TIM *tim, int height){
+void AGIDL_TIMSetHeight(AGIDL_TIM *tim, u32 height){
 	tim->img_header.height = height;
 }
 
@@ -126,11 +132,11 @@ void AGIDL_FlushTIM(AGIDL_TIM* tim){
 	AGIDL_ClearTIM(tim,0);
 }
 
-int AGIDL_TIMGetWidth(AGIDL_TIM *tim){
+u32 AGIDL_TIMGetWidth(AGIDL_TIM *tim){
 	return tim->img_header.width;
 }
 
-int AGIDL_TIMGetHeight(AGIDL_TIM *tim){
+u32 AGIDL_TIMGetHeight(AGIDL_TIM *tim){
 	return tim->img_header.height;
 }
 
@@ -150,12 +156,14 @@ COLOR AGIDL_TIMGetClr(AGIDL_TIM *tim, int x, int y){
 	if(x >= 0 && y >= 0 && x < AGIDL_TIMGetWidth(tim) && y < AGIDL_TIMGetHeight(tim)){
 		return tim->pixels.pix32[x+y*AGIDL_TIMGetWidth(tim)];
 	}
+	else return 0;
 }
 
 COLOR16 AGIDL_TIMGetClr16(AGIDL_TIM *tim, int x, int y){
 	if(x >= 0 && y >= 0 && x < AGIDL_TIMGetWidth(tim) && y < AGIDL_TIMGetHeight(tim)){
 		return tim->pixels.pix16[x+y*AGIDL_TIMGetWidth(tim)];
 	}
+	else return 0;
 }
 
 int AGIDL_IsTIM(AGIDL_TIM* tim){
@@ -185,18 +193,26 @@ int AGIDL_IsTIMHeader(AGIDL_TIM* tim){
 }
 
 void AGIDL_FreeTIM(AGIDL_TIM *tim){
-	free(tim->filename);
+	if(tim->filename != NULL){
+		free(tim->filename);
+		tim->filename = NULL;
+	}
 	
 	if(AGIDL_GetBitCount(AGIDL_TIMGetClrFmt(tim)) == 16){
-		free(tim->pixels.pix16);
+		if(tim->pixels.pix16 != NULL){
+			free(tim->pixels.pix16);
+			tim->pixels.pix16 = NULL;
+		}
 	}
 	else{
-		free(tim->pixels.pix32);
+		if(tim->pixels.pix32 != NULL){
+			free(tim->pixels.pix32);
+			tim->pixels.pix32 = NULL;
+		}
 	}
 	
-	free(tim);
-
 	if(tim != NULL){
+		free(tim);
 		tim = NULL;
 	}
 }
@@ -372,11 +388,15 @@ int AGIDL_TIMDecodeIMG(AGIDL_TIM* tim, FILE* file){
 				return INVALID_IMG_FORMATTING_ERROR;
 			}
 			
-			tim->pixels.pix16 = (COLOR16*)malloc(sizeof(COLOR16)*(AGIDL_TIMGetWidth(tim)*AGIDL_TIMGetHeight(tim)));
+			u32 width = AGIDL_TIMGetWidth(tim);
+			u32 height = AGIDL_TIMGetHeight(tim);
+			u32 size = AGIDL_TIMGetSize(tim);
+			
+			tim->pixels.pix16 = (COLOR16*)malloc(sizeof(COLOR16)*(size));
 			
 			int x,y;
-			for(y = 0; y < AGIDL_TIMGetHeight(tim); y++){
-				for(x = 0; x < AGIDL_TIMGetWidth(tim); x+=4){
+			for(y = 0; y < height; y++){
+				for(x = 0; x < width; x+=4){
 					u16 index = AGIDL_ReadShort(file);
 					
 					u16 index1 = (index & 0xF);
@@ -428,9 +448,11 @@ int AGIDL_TIMDecodeIMG(AGIDL_TIM* tim, FILE* file){
 				return INVALID_IMG_FORMATTING_ERROR;
 			}
 			
-			tim->pixels.pix16 = (COLOR16*)malloc(sizeof(COLOR16)*(AGIDL_TIMGetWidth(tim)*AGIDL_TIMGetHeight(tim)));
+			u32 size = AGIDL_TIMGetSize(tim);
 			
-			for(i = 0; i < AGIDL_TIMGetSize(tim); i++){
+			tim->pixels.pix16 = (COLOR16*)malloc(sizeof(COLOR16)*(size));
+			
+			for(i = 0; i < size; i++){
 				u8 index = AGIDL_ReadByte(file);
 				
 				COLOR16 clr = tim->palette.icp.palette_16b_256[index];
@@ -470,11 +492,15 @@ int AGIDL_TIMDecodeIMG(AGIDL_TIM* tim, FILE* file){
 			return INVALID_IMG_FORMATTING_ERROR;
 		}
 		
-		tim->pixels.pix32 = (COLOR*)malloc(sizeof(COLOR)*(AGIDL_TIMGetWidth(tim)*AGIDL_TIMGetHeight(tim)));
+		u32 width = AGIDL_TIMGetWidth(tim);
+		u32 height = AGIDL_TIMGetHeight(tim);
+		u32 size = AGIDL_TIMGetSize(tim);
+		
+		tim->pixels.pix32 = (COLOR*)malloc(sizeof(COLOR)*(size));
 		
 		int x,y;
-		for(y = 0; y < AGIDL_TIMGetHeight(tim); y++){
-			for(x = 0; x < AGIDL_TIMGetWidth(tim); x += 2){
+		for(y = 0; y < height; y++){
+			for(x = 0; x < width; x += 2){
 				u16 pix1 = AGIDL_ReadShort(file);
 				u16 pix2 = AGIDL_ReadShort(file);
 				u16 pix3 = AGIDL_ReadShort(file);
@@ -496,6 +522,12 @@ int AGIDL_TIMDecodeIMG(AGIDL_TIM* tim, FILE* file){
 }
 
 void AGIDL_TIMEncodeICP(AGIDL_TIM* tim){
+	u32 width = AGIDL_TIMGetWidth(tim);
+	u32 height = AGIDL_TIMGetHeight(tim);
+	AGIDL_CLR_FMT fmt = AGIDL_TIMGetClrFmt(tim);
+	u32 bitcount = AGIDL_GetBitCount(fmt);
+	u8 max_diff = AGIDL_TIMGetMaxDiff(tim);
+	
 	if(tim->encode == ICP_ENCODE_THRESHOLD){
 		int pass = 0;
 		u8 pal_index = 0;
@@ -503,21 +535,18 @@ void AGIDL_TIMEncodeICP(AGIDL_TIM* tim){
 		AGIDL_InitICP(&tim->palette, AGIDL_ICP_16b_256);
 		
 		int x,y;
-		for(y = 0; y < AGIDL_TIMGetHeight(tim); y++){
-			for(x = 0; x < AGIDL_TIMGetWidth(tim); x++){
+		for(y = 0; y < height; y++){
+			for(x = 0; x < width; x++){
 				COLOR16 clr16;
-				if(AGIDL_GetBitCount(AGIDL_TIMGetClrFmt(tim)) == 32){
+				if(bitcount == 32){
 					COLOR clr = AGIDL_TIMGetClr(tim,x,y);
-					u8 r = AGIDL_GetR(clr,AGIDL_TIMGetClrFmt(tim));
-					u8 g = AGIDL_GetG(clr,AGIDL_TIMGetClrFmt(tim));
-					u8 b = AGIDL_GetB(clr,AGIDL_TIMGetClrFmt(tim));
-					clr16 = AGIDL_CLR_TO_CLR16(clr,AGIDL_TIMGetClrFmt(tim),AGIDL_BGR_555);
+					clr16 = AGIDL_CLR_TO_CLR16(clr,fmt,AGIDL_BGR_555);
 				}
 				else{
 					clr16 = AGIDL_TIMGetClr16(tim,x,y);
 				}
 				
-				AGIDL_AddColorICP16(&tim->palette,pal_index,clr16,AGIDL_TIMGetClrFmt(tim),AGIDL_TIMGetMaxDiff(tim),&pass);
+				AGIDL_AddColorICP16(&tim->palette,pal_index,clr16,fmt,max_diff,&pass);
 				
 				if(pass == 1 && pal_index < 256){
 					pal_index++;
@@ -528,7 +557,7 @@ void AGIDL_TIMEncodeICP(AGIDL_TIM* tim){
 		}
 	}
 	else{
-		AGIDL_EncodeHistogramICP(&tim->palette,tim->pixels.pix16,AGIDL_TIMGetWidth(tim),AGIDL_TIMGetHeight(tim),AGIDL_TIMGetClrFmt(tim));
+		AGIDL_EncodeHistogramICP(&tim->palette,tim->pixels.pix16,width,height,fmt);
 	}
 }
 

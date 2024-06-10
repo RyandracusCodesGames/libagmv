@@ -6,30 +6,37 @@
 *   Library: libagidl
 *   File: agidl_img_3df.c
 *   Date: 2/12/2024
-*   Version: 0.3b
-*   Updated: 2/21/2024
+*   Version: 0.4b
+*   Updated: 6/10/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 #include <stdlib.h>
 #include <string.h>
-#include "agidl_img_3df.h"
-#include "agidl_img_error.h"
-#include "agidl_file_utils.h"
-#include "agidl_cc_converter.h"
-#include "agidl_mmu_utils.h"
-#include "agidl_math_utils.h"
+#include <agidl_img_3df.h>
+#include <agidl_img_error.h>
+#include <agidl_file_utils.h>
+#include <agidl_cc_converter.h>
+#include <agidl_mmu_utils.h>
+#include <agidl_math_utils.h>
 
 void AGIDL_Set3DFFilename(AGIDL_3DF* glide, const char* filename){
-	glide->filename = (char*)realloc(glide->filename,strlen(filename));
-	AGIDL_FilenameCpy(glide->filename,filename);
+	if(glide->filename != NULL){
+		free(glide->filename);
+		glide->filename = (char*)malloc(strlen(filename)+1);
+		AGIDL_FilenameCpy(glide->filename,filename);
+	}
+	else{
+		glide->filename = (char*)malloc(strlen(filename)+1);
+		AGIDL_FilenameCpy(glide->filename,filename);
+	}
 }
 
-void AGIDL_3DFSetWidth(AGIDL_3DF* glide, int width){
+void AGIDL_3DFSetWidth(AGIDL_3DF* glide, u32 width){
 	glide->width = width;
 }
 
-void AGIDL_3DFSetHeight(AGIDL_3DF* glide, int height){
+void AGIDL_3DFSetHeight(AGIDL_3DF* glide, u32 height){
 	glide->height = height;
 }
 
@@ -194,24 +201,26 @@ void AGIDL_3DFCopyPix16(AGIDL_3DF* glide, COLOR16* clrs, u32 count){
 }
 
 void AGIDL_Free3DF(AGIDL_3DF* glide){
-	free(glide->filename);
+	if(glide->filename != NULL){
+		free(glide->filename);
+		glide->filename = NULL;
+	}
 	
 	if(AGIDL_GetBitCount(AGIDL_3DFGetClrFmt(glide)) == 16){
-		free(glide->pixels.pix16);
+		if(glide->pixels.pix16 != NULL){
+			free(glide->pixels.pix16);
+			glide->pixels.pix16 = NULL;
+		}
 	}
 	else{
-		free(glide->pixels.pix32);
+		if(glide->pixels.pix32 != NULL){
+			free(glide->pixels.pix32);
+			glide->pixels.pix32 = NULL;
+		}
 	}
 	
-	if(glide->mipped == TRUE){
-		AGIDL_DestroyMipmapMMU(glide->mipmap);
-		free(glide);
-	}
-	else{
-		free(glide);
-	}
-
 	if(glide != NULL){
+		free(glide);
 		glide = NULL;
 	}
 }
@@ -676,10 +685,12 @@ void AGIDL_3DFDecodeIMG(AGIDL_3DF* glide, FILE* file){
 				AGIDL_DisableBigEndArch();
 			}break;
 			case GLIDE_ARGB_4444:{
+				u32 size = AGIDL_3DFGetSize(glide);
+				AGIDL_CLR_FMT fmt = AGIDL_3DFGetClrFmt(glide);
 				AGIDL_3DFSetClrFmt(glide,AGIDL_RGBA_8888);
-				glide->pixels.pix32 = (COLOR*)AGIDL_AllocImgDataMMU(AGIDL_3DFGetWidth(glide),AGIDL_3DFGetHeight(glide),AGIDL_3DFGetClrFmt(glide));
+				glide->pixels.pix32 = (COLOR*)AGIDL_AllocImgDataMMU(AGIDL_3DFGetWidth(glide),AGIDL_3DFGetHeight(glide),fmt);
 				int i;
-				for(i = 0; i < AGIDL_3DFGetSize(glide); i++){
+				for(i = 0; i < size; i++){
 					u8 byte1 = AGIDL_ReadByte(file), byte2 = AGIDL_ReadByte(file);
 					
 					u8 a = (byte1 >> 4);
@@ -689,14 +700,16 @@ void AGIDL_3DFDecodeIMG(AGIDL_3DF* glide, FILE* file){
 					
 					a <<= 4; r <<= 4; g <<= 4; b <<= 4;
 					
-					glide->pixels.pix32[i] = AGIDL_RGBA(r,g,b,a,AGIDL_3DFGetClrFmt(glide));
+					glide->pixels.pix32[i] = AGIDL_RGBA(r,g,b,a,fmt);
 				}
 			}break;
 			case GLIDE_RGB_332:{
+				u32 size = AGIDL_3DFGetSize(glide);
+				AGIDL_CLR_FMT fmt = AGIDL_3DFGetClrFmt(glide);
 				AGIDL_3DFSetClrFmt(glide,AGIDL_RGB_555);
-				glide->pixels.pix16 = (COLOR16*)AGIDL_AllocImgDataMMU(AGIDL_3DFGetWidth(glide),AGIDL_3DFGetHeight(glide),AGIDL_3DFGetClrFmt(glide));
+				glide->pixels.pix16 = (COLOR16*)AGIDL_AllocImgDataMMU(AGIDL_3DFGetWidth(glide),AGIDL_3DFGetHeight(glide),fmt);
 				int i;
-				for(i = 0; i < AGIDL_3DFGetSize(glide); i++){
+				for(i = 0; i < size; i++){
 					u8 byte = AGIDL_ReadByte(file);
 					
 					u8 r = (byte & 0xff) >> 5;
@@ -707,14 +720,16 @@ void AGIDL_3DFDecodeIMG(AGIDL_3DF* glide, FILE* file){
 					g <<= 2;
 					b *= 10.67;
 					
-					glide->pixels.pix16[i] = AGIDL_RGB16(r,g,b,AGIDL_3DFGetClrFmt(glide));
+					glide->pixels.pix16[i] = AGIDL_RGB16(r,g,b,fmt);
 				}
 			}break;
 			case GLIDE_ARGB_8332:{
+				u32 size = AGIDL_3DFGetSize(glide);
+				AGIDL_CLR_FMT fmt = AGIDL_3DFGetClrFmt(glide);
 				AGIDL_3DFSetClrFmt(glide,AGIDL_ARGB_8888);
-				glide->pixels.pix32 = (COLOR*)AGIDL_AllocImgDataMMU(AGIDL_3DFGetWidth(glide),AGIDL_3DFGetHeight(glide),AGIDL_3DFGetClrFmt(glide));
+				glide->pixels.pix32 = (COLOR*)AGIDL_AllocImgDataMMU(AGIDL_3DFGetWidth(glide),AGIDL_3DFGetHeight(glide),fmt);
 				int i;
-				for(i = 0; i < AGIDL_3DFGetSize(glide); i++){
+				for(i = 0; i < size; i++){
 					u8 a = AGIDL_ReadByte(file);
 					u8 byte = AGIDL_ReadByte(file);
 					
@@ -726,7 +741,7 @@ void AGIDL_3DFDecodeIMG(AGIDL_3DF* glide, FILE* file){
 					g <<= 5;
 					b <<= 6;
 					
-					glide->pixels.pix32[i] = AGIDL_RGBA(r,g,b,a,AGIDL_3DFGetClrFmt(glide));
+					glide->pixels.pix32[i] = AGIDL_RGBA(r,g,b,a,fmt);
 				}
 			}break;
 			case GLIDE_ARGB_8888:{
@@ -737,37 +752,45 @@ void AGIDL_3DFDecodeIMG(AGIDL_3DF* glide, FILE* file){
 				AGIDL_DisableBigEndArch();
 			}break;
 			case GLIDE_I8:{
+				u32 size = AGIDL_3DFGetSize(glide);
+				AGIDL_CLR_FMT fmt = AGIDL_3DFGetClrFmt(glide);
 				AGIDL_3DFSetClrFmt(glide,AGIDL_RGB_888);
-				glide->pixels.pix32 = (COLOR*)AGIDL_AllocImgDataMMU(AGIDL_3DFGetWidth(glide),AGIDL_3DFGetHeight(glide),AGIDL_3DFGetClrFmt(glide));
+				glide->pixels.pix32 = (COLOR*)AGIDL_AllocImgDataMMU(AGIDL_3DFGetWidth(glide),AGIDL_3DFGetHeight(glide),fmt);
 				int i;
-				for(i = 0; i < AGIDL_3DFGetSize(glide); i++){
+				for(i = 0; i < size; i++){
 					u8 intensity = AGIDL_ReadByte(file);
-					glide->pixels.pix32[i] = AGIDL_RGB(intensity,intensity,intensity,AGIDL_3DFGetClrFmt(glide));
+					glide->pixels.pix32[i] = AGIDL_RGB(intensity,intensity,intensity,fmt);
 				}
 			}break;
 			case GLIDE_AI_88:{
+				u32 size = AGIDL_3DFGetSize(glide);
+				AGIDL_CLR_FMT fmt = AGIDL_3DFGetClrFmt(glide);
 				AGIDL_3DFSetClrFmt(glide,AGIDL_RGBA_8888);
-				glide->pixels.pix32 = (COLOR*)AGIDL_AllocImgDataMMU(AGIDL_3DFGetWidth(glide),AGIDL_3DFGetHeight(glide),AGIDL_3DFGetClrFmt(glide));
+				glide->pixels.pix32 = (COLOR*)AGIDL_AllocImgDataMMU(AGIDL_3DFGetWidth(glide),AGIDL_3DFGetHeight(glide),fmt);
 				int i;
-				for(i = 0; i < AGIDL_3DFGetSize(glide); i++){
+				for(i = 0; i < size; i++){
 					u8 alpha = AGIDL_ReadByte(file);
 					u8 intensity = AGIDL_ReadByte(file);
-					glide->pixels.pix32[i] = AGIDL_RGBA(intensity,intensity,intensity,alpha,AGIDL_3DFGetClrFmt(glide));
+					glide->pixels.pix32[i] = AGIDL_RGBA(intensity,intensity,intensity,alpha,fmt);
 				}
 			}break;
 			case GLIDE_AI44:{
+				u32 size = AGIDL_3DFGetSize(glide);
+				AGIDL_CLR_FMT fmt = AGIDL_3DFGetClrFmt(glide);
 				AGIDL_3DFSetClrFmt(glide,AGIDL_RGBA_8888);
-				glide->pixels.pix32 = (COLOR*)AGIDL_AllocImgDataMMU(AGIDL_3DFGetWidth(glide),AGIDL_3DFGetHeight(glide),AGIDL_3DFGetClrFmt(glide));
+				glide->pixels.pix32 = (COLOR*)AGIDL_AllocImgDataMMU(AGIDL_3DFGetWidth(glide),AGIDL_3DFGetHeight(glide),fmt);
 				int i;
-				for(i = 0; i < AGIDL_3DFGetSize(glide); i++){
+				for(i = 0; i < size; i++){
 					u8 alpha = AGIDL_ReadByte(file) << 4;
 					u8 intensity = AGIDL_ReadByte(file) << 4;
-					glide->pixels.pix32[i] = AGIDL_RGBA(intensity,intensity,intensity,alpha,AGIDL_3DFGetClrFmt(glide));
+					glide->pixels.pix32[i] = AGIDL_RGBA(intensity,intensity,intensity,alpha,fmt);
 				}
 			}break;
 			case GLIDE_P8:{
+				u32 size = AGIDL_3DFGetSize(glide);
+				AGIDL_CLR_FMT fmt = AGIDL_3DFGetClrFmt(glide);
 				AGIDL_3DFSetClrFmt(glide,AGIDL_RGBA_8888);
-				glide->pixels.pix32 = (COLOR*)AGIDL_AllocImgDataMMU(AGIDL_3DFGetWidth(glide),AGIDL_3DFGetHeight(glide),AGIDL_3DFGetClrFmt(glide));
+				glide->pixels.pix32 = (COLOR*)AGIDL_AllocImgDataMMU(AGIDL_3DFGetWidth(glide),AGIDL_3DFGetHeight(glide),fmt);
 				AGIDL_InitICP(&glide->palette,AGIDL_ICP_256);
 				int i;
 				for(i = 0; i < 256; i++){
@@ -775,9 +798,9 @@ void AGIDL_3DFDecodeIMG(AGIDL_3DF* glide, FILE* file){
 					u8 r = AGIDL_ReadByte(file);
 					u8 g = AGIDL_ReadByte(file);
 					u8 b = AGIDL_ReadByte(file);
-					glide->palette.icp.palette_256[i] = AGIDL_RGBA(r,g,b,a,AGIDL_3DFGetClrFmt(glide));
+					glide->palette.icp.palette_256[i] = AGIDL_RGBA(r,g,b,a,fmt);
 				}
-				for(i = 0; i < AGIDL_3DFGetSize(glide); i++){
+				for(i = 0; i < size; i++){
 					u8 index = AGIDL_ReadByte(file);
 					glide->pixels.pix32[i] = glide->palette.icp.palette_256[index];
 				}
@@ -1297,12 +1320,13 @@ void AGIDL_3DFEncodeICP(AGIDL_3DF* glide, FILE* file){
 	if(glide->encode == ICP_ENCODE_THRESHOLD){
 		int pass = 0;
 		u8 pal_index = 0;
+		u32 w = AGIDL_3DFGetWidth(glide), h = AGIDL_3DFGetHeight(glide);
 		
 		AGIDL_InitICP(&glide->palette, AGIDL_ICP_256);
 		
 		int x,y;
-		for(y = 0; y < AGIDL_3DFGetHeight(glide); y++){
-			for(x = 0; x < AGIDL_3DFGetWidth(glide); x++){
+		for(y = 0; y < h; y++){
+			for(x = 0; x < w; x++){
 				COLOR clr = AGIDL_3DFGetClr(glide,x,y);
 	
 				AGIDL_AddColorICP(&glide->palette,pal_index,clr,AGIDL_3DFGetClrFmt(glide),AGIDL_3DFGetMaxDiff(glide),&pass);
@@ -1334,8 +1358,9 @@ void AGIDL_3DFEncodeIMG(AGIDL_3DF* glide, FILE* file){
 				AGIDL_DisableBigEndArch();
 			}break;
 			case AGIDL_RGBA_8888:{
+				u32 size = AGIDL_3DFGetSize(glide);
 				int i;
-				for(i = 0; i < AGIDL_3DFGetSize(glide); i++){
+				for(i = 0; i < size; i++){
 					COLOR clr = glide->pixels.pix32[i];
 					u8 r = AGIDL_GetR(clr,AGIDL_RGBA_8888);
 					u8 g = AGIDL_GetG(clr,AGIDL_RGBA_8888);
@@ -1353,8 +1378,9 @@ void AGIDL_3DFEncodeIMG(AGIDL_3DF* glide, FILE* file){
 				}
 			}break;
 			case AGIDL_ARGB_8888:{
+				u32 size = AGIDL_3DFGetSize(glide);
 				int i;
-				for(i = 0; i < AGIDL_3DFGetSize(glide); i++){
+				for(i = 0; i < size; i++){
 					COLOR clr = glide->pixels.pix32[i];
 					u8 r = AGIDL_GetR(clr,AGIDL_ARGB_8888);
 					u8 g = AGIDL_GetG(clr,AGIDL_ARGB_8888);

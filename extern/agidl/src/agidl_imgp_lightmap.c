@@ -7,17 +7,17 @@
 *   File: agidl_imgp_lightmap.h
 *   Date: 12/10/2023
 *   Version: 0.2b
-*   Updated: 1/19/2024
+*   Updated: 6/10/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 #include <stdlib.h>
-#include "agidl_imgp_lightmap.h"
-#include "agidl_imgp_scale.h"
-#include "agidl_cc_core.h"
-#include "agidl_math_utils.h"
+#include <agidl_imgp_lightmap.h>
+#include <agidl_imgp_scale.h>
+#include <agidl_cc_core.h>
+#include <agidl_math_utils.h>
 
-void AGIDL_BindLightmapAndImg(void* data, void* lightdata, u16 width, u16 height, u16 widthl, u16 heightl, AGIDL_CLR_FMT imgfmt, AGIDL_CLR_FMT lightfmt, AGIDL_LIGHT light, COLOR blend){
+void AGIDL_BindLightmapAndImg(void* data, void* lightdata, u32 width, u32 height, u32 widthl, u32 heightl, AGIDL_CLR_FMT imgfmt, AGIDL_CLR_FMT lightfmt, AGIDL_LIGHT light, COLOR blend){
 	if((AGIDL_GetBitCount(imgfmt) == 24 && AGIDL_GetBitCount(lightfmt) == 24) || (AGIDL_GetBitCount(imgfmt) == 32 && AGIDL_GetBitCount(lightfmt) == 32)){
 		COLOR* clrdata = (COLOR*)data;
 		COLOR* lightclr = (COLOR*)lightdata;
@@ -160,7 +160,7 @@ void AGIDL_BindLightmapAndImg(void* data, void* lightdata, u16 width, u16 height
 	}
 }
 
-AGIDL_Point AGIDL_CreateLightPoint(u16 x, u16 y, u8 size, float bias, int inv, AGIDL_LIGHT_DIR dir, COLOR clr){
+AGIDL_Point AGIDL_CreateLightPoint(u32 x, u32 y, u8 size, float bias, int inv, AGIDL_LIGHT_DIR dir, COLOR clr){
 	AGIDL_Point p = {x, y, size, AGIDL_Clampf(0,bias,1.0f), AGIDL_Clamp(0,inv,1), dir, clr};
 	return p;
 }
@@ -169,11 +169,11 @@ void AGIDL_SetLight(AGIDL_LIGHTMAP* lightmap, AGIDL_LIGHT light){
 	lightmap->light = light;
 }
 
-void AGIDL_SetWidth(AGIDL_LIGHTMAP* lightmap, u16 width){
+void AGIDL_SetWidth(AGIDL_LIGHTMAP* lightmap, u32 width){
 	lightmap->width = width;
 }
 
-void AGIDL_SetHeight(AGIDL_LIGHTMAP* lightmap, u16 height){
+void AGIDL_SetHeight(AGIDL_LIGHTMAP* lightmap, u32 height){
 	lightmap->height = height;
 }
 
@@ -181,7 +181,7 @@ void AGIDL_SetClrFmt(AGIDL_LIGHTMAP* lightmap, AGIDL_CLR_FMT fmt){
 	lightmap->fmt = fmt;
 }
 
-void AGIDL_InitLightmap(AGIDL_LIGHTMAP* lightmap, AGIDL_LIGHT light, u16 width, u16 height, AGIDL_CLR_FMT fmt){
+void AGIDL_InitLightmap(AGIDL_LIGHTMAP* lightmap, AGIDL_LIGHT light, u32 width, u32 height, AGIDL_CLR_FMT fmt){
 	AGIDL_SetLight(lightmap,light);
 	AGIDL_SetWidth(lightmap,width);
 	AGIDL_SetHeight(lightmap,height);
@@ -194,8 +194,8 @@ void AGIDL_AddLightPoint(AGIDL_LIGHTMAP* lightmap, AGIDL_Point point){
 	lightmap->num_of_points++;
 }
 
-void AGIDL_FillLightRect(COLOR* clrs, u16 x, u16 y, u16 width, u16 height, u8 size, COLOR clr){
-	u16 i,j;
+void AGIDL_FillLightRect(COLOR* clrs, u32 x, u32 y, u32 width, u32 height, u8 size, COLOR clr){
+	u32 i,j;
 	for(j = y; j < y + size; j++){
 		for(i = x; i < x + size; i++){
 			AGIDL_SetClr(clrs,clr,i,j,width,height);
@@ -203,8 +203,8 @@ void AGIDL_FillLightRect(COLOR* clrs, u16 x, u16 y, u16 width, u16 height, u8 si
 	}
 }
 
-void AGIDL_FillLightRect16(COLOR16* clrs, u16 x, u16 y, u16 width, u16 height, u8 size, COLOR16 clr){
-	u16 i,j;
+void AGIDL_FillLightRect16(COLOR16* clrs, u32 x, u32 y, u32 width, u32 height, u8 size, COLOR16 clr){
+	u32 i,j;
 	for(j = y; j < y + size; j++){
 		for(i = x; i < x + size; i++){
 			AGIDL_SetClr16(clrs,clr,i,j,width,height);
@@ -212,7 +212,7 @@ void AGIDL_FillLightRect16(COLOR16* clrs, u16 x, u16 y, u16 width, u16 height, u
 	}
 }
 
-int IsInXRange(float bias, u16 x, u8 size, u16 width){
+int IsInXRange(float bias, u32 x, u8 size, u32 width){
 	u32 max_width_span = bias * width;
 	
 	if((x + size) >= max_width_span){
@@ -221,7 +221,7 @@ int IsInXRange(float bias, u16 x, u8 size, u16 width){
 	else return 1;
 }
 
-int IsInYRange(float bias, u16 y, u8 size, u16 height){
+int IsInYRange(float bias, u32 y, u8 size, u32 height){
 	u32 max_height_span = bias * height;
 	
 	if((y + size) >= max_height_span){
@@ -230,7 +230,7 @@ int IsInYRange(float bias, u16 y, u8 size, u16 height){
 	else return 1;
 }
 
-int IsInInvXRange(float bias, u16 x, u8 size, u16 width){
+int IsInInvXRange(float bias, u32 x, u8 size, u32 width){
 	u32 max_width_span = (bias * width);
 	
 	if((x - size) >= max_width_span){
@@ -242,7 +242,7 @@ int IsInInvXRange(float bias, u16 x, u8 size, u16 width){
 	else return 0;
 }
 
-int IsInInvYRange(float bias, u16 y, u8 size, u16 height){
+int IsInInvYRange(float bias, u32 y, u8 size, u32 height){
 	u32 max_height_span = bias * height;
 	
 	if((y - size) <= 0){
@@ -254,7 +254,7 @@ int IsInInvYRange(float bias, u16 y, u8 size, u16 height){
 	else return 0;
 }
 
-void AGIDL_FloodLightRectNE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size){
+void AGIDL_FloodLightRectNE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size){
 	if(IsInXRange(bias,x,size,width) && IsInYRange(bias,y,size,height)){
 		AGIDL_FillLightRect(clrs,x,y,width,height,size,AGIDL_DotColor(clr,clrfactor,fmt));
 		AGIDL_FloodLightRectNE(clrs,clr,clrfactor-0.04,fmt,x+size,y,width,height,bias,size);
@@ -262,7 +262,7 @@ void AGIDL_FloodLightRectNE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_F
 	}
 }
 
-void AGIDL_FloodLightRectSE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size){
+void AGIDL_FloodLightRectSE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size){
 	if(IsInInvXRange(bias,x,size,width) && IsInInvYRange(bias,y,size,height)){
 		AGIDL_FillLightRect(clrs,x,y,width,height,size,AGIDL_DotColor(clr,clrfactor,fmt));
 		AGIDL_FloodLightRectSE(clrs,clr,clrfactor-0.04,fmt,x-size,y,width,height,bias,size);
@@ -270,7 +270,7 @@ void AGIDL_FloodLightRectSE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_F
 	}
 }
 
-void AGIDL_FloodLightRectNWTOSE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size){
+void AGIDL_FloodLightRectNWTOSE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size){
 	if(IsInXRange(bias,x,size,width) && IsInInvYRange(bias,y,size,height)){
 		AGIDL_FillLightRect(clrs,x,y,width,height,size,AGIDL_DotColor(clr,clrfactor,fmt));
 		AGIDL_FloodLightRectNWTOSE(clrs,clr,clrfactor-0.04,fmt,x+size,y,width,height,bias,size);
@@ -278,7 +278,7 @@ void AGIDL_FloodLightRectNWTOSE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_C
 	}
 }
 
-void AGIDL_FloodLightRectSETONE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size){
+void AGIDL_FloodLightRectSETONE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size){
 	if(IsInInvXRange(bias,x,size,width) && IsInYRange(bias,y,size,height)){
 		AGIDL_FillLightRect(clrs,x,y,width,height,size,AGIDL_DotColor(clr,clrfactor,fmt));
 		AGIDL_FloodLightRectSETONE(clrs,clr,clrfactor-0.04,fmt,x-size,y,width,height,bias,size);
@@ -286,7 +286,7 @@ void AGIDL_FloodLightRectSETONE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_C
 	}
 }
 
-void AGIDL_FloodInvLightRectNE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size){
+void AGIDL_FloodInvLightRectNE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size){
 	if(IsInXRange(bias,x,size,width) && IsInYRange(bias,y,size,height)){
 		clrfactor = AGIDL_Clampf(0,clrfactor,1.0f);
 		AGIDL_FillLightRect(clrs,x,y,width,height,size,AGIDL_DotColor(clr,clrfactor,fmt));
@@ -295,7 +295,7 @@ void AGIDL_FloodInvLightRectNE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CL
 	}
 }
 
-void AGIDL_FloodInvLightRectSE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size){
+void AGIDL_FloodInvLightRectSE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size){
 	if(IsInInvXRange(bias,x,size,width) && IsInInvYRange(bias,y,size,height)){
 		AGIDL_FillLightRect(clrs,x,y,width,height,size,AGIDL_DotColor(clr,clrfactor,fmt));
 		AGIDL_FloodInvLightRectSE(clrs,clr,clrfactor+0.04,fmt,x-size,y,width,height,bias,size);
@@ -303,7 +303,7 @@ void AGIDL_FloodInvLightRectSE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CL
 	}
 }
 
-void AGIDL_FloodInvLightRectNWTOSE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size){
+void AGIDL_FloodInvLightRectNWTOSE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size){
 	if(IsInXRange(bias,x,size,width) && IsInInvYRange(bias,y,size,height)){
 		AGIDL_FillLightRect(clrs,x,y,width,height,size,AGIDL_DotColor(clr,clrfactor,fmt));
 		AGIDL_FloodInvLightRectNWTOSE(clrs,clr,clrfactor+0.04,fmt,x+size,y,width,height,bias,size);
@@ -311,7 +311,7 @@ void AGIDL_FloodInvLightRectNWTOSE(COLOR* clrs, COLOR clr, float clrfactor, AGID
 	}
 }
 
-void AGIDL_FloodInvLightRectSETONE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size){
+void AGIDL_FloodInvLightRectSETONE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size){
 	if(IsInInvXRange(bias,x,size,width) && IsInYRange(bias,y,size,height)){
 		AGIDL_FillLightRect(clrs,x,y,width,height,size,AGIDL_DotColor(clr,clrfactor,fmt));
 		AGIDL_FloodInvLightRectSETONE(clrs,clr,clrfactor+0.04,fmt,x-size,y,width,height,bias,size);
@@ -319,7 +319,7 @@ void AGIDL_FloodInvLightRectSETONE(COLOR* clrs, COLOR clr, float clrfactor, AGID
 	}
 }
 
-void AGIDL_FloodLightRectNE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size){
+void AGIDL_FloodLightRectNE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size){
 	if(IsInXRange(bias,x,size,width) && IsInYRange(bias,y,size,height)){
 		AGIDL_FillLightRect16(clrs,x,y,width,height,size,AGIDL_DotColor(clr,clrfactor,fmt));
 		AGIDL_FloodLightRectNE16(clrs,clr,clrfactor-0.04,fmt,x+size,y,width,height,bias,size);
@@ -327,7 +327,7 @@ void AGIDL_FloodLightRectNE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL
 	}
 }
 
-void AGIDL_FloodLightRectSE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size){
+void AGIDL_FloodLightRectSE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size){
 	if(IsInInvXRange(bias,x,size,width) && IsInInvYRange(bias,y,size,height)){
 		AGIDL_FillLightRect16(clrs,x,y,width,height,size,AGIDL_DotColor(clr,clrfactor,fmt));
 		AGIDL_FloodLightRectSE16(clrs,clr,clrfactor-0.04,fmt,x-size,y,width,height,bias,size);
@@ -335,7 +335,7 @@ void AGIDL_FloodLightRectSE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL
 	}
 }
 
-void AGIDL_FloodLightRectNWTOSE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size){
+void AGIDL_FloodLightRectNWTOSE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size){
 	if(IsInXRange(bias,x,size,width) && IsInInvYRange(bias,y,size,height)){
 		AGIDL_FillLightRect16(clrs,x,y,width,height,size,AGIDL_DotColor(clr,clrfactor,fmt));
 		AGIDL_FloodLightRectNWTOSE16(clrs,clr,clrfactor-0.04,fmt,x+size,y,width,height,bias,size);
@@ -343,7 +343,7 @@ void AGIDL_FloodLightRectNWTOSE16(COLOR16* clrs, COLOR16 clr, float clrfactor, A
 	}
 }
 
-void AGIDL_FloodLightRectSETONE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size){
+void AGIDL_FloodLightRectSETONE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size){
 	if(IsInInvXRange(bias,x,size,width) && IsInYRange(bias,y,size,height)){
 		AGIDL_FillLightRect16(clrs,x,y,width,height,size,AGIDL_DotColor(clr,clrfactor,fmt));
 		AGIDL_FloodLightRectSETONE16(clrs,clr,clrfactor-0.04,fmt,x-size,y,width,height,bias,size);
@@ -351,7 +351,7 @@ void AGIDL_FloodLightRectSETONE16(COLOR16* clrs, COLOR16 clr, float clrfactor, A
 	}
 }
 
-void AGIDL_FloodInvLightRectNE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size){
+void AGIDL_FloodInvLightRectNE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size){
 	if(IsInXRange(bias,x,size,width) && IsInYRange(bias,y,size,height)){
 		clrfactor = AGIDL_Clampf(0,clrfactor,1.0f);
 		AGIDL_FillLightRect16(clrs,x,y,width,height,size,AGIDL_DotColor(clr,clrfactor,fmt));
@@ -360,7 +360,7 @@ void AGIDL_FloodInvLightRectNE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AG
 	}
 }
 
-void AGIDL_FloodInvLightRectSE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size){
+void AGIDL_FloodInvLightRectSE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size){
 	if(IsInInvXRange(bias,x,size,width) && IsInInvYRange(bias,y,size,height)){
 		AGIDL_FillLightRect16(clrs,x,y,width,height,size,AGIDL_DotColor(clr,clrfactor,fmt));
 		AGIDL_FloodInvLightRectSE16(clrs,clr,clrfactor+0.04,fmt,x-size,y,width,height,bias,size);
@@ -368,7 +368,7 @@ void AGIDL_FloodInvLightRectSE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AG
 	}
 }
 
-void AGIDL_FloodInvLightRectNWTOSE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size){
+void AGIDL_FloodInvLightRectNWTOSE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size){
 	if(IsInXRange(bias,x,size,width) && IsInInvYRange(bias,y,size,height)){
 		AGIDL_FillLightRect16(clrs,x,y,width,height,size,AGIDL_DotColor(clr,clrfactor,fmt));
 		AGIDL_FloodInvLightRectNWTOSE16(clrs,clr,clrfactor+0.04,fmt,x+size,y,width,height,bias,size);
@@ -376,7 +376,7 @@ void AGIDL_FloodInvLightRectNWTOSE16(COLOR16* clrs, COLOR16 clr, float clrfactor
 	}
 }
 
-void AGIDL_FloodInvLightRectSETONE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size){
+void AGIDL_FloodInvLightRectSETONE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size){
 	if(IsInInvXRange(bias,x,size,width) && IsInYRange(bias,y,size,height)){
 		AGIDL_FillLightRect16(clrs,x,y,width,height,size,AGIDL_DotColor(clr,clrfactor,fmt));
 		AGIDL_FloodInvLightRectSETONE16(clrs,clr,clrfactor+0.04,fmt,x-size,y,width,height,bias,size);
@@ -384,8 +384,8 @@ void AGIDL_FloodInvLightRectSETONE16(COLOR16* clrs, COLOR16 clr, float clrfactor
 	}
 }
 
-void AGIDL_LightInvScan(COLOR* clrs, u16 width, u16 height, AGIDL_CLR_FMT fmt){
-	u16 x,y;
+void AGIDL_LightInvScan(COLOR* clrs, u32 width, u32 height, AGIDL_CLR_FMT fmt){
+	u32 x,y;
 	for(y = 0; y < height; y++){
 		for(x = 0; x < width; x++){
 			COLOR clr = AGIDL_GetClr(clrs,x,y,width,height);
@@ -402,14 +402,14 @@ void AGIDL_LightInvScan(COLOR* clrs, u16 width, u16 height, AGIDL_CLR_FMT fmt){
 
 void * AGIDL_GenerateLightmapImgData(AGIDL_LIGHTMAP lightmap){
 	if(AGIDL_GetBitCount(lightmap.fmt) == 24 || AGIDL_GetBitCount(lightmap.fmt) == 32){
-		u16 w = lightmap.width, h = lightmap.height;
+		u32 w = lightmap.width, h = lightmap.height;
 		
 		COLOR* lightdata = (COLOR*)malloc(sizeof(COLOR)*w*h);
 
 		COLOR defacto = AGIDL_RGB(245,245,245,lightmap.fmt);
 		AGIDL_ClrMemset(lightdata,defacto,w*h);
 		
-		u16 x,y,i;
+		u32 x,y,i;
 		for(y = 0; y < h; y++){
 			for(x = 0; x < w; x++){
 				for(i = 0; i < lightmap.num_of_points; i++){
@@ -458,14 +458,14 @@ void * AGIDL_GenerateLightmapImgData(AGIDL_LIGHTMAP lightmap){
 		return lightdata;
 	}
 	else{
-		u16 w = lightmap.width, h = lightmap.height;
+		u32 w = lightmap.width, h = lightmap.height;
 		
 		COLOR16* lightdata = (COLOR16*)malloc(sizeof(COLOR16)*w*h);
 
 		COLOR16 defacto = AGIDL_RGB16(30,30,30,lightmap.fmt);
 		AGIDL_ClrMemset16(lightdata,defacto,w*h);
 		
-		u16 x,y,i;
+		u32 x,y,i;
 		for(y = 0; y < h; y++){
 			for(x = 0; x < w; x++){
 				for(i = 0; i < lightmap.num_of_points; i++){

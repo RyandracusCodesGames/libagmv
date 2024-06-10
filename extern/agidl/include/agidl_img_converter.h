@@ -15,18 +15,18 @@
 *
 ********************************************/
 
-#include "agidl_img_types.h"
-#include "agidl_img_bmp.h"
-#include "agidl_img_tga.h"
-#include "agidl_img_tim.h"
-#include "agidl_img_pcx.h"
-#include "agidl_img_quake.h"
-#include "agidl_img_pvr.h"
-#include "agidl_img_gxt.h"
-#include "agidl_img_bti.h"
-#include "agidl_img_3df.h"
-#include "agidl_img_ppm.h"
-#include "agidl_img_lbm.h"
+#include <agidl_img_types.h>
+#include <agidl_img_bmp.h>
+#include <agidl_img_tga.h>
+#include <agidl_img_tim.h>
+#include <agidl_img_pcx.h>
+#include <agidl_img_quake.h>
+#include <agidl_img_pvr.h>
+#include <agidl_img_gxt.h>
+#include <agidl_img_bti.h>
+#include <agidl_img_3df.h>
+#include <agidl_img_ppm.h>
+#include <agidl_img_lbm.h>
 
 /* BMP -> AGIDL_IMG_TYPE */
 AGIDL_TGA* AGIDL_ConvertBMP2TGA(AGIDL_BMP* bmp);

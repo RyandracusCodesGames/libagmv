@@ -7,14 +7,14 @@
 *   File: agidl_imgp_rotate.c
 *   Date: 12/9/2023
 *   Version: 0.2b
-*   Updated: 1/19/2024
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 #include <stdlib.h>
-#include "agidl_imgp_rotate.h"
-#include "agidl_math_utils.h"
-#include "agidl_img_bmp.h"
+#include <agidl_imgp_rotate.h>
+#include <agidl_math_utils.h>
+#include <agidl_img_bmp.h>
 
 void AGIDL_FlipImgDataHorz(void* data, u32 width, u32 height, AGIDL_CLR_FMT fmt){
 	if(AGIDL_GetBitCount(fmt) == 24 || AGIDL_GetBitCount(fmt) == 32){
@@ -115,19 +115,19 @@ void AGIDL_FlipImgDataHorzAndVert(void* data, u32 width, u32 height, AGIDL_CLR_F
 	}
 }
 
-void AGIDL_RotateImgData(void* data, u16* width, u16* height, AGIDL_CLR_FMT fmt, AGIDL_ANGLE angle){
+void AGIDL_RotateImgData(void* data, u32* width, u32* height, AGIDL_CLR_FMT fmt, AGIDL_ANGLE angle){
 	switch(angle){
 		case ANGLE_180_DEG:{
 			AGIDL_FlipImgDataHorz(data,*width,*height,fmt);
 		}break;
 		case ANGLE_90_DEG:{
 			if(AGIDL_GetBitCount(fmt) == 24 || AGIDL_GetBitCount(fmt) == 32){
-				u16 w = *width, h = *height;
-				u16 wr = *height, hr = *width;
+				u32 w = *width, h = *height;
+				u32 wr = *height, hr = *width;
 				COLOR* clrs = (COLOR*)data;
 				COLOR* rotate = (COLOR*)malloc(sizeof(COLOR)*w*h);
 				
-				u16 x,y;
+				u32 x,y;
 				for(y = 0; y < h; y++){
 					for(x = 0; x < w; x++){
 						COLOR clr = AGIDL_GetClr(clrs,x,y,w,h);
@@ -142,12 +142,12 @@ void AGIDL_RotateImgData(void* data, u16* width, u16* height, AGIDL_CLR_FMT fmt,
 				free(rotate);
 			}
 			else{
-				u16 w = *width, h = *height;
-				u16 wr = *height, hr = *width;
+				u32 w = *width, h = *height;
+				u32 wr = *height, hr = *width;
 				COLOR16* clrs = (COLOR16*)data;
 				COLOR16* rotate = (COLOR16*)malloc(sizeof(COLOR16)*w*h);
 				
-				u16 x,y;
+				u32 x,y;
 				for(y = 0; y < h; y++){
 					for(x = 0; x < w; x++){
 						COLOR16 clr = AGIDL_GetClr16(clrs,x,y,w,h);
@@ -164,12 +164,12 @@ void AGIDL_RotateImgData(void* data, u16* width, u16* height, AGIDL_CLR_FMT fmt,
 		}break;
 		case ANGLE_270_DEG:{
 			if(AGIDL_GetBitCount(fmt) == 24 || AGIDL_GetBitCount(fmt) == 32){
-				u16 w = *width, h = *height;
-				u16 wr = *height, hr = *width;
+				u32 w = *width, h = *height;
+				u32 wr = *height, hr = *width;
 				COLOR* clrs = (COLOR*)data;
 				COLOR* rotate = (COLOR*)malloc(sizeof(COLOR16)*w*h);
 				
-				u16 x,y;
+				u32 x,y;
 				for(y = 0; y < h; y++){
 					for(x = 0; x < w; x++){
 						COLOR clr = AGIDL_GetClr(clrs,x,y,w,h);
@@ -184,12 +184,12 @@ void AGIDL_RotateImgData(void* data, u16* width, u16* height, AGIDL_CLR_FMT fmt,
 				free(rotate);
 			}
 			else{
-				u16 w = *width, h = *height;
-				u16 wr = *height, hr = *width;
+				u32 w = *width, h = *height;
+				u32 wr = *height, hr = *width;
 				COLOR16* clrs = (COLOR16*)data;
 				COLOR16* rotate = (COLOR16*)malloc(sizeof(COLOR16)*w*h);
 				
-				u16 x,y;
+				u32 x,y;
 				for(y = 0; y < h; y++){
 					for(x = 0; x < w; x++){
 						COLOR16 clr = AGIDL_GetClr16(clrs,x,y,w,h);

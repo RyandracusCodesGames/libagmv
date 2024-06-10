@@ -9,17 +9,17 @@
 *   Library: libagidl
 *   File: agidl_img_pcx.h
 *   Date: 9/25/2023
-*   Version: 0.1b
-*   Updated: 2/21/2024
+*   Version: 0.4b
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 
 #include <stdio.h>
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_types.h"
-#include "agidl_cc_manager.h"
+#include <agidl_types.h>
+#include <agidl_cc_types.h>
+#include <agidl_img_types.h>
+#include <agidl_cc_manager.h>
 
 typedef struct PCXHEADER{
 	u8 id;
@@ -30,8 +30,8 @@ typedef struct PCXHEADER{
 	u16 y_start;
 	u16 x_end;
 	u16 y_end;
-	u16 width;
-	u16 height;
+	u32 width;
+	u32 height;
 	u8 ega[48];
 	u8 reserved;
 	u8 numbitplanes;
@@ -54,8 +54,8 @@ typedef struct AGIDL_PCX{
 }AGIDL_PCX;
 
 void AGIDL_SetPCXFilename(AGIDL_PCX *pcx, const char* filename);
-void AGIDL_PCXSetWidth(AGIDL_PCX *pcx, int width);
-void AGIDL_PCXSetHeight(AGIDL_PCX *pcx, int height);
+void AGIDL_PCXSetWidth(AGIDL_PCX *pcx, u32 width);
+void AGIDL_PCXSetHeight(AGIDL_PCX *pcx, u32 height);
 void AGIDL_PCXSetClrFmt(AGIDL_PCX *pcx, AGIDL_CLR_FMT fmt);
 void AGIDL_PCXSetICPMode(AGIDL_PCX *pcx, int mode);
 void AGIDL_PCXSetICPEncoding(AGIDL_PCX* pcx, AGIDL_ICP_ENCODE encode);
@@ -71,8 +71,8 @@ void AGIDL_PCXSyncPix(AGIDL_PCX *pcx, COLOR *clrs);
 void AGIDL_PCXSyncPix16(AGIDL_PCX *pcx, COLOR16 *clrs);
 void AGIDL_PCXCopyPix(AGIDL_PCX* pcx, COLOR* clrs, u32 count);
 void AGIDL_PCXCopyPix16(AGIDL_PCX* pcx, COLOR16* clrs, u32 count);
-int AGIDL_PCXGetWidth(AGIDL_PCX *pcx);
-int AGIDL_PCXGetHeight(AGIDL_PCX *pcx);
+u32 AGIDL_PCXGetWidth(AGIDL_PCX *pcx);
+u32 AGIDL_PCXGetHeight(AGIDL_PCX *pcx);
 u32 AGIDL_PCXGetSize(AGIDL_PCX* pcx);
 int AGIDL_PCXGetMaxDiff(AGIDL_PCX* pcx);
 AGIDL_CLR_FMT AGIDL_PCXGetClrFmt(AGIDL_PCX* pcx);

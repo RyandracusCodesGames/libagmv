@@ -7,13 +7,12 @@
 *   File: agmv_utils.c
 *   Date: 5/17/2024
 *   Version: 1.0
-*   Updated: 6/4/2024
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 #include <stdlib.h>
-#include "agmv_utils.h"
-
+#include <agmv_utils.h>
 #include <agmv_decode.h>
 
 /*-------FILE READING UTILITY FUNCTIONS------*/
@@ -463,58 +462,59 @@ u8 AGMV_GetVersionFromOPT(AGMV_OPT opt, AGMV_COMPRESSION compression){
 		switch(opt){
 			case AGMV_OPT_I:{
 				return 1;
-			}break;
+			}
 			case AGMV_OPT_II:{
 				return 2;
-			}break;
+			}
 			case AGMV_OPT_III:{
 				return 1;
-			}break;
+			}
 			case AGMV_OPT_ANIM:{
 				return 2;
-			}break;
+			}
 			case AGMV_OPT_GBA_I:{
 				return 1;
-			}break;
+			}
 			case AGMV_OPT_GBA_II:{
 				return 2;
-			}break;
+			}
 			case AGMV_OPT_GBA_III:{
 				return 1;
-			}break;
+			}
 			case AGMV_OPT_NDS:{
 				return 1;
-			}break;
+			}
 		}
 	}
 	else{
 		switch(opt){
 			case AGMV_OPT_I:{
 				return 3;
-			}break;
+			}
 			case AGMV_OPT_II:{
 				return 4;
-			}break;
+			}
 			case AGMV_OPT_III:{
 				return 3;
-			}break;
+			}
 			case AGMV_OPT_ANIM:{
 				return 4;
-			}break;
+			}
 			case AGMV_OPT_GBA_I:{
 				return 3;
-			}break;
+			}
 			case AGMV_OPT_GBA_II:{
 				return 4;
-			}break;
+			}
 			case AGMV_OPT_GBA_III:{
 				return 3;
-			}break;
+			}
 			case AGMV_OPT_NDS:{
 				return 3;
-			}break;
+			}
 		}
 	}
+	return 1;
 }
 
 f32 AGMV_ClampVolume(f32 volume){
@@ -591,16 +591,16 @@ u8 AGMV_GetQuantizedR(u32 color, AGMV_QUALITY quality){
 	switch(quality){
 		case AGMV_HIGH_QUALITY:{
 			return(color & 0x7e000) >> 13;
-		}break;
+		}
 		case AGMV_MID_QUALITY:{
 			return (color & 0x1f000) >> 12;
-		}break;
+		}
 		case AGMV_LOW_QUALITY:{
 			return (color & 0xf800) >> 11;
-		}break;
+		}
 		default:{
 			return(color & 0x7e000) >> 13;
-		}break;
+		}
 	}
 }
 
@@ -608,16 +608,16 @@ u8 AGMV_GetQuantizedG(u32 color, AGMV_QUALITY quality){
 	switch(quality){
 		case AGMV_HIGH_QUALITY:{
 			return (color & 0x1f80) >> 7;
-		}break;
+		}
 		case AGMV_MID_QUALITY:{
 			return (color & 0xfc0) >> 6;
-		}break;
+		}
 		case AGMV_LOW_QUALITY:{
 			return (color & 0x7e0) >> 5;
-		}break;
+		}
 		default:{
 			return(color & 0x1f80) >> 7;
-		}break;
+		}
 	}
 }
 
@@ -625,16 +625,16 @@ u8 AGMV_GetQuantizedB(u32 color, AGMV_QUALITY quality){
 	switch(quality){
 		case AGMV_HIGH_QUALITY:{
 			return (color & 0x7f);
-		}break;
+		}
 		case AGMV_MID_QUALITY:{
 			return (color & 0x3f);
-		}break;
+		}
 		case AGMV_LOW_QUALITY:{
 			return (color & 0x001F);
-		}break;
+		}
 		default:{
 			return (color & 0x7f);
-		}break;
+		}
 	}
 }
 
@@ -650,7 +650,7 @@ u32 AGMV_QuantizeColor(u32 color, AGMV_QUALITY quality){
 			b >>= 1;
 			
 			return r << 13 | g << 7 | b;
-		}break;
+		}
 		case AGMV_MID_QUALITY:{
 			u8 r = AGMV_GetR(color);
 			u8 g = AGMV_GetG(color);
@@ -661,7 +661,7 @@ u32 AGMV_QuantizeColor(u32 color, AGMV_QUALITY quality){
 			b >>= 2;
 			
 			return r << 12 | g << 6 | b;
-		}break;
+		}
 		case AGMV_LOW_QUALITY:{
 			u8 r = AGMV_GetR(color);
 			u8 g = AGMV_GetG(color);
@@ -672,7 +672,7 @@ u32 AGMV_QuantizeColor(u32 color, AGMV_QUALITY quality){
 			b >>= 3;
 			
 			return r << 11 | g << 5 | b;
-		}break;
+		}
 		default:{
 			u8 r = AGMV_GetR(color);
 			u8 g = AGMV_GetG(color);
@@ -683,7 +683,7 @@ u32 AGMV_QuantizeColor(u32 color, AGMV_QUALITY quality){
 			b >>= 1;
 			
 			return r << 13 | g << 7 | b;
-		}break;
+		}
 	}
 }
 
@@ -700,7 +700,7 @@ u32 AGMV_ReverseQuantizeColor(u32 color, AGMV_QUALITY quality){
 			b <<= 1;
 			
 			return r << 16 | g << 8 | b;
-		}break;
+		}
 		case AGMV_MID_QUALITY:{
 			
 			r <<= 3;
@@ -708,7 +708,7 @@ u32 AGMV_ReverseQuantizeColor(u32 color, AGMV_QUALITY quality){
 			b <<= 2;
 			
 			return r << 16 | g << 8 | b;
-		}break;
+		}
 		case AGMV_LOW_QUALITY:{
 			
 			r <<= 3;
@@ -716,7 +716,7 @@ u32 AGMV_ReverseQuantizeColor(u32 color, AGMV_QUALITY quality){
 			b <<= 3;
 			
 			return r << 16 | g << 8 | b;
-		}break;
+		}
 		default:{
 			
 			r <<= 2;
@@ -724,7 +724,7 @@ u32 AGMV_ReverseQuantizeColor(u32 color, AGMV_QUALITY quality){
 			b <<= 1;
 			
 			return r << 16 | g << 8 | b;
-		}break;
+		}
 	}
 }
 
@@ -987,16 +987,16 @@ char* AGMV_Error2Str(Error error){
 	switch(error){
 		case NO_ERR:{
 			return "NO ERROR";
-		}break;
+		}
 		case FILE_NOT_FOUND_ERR:{
 			return "FILE NOT FOUND ERROR";
-		}break;
+		}
 		case INVALID_HEADER_FORMATTING_ERR:{
 			return "INVALID HEADER FORMATTING ERROR";
-		}break;
+		}
 		case MEMORY_CORRUPTION_ERR:{
 			return "MEMORY CORRUPTION ERROR";
-		}break;
+		}
 	}
 	return "INVALID ERROR CODE";
 }

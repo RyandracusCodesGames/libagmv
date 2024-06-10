@@ -9,17 +9,17 @@
 *   Library: libagidl
 *   File: agidl_img_tga.h
 *   Date: 9/13/2023
-*   Version: 0.1b
-*   Updated: 2/21/2024
+*   Version: 0.4b
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 
 #include <stdio.h>
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_types.h"
-#include "agidl_cc_manager.h"
+#include <agidl_types.h>
+#include <agidl_cc_types.h>
+#include <agidl_img_types.h>
+#include <agidl_cc_manager.h>
 
 typedef enum TGA_ICP_TYPE{
 	TGA_IMG_TYPE_ICP = 1,
@@ -44,8 +44,8 @@ typedef struct TGA_HEADER{
 	u8 icpbits;
 	u16 xstart;
 	u16 ystart;
-	u16 width;
-	u16 height;
+	u32 width;
+	u32 height;
 	u8 bits;
 	u8 flip;
 }TGA_HEADER;
@@ -63,8 +63,8 @@ typedef struct AGIDL_TGA{
 }AGIDL_TGA;
 
 void AGIDL_SetTGAFilename(AGIDL_TGA *tga, const char *filename);
-void AGIDL_TGASetWidth(AGIDL_TGA *tga, int width);
-void AGIDL_TGASetHeight(AGIDL_TGA *tga, int height);
+void AGIDL_TGASetWidth(AGIDL_TGA *tga, u32 width);
+void AGIDL_TGASetHeight(AGIDL_TGA *tga, u32 height);
 void AGIDL_TGASetClrFmt(AGIDL_TGA *tga, AGIDL_CLR_FMT fmt);
 void AGIDL_TGASetClr(AGIDL_TGA *tga, int x, int y, COLOR clr);
 void AGIDL_TGASetClr16(AGIDL_TGA *tga, int x, int y, COLOR16 clr);
@@ -78,8 +78,8 @@ void AGIDL_ClearTGA(AGIDL_TGA *tga, COLOR clr);
 void AGIDL_ClearTGA16(AGIDL_TGA *tga, COLOR16 clr);
 void AGIDL_ClearColorTGA(AGIDL_TGA* tga, float r, float g, float b);
 void AGIDL_FlushTGA(AGIDL_TGA* tga);
-int AGIDL_TGAGetWidth(AGIDL_TGA *tga);
-int AGIDL_TGAGetHeight(AGIDL_TGA *tga);
+u32 AGIDL_TGAGetWidth(AGIDL_TGA *tga);
+u32 AGIDL_TGAGetHeight(AGIDL_TGA *tga);
 u32 AGIDL_TGAGetSize(AGIDL_TGA* tga);
 int AGIDL_TGAGetMaxDiff(AGIDL_TGA *tga);
 AGIDL_CLR_FMT AGIDL_TGAGetClrFmt(AGIDL_TGA* tga);

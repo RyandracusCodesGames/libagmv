@@ -9,14 +9,14 @@
 *   Library: libagidl
 *   File: agidl_imgp_grayscale.h
 *   Date: 11/27/2023
-*   Version: 0.1b
-*   Updated: 1/19/2024
+*   Version: 0.4b
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
+#include <agidl_types.h>
+#include <agidl_cc_types.h>
 
 void AGIDL_GrayscaleImgData(void* data, u32 width, u32 height, AGIDL_CLR_FMT fmt);
 

@@ -6,15 +6,15 @@
 *   Library: libagidl
 *   File: agidl_mmu_utils.c
 *   Date: 2/6/2024
-*   Version: 0.3b
-*   Updated: 4/7/2024
+*   Version: 0.4b
+*   Updated: 6/10/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 #include <stdlib.h>
-#include "agidl_img_types.h"
-#include "agidl_mmu_utils.h"
-#include "agidl_cc_converter.h"
+#include <agidl_img_types.h>
+#include <agidl_mmu_utils.h>
+#include <agidl_cc_converter.h>
 
 void* AGIDL_AllocImgDataMMU(u32 width, u32 height, AGIDL_CLR_FMT fmt){
 	if(AGIDL_GetBitCount(fmt) == 16){
@@ -25,7 +25,6 @@ void* AGIDL_AllocImgDataMMU(u32 width, u32 height, AGIDL_CLR_FMT fmt){
 		COLOR* clr = (COLOR*)malloc(sizeof(COLOR)*width*height);
 		return clr;
 	}
-	return NULL;
 }
 
 void AGIDL_ConvertRGB2RGBA(void* src, void* dest, u32 width, u32 height, AGIDL_CLR_FMT srcfmt, AGIDL_CLR_FMT destfmt){

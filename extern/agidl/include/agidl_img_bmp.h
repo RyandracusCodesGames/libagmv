@@ -9,17 +9,17 @@
 *   Library: libagidl
 *   File: agidl_img_bmp.h
 *   Date: 9/11/2023
-*   Version: 0.1b
-*   Updated: 2/5/2024
+*   Version: 0.4b
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 
 #include <stdio.h>
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_cc_manager.h"
-#include "agidl_img_types.h"
+#include <agidl_types.h>
+#include <agidl_cc_types.h>
+#include <agidl_cc_manager.h>
+#include <agidl_img_types.h>
 
 #define BI_RGB 0
 #define BI_RLE8 1

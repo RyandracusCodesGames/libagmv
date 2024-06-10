@@ -15,16 +15,16 @@
 *
 ********************************************/
 
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_converter.h"
-#include "agidl_imgp_grayscale.h"
-#include "agidl_imgp_rotate.h"
-#include "agidl_imgp_scale.h"
-#include "agidl_imgp_filter.h"
-#include "agidl_imgp_mirror.h"
-#include "agidl_imgp_wrap.h"
-#include "agidl_imgp_halftone.h"
+#include <agidl_types.h>
+#include <agidl_cc_types.h>
+#include <agidl_img_converter.h>
+#include <agidl_imgp_grayscale.h>
+#include <agidl_imgp_rotate.h>
+#include <agidl_imgp_scale.h>
+#include <agidl_imgp_filter.h>
+#include <agidl_imgp_mirror.h>
+#include <agidl_imgp_wrap.h>
+#include <agidl_imgp_halftone.h>
 
 void AGIDL_GrayscaleBMP(AGIDL_BMP* bmp);
 void AGIDL_GrayscaleTGA(AGIDL_TGA* tga);

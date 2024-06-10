@@ -9,15 +9,15 @@
 *   Library: libagidl
 *   File: agidl_img_ppm.h
 *   Date: 2/19/2024
-*   Version: 0.3b
-*   Updated: 2/21/2024
+*   Version: 0.4b
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 #include <stdio.h>
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_types.h"
+#include <agidl_types.h>
+#include <agidl_cc_types.h>
+#include <agidl_img_types.h>
 
 typedef enum AGIDL_PPM_TYPE{
 	PPM_BIN = 0x1,
@@ -37,8 +37,8 @@ typedef struct AGIDL_PPM{
 }AGIDL_PPM;
 
 void AGIDL_SetPPMFilename(AGIDL_PPM* ppm, const char* filename);
-void AGIDL_PPMSetWidth(AGIDL_PPM* ppm, int width);
-void AGIDL_PPMSetHeight(AGIDL_PPM* ppm, int height);
+void AGIDL_PPMSetWidth(AGIDL_PPM* ppm, u32 width);
+void AGIDL_PPMSetHeight(AGIDL_PPM* ppm, u32 height);
 void AGILD_PPMSetClrFmt(AGIDL_PPM* ppm, AGIDL_CLR_FMT fmt);
 void AGIDL_PPMSetType(AGIDL_PPM* ppm, AGIDL_PPM_TYPE type);
 void AGIDL_PPMSetMaxDiff(AGIDL_PPM* ppm, int max_diff);

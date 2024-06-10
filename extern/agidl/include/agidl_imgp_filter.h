@@ -8,14 +8,14 @@
 *   Library: libagidl
 *   File: agidl_imgp_filter.h
 *   Date: 12/13/2023
-*   Version: 0.2b
-*   Updated: 1/29/2024
+*   Version: 0.4b
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_types.h"
+#include <agidl_types.h>
+#include <agidl_cc_types.h>
+#include <agidl_img_types.h>
 
 COLOR AGIDL_SamplePointNearest(void* data, float u, float v, u32 width, u32 height, AGIDL_CLR_FMT fmt);
 COLOR AGIDL_SamplePointBilerp(void* data, float u, float v, u32 width, u32 height, AGIDL_CLR_FMT fmt);

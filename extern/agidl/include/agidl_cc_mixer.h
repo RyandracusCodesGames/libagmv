@@ -9,14 +9,14 @@
 *   Library: libagidl
 *   File: agidl_cc_mixer.h
 *   Date: 9/10/2023
-*   Version: 0.1b
-*   Updated: 2/11/2024
+*   Version: 0.4b
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 
-#include "agidl_types.h"
-#include "agidl_cc_core.h"
+#include <agidl_cc_core.h>
+#include <agidl_types.h>
 
 /* MULTIPLY SOURCE COLOR BY INVERSE BLEND FACTOR AND DEST COLOR BY BLEND FACTOR
    COL1*(1-blend_factor)+COL2*(blend_factor)*/

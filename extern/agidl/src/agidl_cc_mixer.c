@@ -1,5 +1,3 @@
-#include "agidl_cc_mixer.h"
-
 /********************************************
 *   Adaptive Graphics Image Display Library
 *
@@ -8,14 +6,15 @@
 *   Library: libagidl
 *   File: agidl_cc_mixer.c
 *   Date: 9/10/2023
-*   Version: 0.1b
-*   Updated: 2/11/2024
+*   Version: 0.4b
+*   Updated: 6/10/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 #include <stdio.h>
-#include "agidl_img_types.h"
-#include "agidl_math_utils.h"
+#include <agidl_cc_mixer.h>
+#include <agidl_img_types.h>
+#include <agidl_math_utils.h>
 
 float AGIDL_FindRBDivisor(AGIDL_CLR_FMT fmt){
 	switch(fmt){
@@ -78,34 +77,34 @@ float AGIDL_FindGDivisor(AGIDL_CLR_FMT fmt){
 }
 
 u8 AGIDL_MulCombine565(u8 cc1, u8 cc2){
-	return (cc1*cc2)/(63.0f);
+	return (cc1*cc2) >> 6;
 }
 
 u8 AGIDL_MulCombine(u8 cc1, u8 cc2, AGIDL_CLR_FMT fmt){
 	switch(fmt){
 		case AGIDL_RGB_888:{
-			return (cc1*cc2)/(255.0f);
+			return (cc1*cc2) >> 8;
 		}break;
 		case AGIDL_BGR_888:{
-			return (cc1*cc2)/(255.0f);
+			return (cc1*cc2) >> 8;
 		}break;
 		case AGIDL_RGB_555:{
-			return (cc1*cc2)/(31.0f);
+			return (cc1*cc2) >> 5;
 		}break;
 		case AGIDL_BGR_555:{
-			return (cc1*cc2)/(31.0f);
+			return (cc1*cc2) >> 5;
 		}break;
 		case AGIDL_RGB_565:{
-			return (cc1*cc2)/(31.0f);
+			return (cc1*cc2) >> 5;
 		}break;
 		case AGIDL_BGR_565:{
-			return (cc1*cc2)/(31.0f);
+			return (cc1*cc2) >> 5;
 		}break;
 		case AGIDL_RGBA_8888:{
-			return (cc1*cc2)/(255.0f);
+			return (cc1*cc2) >> 8;
 		}break;
 		case AGIDL_ARGB_8888:{
-			return (cc1*cc2)/(255.0f);
+			return (cc1*cc2) >> 8;
 		}break;
 	}
 	return 0;
@@ -126,7 +125,7 @@ COLOR AGIDL_AddColor(COLOR clr1, COLOR clr2, AGIDL_CLR_FMT fmt){
 	
 	if(AGIDL_GetBitCount(fmt) == 32){
 		u8 a1 = AGIDL_GetA(clr1,fmt), a2 = AGIDL_GetA(clr2,fmt);
-		u8 a = (a1+a2)/2.0f;
+		u8 a = (a1+a2) >> 1;
 		return AGIDL_RGBA(r,g,b,a,fmt);
 	}
 	
@@ -148,7 +147,7 @@ COLOR AGIDL_SubColor(COLOR clr1, COLOR clr2, AGIDL_CLR_FMT fmt){
 	
 	if(AGIDL_GetBitCount(fmt) == 32){
 		u8 a1 = AGIDL_GetA(clr1,fmt), a2 = AGIDL_GetA(clr2,fmt);
-		u8 a = (a1+a2)/2.0f;
+		u8 a = (a1+a2) >> 1;
 		return AGIDL_RGBA(r,g,b,a,fmt);
 	}
 	
@@ -170,7 +169,7 @@ COLOR AGIDL_MulColor(COLOR clr1, COLOR clr2, AGIDL_CLR_FMT fmt){
 	
 	if(AGIDL_GetBitCount(fmt) == 32){
 		u8 a1 = AGIDL_GetA(clr1,fmt), a2 = AGIDL_GetA(clr2,fmt);
-		u8 a = (a1*a2)/255.0f;
+		u8 a = (a1*a2) >> 8;
 		return AGIDL_RGBA(r,g,b,a,fmt);
 	}
 	

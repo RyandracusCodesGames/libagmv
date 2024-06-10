@@ -1,10 +1,10 @@
 #include <stdlib.h>
 #include <string.h>
-#include "agidl_img_bti.h"
-#include "agidl_cc_core.h"
-#include "agidl_img_error.h"
-#include "agidl_file_utils.h"
-#include "agidl_mmu_utils.h"
+#include <agidl_img_bti.h>
+#include <agidl_cc_core.h>
+#include <agidl_img_error.h>
+#include <agidl_file_utils.h>
+#include <agidl_mmu_utils.h>
 
 /********************************************
 *   Adaptive Graphics Image Display Library
@@ -14,22 +14,29 @@
 *   Library: libagidl
 *   File: agidl_img_bti.c
 *   Date: 11/22/2023
-*   Version: 0.1b
-*   Updated: 2/21/2024
+*   Version: 0.4b
+*   Updated: 6/10/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 
 void AGIDL_SetBTIFilename(AGIDL_BTI* bti, const char* filename){
-	bti->filename = (char*)realloc(bti->filename,strlen(filename));
-	AGIDL_FilenameCpy(bti->filename,filename);
+	if(bti->filename != NULL){
+		free(bti->filename);
+		bti->filename = (char*)malloc(strlen(filename)+1);
+		AGIDL_FilenameCpy(bti->filename,filename);
+	}
+	else{
+		bti->filename = (char*)malloc(strlen(filename)+1);
+		AGIDL_FilenameCpy(bti->filename,filename);
+	}
 }
 
-void AGIDL_BTISetWidth(AGIDL_BTI* bti, u16 width){
+void AGIDL_BTISetWidth(AGIDL_BTI* bti, u32 width){
 	bti->header.width = width;
 }
 
-void AGIDL_BTISetHeight(AGIDL_BTI* bti, u16 height){
+void AGIDL_BTISetHeight(AGIDL_BTI* bti, u32 height){
 	bti->header.height = height;
 }
 
@@ -122,11 +129,11 @@ void AGIDL_FlushBTI(AGIDL_BTI* bti){
 	AGIDL_ClearBTI(bti,0);
 }
 
-int AGIDL_BTIGetWidth(AGIDL_BTI* bti){
+u32 AGIDL_BTIGetWidth(AGIDL_BTI* bti){
 	return bti->header.width;
 }
 
-int AGIDL_BTIGetHeight(AGIDL_BTI* bti){
+u32 AGIDL_BTIGetHeight(AGIDL_BTI* bti){
 	return bti->header.height;
 }
 
@@ -295,18 +302,26 @@ AGIDL_BTI* AGIDL_BTICpyImg(AGIDL_BTI* bti){
 }
 
 void AGIDL_FreeBTI(AGIDL_BTI* bti){
-	free(bti->filename);
+	if(bti->filename != NULL){
+		free(bti->filename);
+		bti->filename = NULL;
+	}
 	
 	if(AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti)) == 16){
-		free(bti->pixels.pix16);
+		if(bti->pixels.pix16 != NULL){
+			free(bti->pixels.pix16);
+			bti->pixels.pix16 = NULL;
+		}
 	}
 	else{
-		free(bti->pixels.pix32);
+		if(bti->pixels.pix32 != NULL){
+			free(bti->pixels.pix32);
+			bti->pixels.pix32 = NULL;
+		}
 	}
 	
-	free(bti);
-	
 	if(bti != NULL){
+		free(bti);
 		bti = NULL;
 	}
 }

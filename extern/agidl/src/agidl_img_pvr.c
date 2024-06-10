@@ -1,14 +1,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "agidl_img_pvr.h"
-
+#include <agidl_img_pvr.h>
 #include <agidl_mmu_utils.h>
-
-#include "agidl_cc_core.h"
-#include "agidl_math_utils.h"
-#include "agidl_img_error.h"
-#include "agidl_file_utils.h"
+#include <agidl_cc_core.h>
+#include <agidl_math_utils.h>
+#include <agidl_img_error.h>
+#include <agidl_file_utils.h>
 
 /********************************************
 *   Adaptive Graphics Image Display Library
@@ -18,23 +16,30 @@
 *   Library: libagidl
 *   File: agidl_img_pvr.c
 *   Date: 10/28/2023
-*   Version: 0.1b
-*   Updated: 3/14/2024
+*   Version: 0.4b
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 
 void AGIDL_SetPVRFilename(AGIDL_PVR* pvr, const char* filename){
-	pvr->filename = (char*)realloc(pvr->filename,strlen(filename));
-	AGIDL_FilenameCpy(pvr->filename,filename);
+	if(pvr->filename != NULL){
+		free(pvr->filename);
+		pvr->filename = (char*)malloc(strlen(filename)+1);
+		AGIDL_FilenameCpy(pvr->filename,filename);
+	}
+	else{
+		pvr->filename = (char*)malloc(strlen(filename)+1);
+		AGIDL_FilenameCpy(pvr->filename,filename);
+	}
 }
 
-void AGIDL_PVRSetWidth(AGIDL_PVR* pvr, int width){
+void AGIDL_PVRSetWidth(AGIDL_PVR* pvr, u32 width){
 	pvr->header.width = width;
 	pvr->mheader.width = width;
 }
 
-void AGIDL_PVRSetHeight(AGIDL_PVR* pvr, int height){
+void AGIDL_PVRSetHeight(AGIDL_PVR* pvr, u32 height){
 	pvr->header.height = height;
 	pvr->mheader.height = height;
 }
@@ -155,7 +160,7 @@ void AGIDL_PVRCopyPix16(AGIDL_PVR* pvr, COLOR16* clrs, u32 count){
 	}
 }
 
-int AGIDL_PVRGetWidth(AGIDL_PVR* pvr){
+u32 AGIDL_PVRGetWidth(AGIDL_PVR* pvr){
 	if(pvr->pvr_type == DREAMCAST_PVR){
 		return pvr->header.width;
 	}
@@ -166,7 +171,7 @@ u32 AGIDL_PVRGetSize(AGIDL_PVR* pvr){
 	return AGIDL_PVRGetWidth(pvr) * AGIDL_PVRGetHeight(pvr);
 }
 
-int AGIDL_PVRGetHeight(AGIDL_PVR* pvr){
+u32 AGIDL_PVRGetHeight(AGIDL_PVR* pvr){
 	if(pvr->pvr_type == DREAMCAST_PVR){
 		return pvr->header.height;
 	}
@@ -555,7 +560,7 @@ void AGIDL_PVREncodeHeader(AGIDL_PVR* pvr, FILE* file){
 		pvr->header.id2 = t << 24 | r << 16 | v << 8 | p;
 		pvr->header.file_size = 30 + (2 * AGIDL_PVRGetWidth(pvr) * AGIDL_PVRGetHeight(pvr));
 		
-		if(pvr->fmt == AGIDL_RGB_565 && pvr->fmt == AGIDL_BGR_565){
+		if(pvr->fmt == AGIDL_RGB_565 || pvr->fmt == AGIDL_BGR_565){
 			pvr->header.pvr_clr_fmt = PVR_RGB_565;
 		}
 		else{
@@ -647,7 +652,7 @@ void AGIDL_PVREncodeHeader(AGIDL_PVR* pvr, FILE* file){
 		AGIDL_WriteLong(file,1);
 		AGIDL_WriteLong(file,1);
 		AGIDL_WriteLong(file,1);
-		if(pvr->mipped = TRUE){
+		if(pvr->mipped == TRUE){
 			AGIDL_WriteLong(file,count);
 		}
 		else{

@@ -9,17 +9,17 @@
 *   Library: libagidl
 *   File: agidl_img_tim.h
 *   Date: 9/19/2023
-*   Version: 0.1b
-*   Updated: 2/26/2024
+*   Version: 0.4b
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 
 #include <stdio.h>
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_types.h"
-#include "agidl_cc_manager.h"
+#include <agidl_types.h>
+#include <agidl_cc_types.h>
+#include <agidl_img_types.h>
+#include <agidl_cc_manager.h>
 
 #define TIM_MAGIC 0x10
 
@@ -47,8 +47,8 @@ typedef struct IMG_HEADER{
 	u32 img_size;
 	u16 img_mem_add_x;
 	u16 img_mem_add_y;
-	u16 width;
-	u16 height;
+	u32 width;
+	u32 height;
 }IMG_HEADER;
 
 typedef struct AGIDL_TIM{
@@ -66,8 +66,8 @@ typedef struct AGIDL_TIM{
 }AGIDL_TIM;
 
 void AGIDL_SetTIMFilename(AGIDL_TIM *tim, const char *filename);
-void AGIDL_TIMSetWidth(AGIDL_TIM *tim, int width);
-void AGIDL_TIMSetHeight(AGIDL_TIM *tim, int height);
+void AGIDL_TIMSetWidth(AGIDL_TIM *tim, u32 width);
+void AGIDL_TIMSetHeight(AGIDL_TIM *tim, u32 height);
 void AGIDL_TIMSetClrFmt(AGIDL_TIM *tim, AGIDL_CLR_FMT fmt);
 void AGIDL_TIMSetClr(AGIDL_TIM *tim, int x, int y, COLOR clr);
 void AGIDL_TIMSetClr16(AGIDL_TIM *tim, int x, int y, COLOR16 clr);
@@ -81,8 +81,8 @@ void AGIDL_ClearTIM(AGIDL_TIM *tim, COLOR clr);
 void AGIDL_ClearTIM16(AGIDL_TIM *tim, COLOR16 clr);
 void AGIDL_ClearColorTIM(AGIDL_TIM* tim, float r, float g, float b);
 void AGIDL_FlushTIM(AGIDL_TIM* tim);
-int AGIDL_TIMGetWidth(AGIDL_TIM *tim);
-int AGIDL_TIMGetHeight(AGIDL_TIM *tim);
+u32 AGIDL_TIMGetWidth(AGIDL_TIM *tim);
+u32 AGIDL_TIMGetHeight(AGIDL_TIM *tim);
 u32 AGIDL_TIMGetSize(AGIDL_TIM* tim);
 int AGIDL_TIMGetMaxDiff(AGIDL_TIM *tim);
 AGIDL_CLR_FMT AGIDL_TIMGetClrFmt(AGIDL_TIM *tim);

@@ -6,16 +6,16 @@
 *   Library: libagidl
 *   File: agidl_gd_display.c
 *   Date: 2/1/2024
-*   Version: 0.3b
-*   Updated: 2/25/2024
+*   Version: 0.4b
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
-#include "agidl_gd_display.h"
-#include "agidl_cc_manager.h"
-#include "agidl_cc_mixer.h"
+#include <agidl_gd_display.h>
+#include <agidl_cc_manager.h>
+#include <agidl_cc_mixer.h>
 
-void AGIDL_DispImgData(void* vram, u32 width, u32 height, AGIDL_ATTR table, void* spr, u32 widths, u32 heights, AGIDL_CLR_FMT fmt){
+void AGIDL_DispImgData(void* vram, u32 width, u32 height, AGIDL_ATTR table, const void* spr, u32 widths, u32 heights, AGIDL_CLR_FMT fmt){
 	if(AGIDL_GetBitCount(fmt) == 16){
 		COLOR16* vram16 = (COLOR16*)vram;
 		COLOR16* spr16 = (COLOR16*)spr;
@@ -352,7 +352,7 @@ void AGIDL_DispImgData(void* vram, u32 width, u32 height, AGIDL_ATTR table, void
 	}
 }
 
-void AGIDL_DrawImgData(void* vram, u32 width, u32 height, int tx, int ty, void* spr, u32 widths, u32 heights, AGIDL_CLR_FMT fmt){
+void AGIDL_DrawImgData(void* vram, u32 width, u32 height, int tx, int ty, const void* spr, u32 widths, u32 heights, AGIDL_CLR_FMT fmt){
 	if(AGIDL_GetBitCount(fmt) == 16){
 		COLOR16* vram16 = (COLOR16*)vram;
 		COLOR16* spr16 = (COLOR16*)spr;
@@ -395,7 +395,7 @@ void AGIDL_DrawImgData(void* vram, u32 width, u32 height, int tx, int ty, void* 
 	}
 }
 
-void AGIDL_DispScaleImgData(void* vram, u32 width, u32 height, f32 sx, f32 sy, int tx, int ty, void* spr, u32 widths, u32 heights, AGIDL_CLR_FMT fmt){
+void AGIDL_DispScaleImgData(void* vram, u32 width, u32 height, f32 sx, f32 sy, int tx, int ty, const void* spr, u32 widths, u32 heights, AGIDL_CLR_FMT fmt){
 	if(AGIDL_GetBitCount(fmt) == 16){
 		COLOR16* vram16 = (COLOR16*)vram;
 		COLOR16* spr16 = (COLOR16*)spr;
@@ -465,7 +465,7 @@ void AGIDL_DispScaleImgData(void* vram, u32 width, u32 height, f32 sx, f32 sy, i
 	}
 }
 
-void AGIDL_DispFlipHorzImgData(void* vram, u32 width, u32 height, int tx, int ty, void* spr, u32 widths, u32 heights, AGIDL_CLR_FMT fmt){
+void AGIDL_DispFlipHorzImgData(void* vram, u32 width, u32 height, int tx, int ty, const void* spr, u32 widths, u32 heights, AGIDL_CLR_FMT fmt){
 	if(AGIDL_GetBitCount(fmt) == 16){
 		COLOR16* vram16 = (COLOR16*)vram;
 		COLOR16* spr16 = (COLOR16*)spr;
@@ -508,7 +508,7 @@ void AGIDL_DispFlipHorzImgData(void* vram, u32 width, u32 height, int tx, int ty
 	}
 }
 
-void AGIDL_DispFlipVertImgData(void* vram, u32 width, u32 height, int tx, int ty, void* spr, u32 widths, u32 heights, AGIDL_CLR_FMT fmt){
+void AGIDL_DispFlipVertImgData(void* vram, u32 width, u32 height, int tx, int ty, const void* spr, u32 widths, u32 heights, AGIDL_CLR_FMT fmt){
 	if(AGIDL_GetBitCount(fmt) == 16){
 		COLOR16* vram16 = (COLOR16*)vram;
 		COLOR16* spr16 = (COLOR16*)spr;
@@ -551,7 +551,7 @@ void AGIDL_DispFlipVertImgData(void* vram, u32 width, u32 height, int tx, int ty
 	}
 }
 
-void AGIDL_DispFlipHorzAndVertImgData(void* vram, u32 width, u32 height, int tx, int ty, void* spr, u32 widths, u32 heights, AGIDL_CLR_FMT fmt){
+void AGIDL_DispFlipHorzAndVertImgData(void* vram, u32 width, u32 height, int tx, int ty, const void* spr, u32 widths, u32 heights, AGIDL_CLR_FMT fmt){
 	if(AGIDL_GetBitCount(fmt) == 16){
 		COLOR16* vram16 = (COLOR16*)vram;
 		COLOR16* spr16 = (COLOR16*)spr;
@@ -647,7 +647,7 @@ void AGIDL_DispPVR(void* vram, u32 width, u32 height, AGIDL_ATTR table, AGIDL_PV
 		AGIDL_DispImgData(vram,width,height,table,pvr->pixels.pix32,AGIDL_PVRGetWidth(pvr),AGIDL_PVRGetHeight(pvr),AGIDL_PVRGetClrFmt(pvr));
 	}
 }
-
+ 
 void AGIDL_DispGXT(void* vram, u32 width, u32 height, AGIDL_ATTR table, AGIDL_GXT* gxt){
 	if(AGIDL_GetBitCount(AGIDL_GXTGetClrFmt(gxt)) == 16){
 		AGIDL_DispImgData(vram,width,height,table,gxt->pixels.pix16,AGIDL_GXTGetWidth(gxt),AGIDL_GXTGetHeight(gxt),AGIDL_GXTGetClrFmt(gxt));
@@ -891,3 +891,4 @@ void AGIDL_DispScaleLBM(void* vram, u32 width, u32 height, f32 sx, f32 sy, int t
 	}
 }
 
+ 

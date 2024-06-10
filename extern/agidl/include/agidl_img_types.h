@@ -9,14 +9,14 @@
 *   Library: libagidl
 *   File: agidl_img_types.h
 *   Date: 9/15/2023
-*   Version: 0.1b
-*   Updated: 2/25/2024
+*   Version: 0.4b
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 
 #include <stdio.h>
-#include "agidl_cc_types.h"
+#include <agidl_cc_types.h>
 
 #define NO_ICP 0
 #define YES_ICP 1
@@ -84,8 +84,8 @@ void AGIDL_RGBA2RGB(COLOR* rgba, int width, int height, AGIDL_CLR_FMT* fmt);
 void AGIDL_555TO565(COLOR16* src, int width, int height, AGIDL_CLR_FMT *fmt);
 void AGIDL_565TO555(COLOR16* src, int width, int height, AGIDL_CLR_FMT *fmt);
 u8* AGIDL_GenerateRGBBuffer(void* data, int width, int height, AGIDL_CLR_FMT fmt);
-u8* AGIDL_GenerateRGBABuffer(COLOR* src, int width, int height, AGIDL_CLR_FMT fmt);
-u8* AGIDL_GenerateBGRBuffer(COLOR* src, int width, int height, AGIDL_CLR_FMT fmt);
+u8* AGIDL_GenerateRGBABuffer(COLOR* clrs, int width, int height, AGIDL_CLR_FMT fmt);
+u8* AGIDL_GenerateBGRBuffer(COLOR* clrs, int width, int height, AGIDL_CLR_FMT fmt);
 COLOR* AGIDL_RGBSyncClrs(u8* rgbbuff, int width, int height, AGIDL_CLR_FMT fmt);
 COLOR* AGIDL_RGBASyncClrs(u8* rgbbuf, int width, int height, AGIDL_CLR_FMT fmt);
 void AGIDL_FreeClrs(COLOR* clrs);

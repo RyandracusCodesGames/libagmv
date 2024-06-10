@@ -2,13 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "agidl_img_gxt.h"
-
+#include <agidl_img_gxt.h>
 #include <agidl_mmu_utils.h>
-
-#include "agidl_cc_core.h"
-#include "agidl_math_utils.h"
-#include "agidl_img_error.h"
+#include <agidl_cc_core.h>
+#include <agidl_math_utils.h>
+#include <agidl_img_error.h>
+#include <agidl_file_utils.h>
 
 /********************************************
 *   Adaptive Graphics Image Display Library
@@ -18,22 +17,29 @@
 *   Library: libagidl
 *   File: agidl_img_gxt.c
 *   Date: 11/19/2023
-*   Version: 0.1b
-*   Updated: 2/21/2024
+*   Version: 0.4b
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 
 void AGIDL_SetGXTFilename(AGIDL_GXT* gxt, const char* filename){
-	gxt->filename = (char*)realloc(gxt->filename,strlen(filename));
-	AGIDL_FilenameCpy(gxt->filename,filename);
+	if(gxt->filename != NULL){
+		free(gxt->filename);
+		gxt->filename = (char*)malloc(strlen(filename)+1);
+		AGIDL_FilenameCpy(gxt->filename,filename);
+	}
+	else{
+		gxt->filename = (char*)malloc(strlen(filename)+1);
+		AGIDL_FilenameCpy(gxt->filename,filename);
+	}
 }
 
-void AGIDL_GXTSetWidth(AGIDL_GXT* gxt, int width){
+void AGIDL_GXTSetWidth(AGIDL_GXT* gxt, u32 width){
 	gxt->header.header.width = width;
 }
 
-void AGIDL_GXTSetHeight(AGIDL_GXT* gxt, int height){
+void AGIDL_GXTSetHeight(AGIDL_GXT* gxt, u32 height){
 	gxt->header.header.height = height;
 }
 
@@ -112,11 +118,11 @@ void AGIDL_FlushGXT(AGIDL_GXT* gxt){
 	AGIDL_ClearGXT(gxt,0);
 }
 
-int AGIDL_GXTGetWidth(AGIDL_GXT* gxt){
+u32 AGIDL_GXTGetWidth(AGIDL_GXT* gxt){
 	return gxt->header.header.width;
 }
 
-int AGIDL_GXTGetHeight(AGIDL_GXT* gxt){
+u32 AGIDL_GXTGetHeight(AGIDL_GXT* gxt){
 	return gxt->header.header.height;
 }
 
@@ -272,19 +278,22 @@ AGIDL_GXT* AGIDL_GXTCpyImg(AGIDL_GXT* gxt){
 }
 
 void AGIDL_FreeGXT(AGIDL_GXT* gxt){
-	free(gxt->filename);
+	if(gxt->filename != NULL){
+		free(gxt->filename);
+		gxt->filename = NULL;
+	}
 	
 	if(AGIDL_GetBitCount(AGIDL_GXTGetClrFmt(gxt)) == 16){
-		free(gxt->pixels.pix16);
+		if(gxt->pixels.pix16 != NULL){
+			free(gxt->pixels.pix16);
+			gxt->pixels.pix16 = NULL;
+		}
 	}
 	else{
-		free(gxt->pixels.pix32);
-	}
-	
-	free(gxt);
-	
-	if(gxt != NULL){
-		gxt = NULL;
+		if(gxt->pixels.pix32 != NULL){
+			free(gxt->pixels.pix32);
+			gxt->pixels.pix32 = NULL;
+		}
 	}
 }
 
@@ -486,7 +495,8 @@ int AGIDL_GXTDecodeTextureHeader(AGIDL_GXT* gxt, FILE* file){
 	
 	gxt->header.header.fmt = AGIDL_GetGXTClrFmt(tex_type);
 	
-	fread(&gxt->header.header.width,2,1,file);
+	gxt->header.header.width = AGIDL_ReadShort(file);
+	gxt->header.header.height = AGIDL_ReadShort(file);
 	fread(&gxt->header.header.height,2,1,file);
 	fread(&gxt->header.header.mipmaps,2,1,file);
 	fread(&gxt->header.header.blank,2,1,file);

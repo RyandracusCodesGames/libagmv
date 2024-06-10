@@ -1,14 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "agidl_img_pcx.h"
-
+#include <agidl_img_pcx.h>
 #include <agidl_mmu_utils.h>
-
-#include "agidl_cc_core.h"
-#include "agidl_img_compression.h"
-#include "agidl_img_error.h"
-#include "agidl_file_utils.h"
+#include <agidl_cc_core.h>
+#include <agidl_img_compression.h>
+#include <agidl_img_error.h>
+#include <agidl_file_utils.h>
 
 /********************************************
 *   Adaptive Graphics Image Display Library
@@ -18,22 +16,29 @@
 *   Library: libagidl
 *   File: agidl_img_pcx.c
 *   Date: 9/25/2023
-*   Version: 0.1b
-*   Updated: 4/14/2024
+*   Version: 0.4b
+*   Updated: 6/10/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 
 void AGIDL_SetPCXFilename(AGIDL_PCX *pcx, const char* filename){
-	pcx->filename = (char*)realloc(pcx->filename,strlen(filename));
-	AGIDL_FilenameCpy(pcx->filename,filename);
+	if(pcx->filename != NULL){
+		free(pcx->filename);
+		pcx->filename = (char*)malloc(strlen(filename)+1);
+		AGIDL_FilenameCpy(pcx->filename,filename);
+	}
+	else{
+		pcx->filename = (char*)malloc(strlen(filename)+1);
+		AGIDL_FilenameCpy(pcx->filename,filename);
+	}
 }
 
-void AGIDL_PCXSetWidth(AGIDL_PCX *pcx, int width){
+void AGIDL_PCXSetWidth(AGIDL_PCX *pcx, u32 width){
 	pcx->header.width = width;
 }
 
-void AGIDL_PCXSetHeight(AGIDL_PCX *pcx, int height){
+void AGIDL_PCXSetHeight(AGIDL_PCX *pcx, u32 height){
 	pcx->header.height = height;
 }
 
@@ -140,11 +145,11 @@ void AGIDL_PCXCopyPix16(AGIDL_PCX* pcx, COLOR16* clrs, u32 count){
 	}
 }
 
-int AGIDL_PCXGetWidth(AGIDL_PCX *pcx){
+u32 AGIDL_PCXGetWidth(AGIDL_PCX *pcx){
 	return pcx->header.width;
 }
 
-int AGIDL_PCXGetHeight(AGIDL_PCX *pcx){
+u32 AGIDL_PCXGetHeight(AGIDL_PCX *pcx){
 	return pcx->header.height;
 }
 
@@ -173,18 +178,26 @@ COLOR16 AGIDL_PCXGetClr16(AGIDL_PCX *pcx, int x, int y){
 }
 
 void AGIDL_FreePCX(AGIDL_PCX *pcx){
-	free(pcx->filename);
+	if(pcx->filename != NULL){
+		free(pcx->filename);
+		pcx->filename = NULL;
+	}
 	
 	if(AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx)) == 16){
-		free(pcx->pixels.pix16);
+		if(pcx->pixels.pix16 != NULL){
+			free(pcx->pixels.pix16);
+			pcx->pixels.pix16 = NULL;
+		}
 	}
 	else{
-		free(pcx->pixels.pix32);
+		if(pcx->pixels.pix32 != NULL){
+			free(pcx->pixels.pix32);
+			pcx->pixels.pix32 = NULL;
+		}
 	}
 	
-	free(pcx);
-	
 	if(pcx != NULL){
+		free(pcx);
 		pcx = NULL;
 	}
 }
@@ -289,75 +302,6 @@ AGIDL_PCX* AGIDL_PCXCpyImg(AGIDL_PCX* pcx){
 	return pcxcpy;
 }
 
-u16 binmul[9] = {1,2,4,8,16,32,64,128,256};
-
-u16 bin2dec(char *binary){
-	u16 accumulation = 0;
-	int i, count = 0;
-	for(i = strlen(binary)-1; i >= 0; i--){
-		int bin;
-		if(binary[i] == '0'){
-			bin = 0;
-		}
-		if(binary[i] == '1'){
-			bin = 1;
-		}
-		accumulation += binmul[count] * bin;
-		count++;
-	}
-	return accumulation;
-}
-
-char* dec2bin(u16 number){
-	char *bin = (char*)malloc(sizeof(char)*9);
-	int i;
-	for(i = 7; i >= 0; i--){
-		int k = number >> i;
-		if(k & 1){
-			bin[7-i] = '1';
-		}
-		else{
-			bin[7-i] = '0';
-		}
-	}
-	bin[8] = '\0';
-	return bin;
-}
-
-char* pcxrlebits(char *binary){
-	char *bin = (char*)malloc(sizeof(char)*7);
-	int i;
-	for(i = 2; i <= 7; i++){
-		bin[i-2] = binary[i];
-	}
-	bin[6] = '\0';
-	return bin;
-}
-
-u16 little_endianify(u16 number){
-	u8 lsb = (number & 0xff);
-	u8 msb = (number & 0xff00) >> 8;
-	
-	printf("Little Endianifying - %d\n",number);
-	printf("lsb - %d\n",lsb);
-	printf("msb - %d\n",msb);
-	printf("Little Endianified - %d\n",(lsb << 8 | msb));
-	
-	return lsb << 8 | msb;
-}
-
-u16 big_endianify(u16 number){
-	u8 msb = (number & 0xff);
-	u8 lsb = (number & 0xff00) >> 8;
-	
-	printf("Big Endianifying - %d\n",number);
-	printf("lsb - %d\n",lsb);
-	printf("msb - %d\n",msb);
-	printf("Big Endianified - %d\n",(msb << 8 | lsb));
-	
-	return msb << 8 | lsb;
-}
-
 int contains_icp(FILE *file, u32 *pal_coord){
 	fseek(file,0,SEEK_END);
 	
@@ -381,6 +325,13 @@ int contains_icp(FILE *file, u32 *pal_coord){
 		return 1;
 	}
 	else return 0;
+}
+
+u16 little_endianify(u16 number){
+	u8 lsb = (number & 0xff);
+	u8 msb = (number & 0xff00) >> 8;
+	
+	return lsb << 8 | msb;
 }
 
 int AGIDL_PCXDecodeHeader(AGIDL_PCX* pcx, FILE* file){
@@ -430,7 +381,7 @@ int AGIDL_PCXDecodeHeader(AGIDL_PCX* pcx, FILE* file){
 	}
 	
 	if(pcx->header.id != 10 || !(pcx->header.version == 0 || pcx->header.version == 2 || pcx->header.version == 3 || pcx->header.version == 4 
-	   || pcx->header.version == 5) || !(pcx->header.pal_type == 1 || pcx->header.pal_type == 2)){
+	   || pcx->header.version == 5)){
 		return INVALID_HEADER_FORMATTING_ERROR;
 	}
 	else if(pcx->header.x_end > 4096 || pcx->header.y_end > 4096){
@@ -446,6 +397,8 @@ void AGIDL_PCXDecodeIMG(AGIDL_PCX* pcx, FILE* file){
 	if(pcx->header.bits == 16){
 		AGIDL_PCXSetClrFmt(pcx,AGIDL_RGB_555);
 	}
+	
+	u32 width = AGIDL_PCXGetWidth(pcx), height = AGIDL_PCXGetHeight(pcx);
 	
 	int scanlinelength = (pcx->header.bytesperline * pcx->header.numbitplanes);
 	
@@ -467,41 +420,30 @@ void AGIDL_PCXDecodeIMG(AGIDL_PCX* pcx, FILE* file){
 		fseek(file,128,SEEK_SET);
 		
 		int scanline;
-		for(scanline = 0; scanline < AGIDL_PCXGetHeight(pcx); scanline++){		
+		for(scanline = 0; scanline < height; scanline++){		
 			u8 *buf = (u8*)malloc(sizeof(u8)*scanlinelength);
 			
 			int count = 0;
 			while(count < scanlinelength){
+				
 				u8 byte = AGIDL_ReadByte(file);
+				u8 fbit = (byte >> 7) & 1;
+				u8 sbit = (byte >> 6) & 1;
+				u8 bot  = (byte & 0x3f);
 				
-				if(count < 1){
-				//	printf("first incoming byte 0x%x\n",byte);
-				}
-				
-				char* bin = dec2bin(byte);
-				
-			//	printf("bin - %s\n",bin);
-				
-				if(bin[0] == '1' && bin[1] == '1'){
-					char* byte = pcxrlebits(bin);
-					u16 rle = bin2dec(byte);
-				//	printf("rle byte - %s\n",byte);
-					free(bin);
-					free(byte);
-				//	printf("rle - %d\n",rle);
+				if(fbit == 1 && sbit == 1){
+					u16 rle = bot;
 					u8 read = AGIDL_ReadByte(file);
 					int i;
 					for(i = 0; i < rle; i++){
-						buf[count] = read;
-						count++;
-					//	printf("count - %d\n",count);
+						buf[count++] = read;
 					}
 				}
 				else{
 					int iszero = 1;
 					int zero;
-					for(zero = 0; zero < 8; zero++){
-						if(bin[zero] != '0'){
+					for(zero = 1; zero < 8; zero++){
+						if((byte >> zero) != 0){
 							iszero = 0;
 						}
 					}
@@ -510,13 +452,11 @@ void AGIDL_PCXDecodeIMG(AGIDL_PCX* pcx, FILE* file){
 						buf[count] = 0;
 						count++;
 					//	printf("non-rle count - %d\n",count);
-						free(bin);
 					}
 					else{
 						buf[count] = byte;
 						count++;
 				//		printf("non-rle count - %d\n",count);
-						free(bin);
 					}
 				}
 			}
@@ -524,14 +464,14 @@ void AGIDL_PCXDecodeIMG(AGIDL_PCX* pcx, FILE* file){
 			//printf("Pixel Processing Beginning...\n");
 			if(pcx->header.bits == 24 || pcx->header.bits == 8){
 				int x;
-				for(x = 0; x < AGIDL_PCXGetWidth(pcx); x++){
+				for(x = 0; x < width; x++){
 					COLOR clr = AGIDL_RGB(buf[roffset+x],buf[goffset+x],buf[boffset+x],AGIDL_RGB_888);
 					AGIDL_PCXSetClr(pcx,x,scanline,clr);
 				}
 			}
 			else{
 				int x;
-				for(x = 0; x < AGIDL_PCXGetWidth(pcx); x++){
+				for(x = 0; x < width; x++){
 					COLOR16 clr = AGIDL_RGB(buf[roffset+x],buf[goffset+x],buf[boffset+x],AGIDL_RGB_555);
 					AGIDL_PCXSetClr16(pcx,x,scanline,clr);
 				}
@@ -554,27 +494,21 @@ void AGIDL_PCXDecodeIMG(AGIDL_PCX* pcx, FILE* file){
 		fseek(file,128,SEEK_SET);
 		
 		int scanline;
-		for(scanline = 0; scanline < AGIDL_PCXGetHeight(pcx); scanline++){		
+		for(scanline = 0; scanline < height; scanline++){		
 			u8 *buf = (u8*)malloc(sizeof(u8)*scanlinelength);
 			
 			int count = 0;
 			while(count < scanlinelength){
 				u8 byte = AGIDL_ReadByte(file);
-				
-				if(count < 1){
-					//printf("first incoming byte 0x%x\n",byte);
-				}
-				
-				char* bin = dec2bin(byte);
+				u8 fbit = (byte >> 7) & 1;
+				u8 sbit = (byte >> 6) & 1;
+				u8 bot  = (byte & 0x3f);
 				
 			//	printf("bin - %s\n",bin);
 				
-				if(bin[0] == '1' && bin[1] == '1'){
-					char* byte = pcxrlebits(bin);
-					u16 rle = bin2dec(byte);
+				if(sbit == 1 && fbit == 1){
+					u16 rle = bot;
 				//	printf("rle byte - %s\n",byte);
-					free(bin);
-					free(byte);
 				//	printf("rle - %d\n",rle);
 					u8 read = AGIDL_ReadByte(file);
 					int i;
@@ -587,8 +521,8 @@ void AGIDL_PCXDecodeIMG(AGIDL_PCX* pcx, FILE* file){
 				else{
 					int iszero = 1;
 					int zero;
-					for(zero = 0; zero < 8; zero++){
-						if(bin[zero] != '0'){
+					for(zero = 1; zero < 8; zero++){
+						if((byte >> zero) != 0){
 							iszero = 0;
 						}
 					}
@@ -597,13 +531,11 @@ void AGIDL_PCXDecodeIMG(AGIDL_PCX* pcx, FILE* file){
 						buf[count] = 0;
 						count++;
 				//		printf("non-rle count - %d\n",count);
-						free(bin);
 					}
 					else{
 						buf[count] = byte;
 						count++;
 			//			printf("non-rle count - %d\n",count);
-						free(bin);
 					}
 				}
 			}
@@ -611,7 +543,7 @@ void AGIDL_PCXDecodeIMG(AGIDL_PCX* pcx, FILE* file){
 		//	printf("Pixel Processing Beginning...\n");
 			
 			int x;
-			for(x = 0; x < AGIDL_PCXGetWidth(pcx); x++){
+			for(x = 0; x < width; x++){
 				COLOR clr = pcx->palette.icp.palette_256[buf[x]];
 				AGIDL_PCXSetClr(pcx,x,scanline,clr);
 			}
@@ -684,9 +616,12 @@ void AGIDL_PCXEncodeICP(AGIDL_PCX* pcx){
 		int pass = 0;
 		u8 pal_index = 0;
 		
+		u32 width = AGIDL_PCXGetWidth(pcx);
+		u32 height = AGIDL_PCXGetHeight(pcx);
+		
 		int x,y;
-		for(y = 0; y < AGIDL_PCXGetHeight(pcx); y++){
-			for(x = 0; x < AGIDL_PCXGetWidth(pcx); x++){
+		for(y = 0; y < height; y++){
+			for(x = 0; x < width; x++){
 				COLOR clr = AGIDL_PCXGetClr(pcx,x,y);
 				
 				AGIDL_AddColorICP(&pcx->palette,pal_index,clr,AGIDL_PCXGetClrFmt(pcx),AGIDL_PCXGetMaxDiff(pcx),&pass);
@@ -729,15 +664,18 @@ void AGIDL_PCXEncodeImg(AGIDL_PCX* pcx, FILE* file){
 		}break;
 	}
 	
+	u32 width = AGIDL_PCXGetWidth(pcx);
+	u32 height = AGIDL_PCXGetHeight(pcx);
+	
 	if(pcx->icp != 1){
-		int scanlinelength = AGIDL_PCXGetWidth(pcx) * 3;
+		int scanlinelength = width * 3;
 		
-		int roffset = 0, goffset = AGIDL_PCXGetWidth(pcx), boffset = goffset*2;
+		int roffset = 0, goffset = width, boffset = goffset*2;
 		
 		int scanline, x;
-		for(scanline = 0; scanline <= AGIDL_PCXGetHeight(pcx); scanline++){
+		for(scanline = 0; scanline <= height; scanline++){
 			u8 *buf = (u8*)malloc(sizeof(u8)*scanlinelength);
-			for(x = 0; x < AGIDL_PCXGetWidth(pcx); x++){
+			for(x = 0; x < width; x++){
 				if(AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx)) == 32){
 					COLOR clr = AGIDL_PCXGetClr(pcx,x,scanline);
 					u8 r = AGIDL_GetR(clr,AGIDL_PCXGetClrFmt(pcx));
@@ -763,42 +701,24 @@ void AGIDL_PCXEncodeImg(AGIDL_PCX* pcx, FILE* file){
 				
 				if(x_count >= goffset){
 				
-					count = AGIDL_PCXGetWidth(pcx) - x;
+					count = width - x;
 					
-					char* bin = dec2bin(count);
-			
-					bin[0] = '1'; bin[1] = '1';
-					
-					u8 byte = bin2dec(bin);
+					u8 byte = 1 << 7 | 1 << 6 | count;
 					u8 data = buf[x];
 					
 					AGIDL_WriteByte(file,byte);
 					AGIDL_WriteByte(file,data);
 					
 					x += count - 1;
-					
-					if(scanline <= 24)
-						//printf("too much x - %d, %d\n",x,count);
-					
-					free(bin);
 					
 				}else{
-					char* bin = dec2bin(count);
-			
-					bin[0] = '1'; bin[1] = '1';
-					
-					u8 byte = bin2dec(bin);
+					u8 byte = 1 << 7 | 1 << 6 | count;
 					u8 data = buf[x];
 					
 					AGIDL_WriteByte(file,byte);
 					AGIDL_WriteByte(file,data);
 					
 					x += count - 1;
-					
-					if(scanline <= 24)
-						//printf("much x - %d, %d\n",x,count);
-					
-					free(bin);
 				}
 				
 			}
@@ -813,36 +733,24 @@ void AGIDL_PCXEncodeImg(AGIDL_PCX* pcx, FILE* file){
 				
 				if(x_count >= boffset){
 				
-					count = (AGIDL_PCXGetWidth(pcx)*2) - x;
+					count = (width*2) - x;
 					
-					char* bin = dec2bin(count);
-			
-					bin[0] = '1'; bin[1] = '1';
-					
-					u8 byte = bin2dec(bin);
+					u8 byte = 1 << 7 | 1 << 6 | count;
 					u8 data = buf[x];
 					
 					AGIDL_WriteByte(file,byte);
 					AGIDL_WriteByte(file,data);
 					
 					x += count - 1;
-					
-					free(bin);
 					
 				}else{
-					char* bin = dec2bin(count);
-			
-					bin[0] = '1'; bin[1] = '1';
-					
-					u8 byte = bin2dec(bin);
+					u8 byte = 1 << 7 | 1 << 6 | count;
 					u8 data = buf[x];
 					
 					AGIDL_WriteByte(file,byte);
 					AGIDL_WriteByte(file,data);
 					
 					x += count - 1;
-					
-					free(bin);
 				}
 				
 			}
@@ -854,20 +762,13 @@ void AGIDL_PCXEncodeImg(AGIDL_PCX* pcx, FILE* file){
 					x_count++;
 				}
 				
-				char* bin = dec2bin(count);
-			
-				bin[0] = '1'; bin[1] = '1';
-				
-				u8 byte = bin2dec(bin);
+				u8 byte = 1 << 7 | 1 << 6 | count;
 				u8 data = buf[x];
 				
 				AGIDL_WriteByte(file,byte);
 				AGIDL_WriteByte(file,data);
 				
 				x += count - 1;
-				
-				free(bin);
-				
 			}
 				free(buf);
 		}
@@ -876,10 +777,10 @@ void AGIDL_PCXEncodeImg(AGIDL_PCX* pcx, FILE* file){
 		AGIDL_PCXEncodeICP(pcx);
 	
 		int x,y;
-		for(y = 0; y < AGIDL_PCXGetHeight(pcx); y++){
-			for(x = 0; x < AGIDL_PCXGetWidth(pcx); x++){
+		for(y = 0; y < height; y++){
+			for(x = 0; x < width; x++){
 				u32 color = AGIDL_PCXGetClr(pcx,x,y);
-				u32 rle = AGIDL_EncodeRLE(pcx->pixels.pix32,24,x,y,AGIDL_PCXGetWidth(pcx),AGIDL_PCXGetHeight(pcx),62);
+				u32 rle = AGIDL_EncodeRLE(pcx->pixels.pix32,24,x,y,width,height,62);
 
 				u8 index = AGIDL_FindNearestColor(pcx->palette,color,AGIDL_PCXGetClrFmt(pcx));
 				u8 byte = 1 << 7 | 1 << 6 | rle;

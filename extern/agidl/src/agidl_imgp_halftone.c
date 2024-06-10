@@ -6,23 +6,23 @@
 *   Library: libagidl
 *   File: agidl_imgp_halftone.c
 *   Date: 1/27/2024
-*   Version: 0.2b
-*   Updated: 1/28/2024
+*   Version: 0.4b
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 
 #include <stdlib.h>
 #include <string.h>
-#include "agidl_imgp_grayscale.h"
-#include "agidl_imgp_halftone.h"
-#include "agidl_math_utils.h"
-#include "agidl_cc_manager.h"
+#include <agidl_imgp_grayscale.h>
+#include <agidl_imgp_halftone.h>
+#include <agidl_math_utils.h>
+#include <agidl_cc_manager.h>
 
-void AGIDL_HalftoneImgData(void* data, u16 width, u16 height, AGIDL_CLR_FMT fmt, u8 threshold){
+void AGIDL_HalftoneImgData(void* data, u32 width, u32 height, AGIDL_CLR_FMT fmt, u8 threshold){
 	AGIDL_GrayscaleImgData(data,width,height,fmt);
 	
-	if(fmt == 16){
+	if(AGIDL_GetBitCount(fmt) == 16){
 		COLOR16* clr_data = (COLOR16*)data;
 		
 		float c[2][3], sump = 0, t = 0;
@@ -35,6 +35,8 @@ void AGIDL_HalftoneImgData(void* data, u16 width, u16 height, AGIDL_CLR_FMT fmt,
 		
 		memset(ep,0,width*height);
 		memset(eg,0,width*height);
+		
+		threshold = AGIDL_Clamp(0,threshold,31);
 		
 		int i,j,xx,yy;
 		

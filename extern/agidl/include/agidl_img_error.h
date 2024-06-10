@@ -10,12 +10,12 @@
 *   File: agidl_img_error.h
 *   Date: 1/19/2023
 *   Version: 0.2b
-*   Updated: 1/19/2024
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 
-#include "agidl_types.h"
+#include <agidl_types.h>
 
 typedef enum AGIDL_IMG_ERROR{
 	NO_IMG_ERROR = 0x0,

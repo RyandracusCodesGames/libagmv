@@ -6,15 +6,15 @@
 *   Library: libagidl
 *   File: agidl_imgp_font.c
 *   Date: 12/25/2023
-*   Version: 0.2b
-*   Updated: 1/19/2024
+*   Version: 0.4b
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 #include <stdlib.h>
 #include <string.h>
-#include "agidl_imgp_font.h"
-#include "agidl_cc_core.h"
+#include <agidl_imgp_font.h>
+#include <agidl_cc_core.h>
 
 AGIDL_GlyphList* AGIDL_CreateGlyphList(){
 	AGIDL_GlyphList* list = (AGIDL_GlyphList*)malloc(sizeof(AGIDL_GlyphList));
@@ -166,15 +166,15 @@ void AGIDL_DestroyFont(AGIDL_FONT* font){
 void AGIDL_AddLetter(AGIDL_FONT* font, char c, void* data){
 	if(AGIDL_FindNode(font->list,c) != 1){
 		if(AGIDL_GetBitCount(font->fmt) == 16){
-			COLOR16 clrdata = (COLOR16*)data;
-			COLOR16 cpy = (COLOR16*)malloc(sizeof(COLOR16)*font->width*font->height);
+			COLOR16* clrdata = (COLOR16*)data;
+			COLOR16* cpy = (COLOR16*)malloc(sizeof(COLOR16)*font->width*font->height);
 			AGIDL_ClrMemcpy16(cpy,clrdata,font->width*font->height);
 			AGIDL_AddNode(font->list,c,cpy,font->width,font->height);
 			font->num_of_letters++;
 		}
 		else{
-			COLOR clrdata = (COLOR*)data;
-			COLOR cpy = (COLOR*)malloc(sizeof(COLOR)*font->width*font->height);
+			COLOR* clrdata = (COLOR*)data;
+			COLOR* cpy = (COLOR*)malloc(sizeof(COLOR)*font->width*font->height);
 			AGIDL_ClrMemcpy(cpy,clrdata,font->width*font->height);
 			AGIDL_AddNode(font->list,c,cpy,font->width,font->height);
 			font->num_of_letters++;

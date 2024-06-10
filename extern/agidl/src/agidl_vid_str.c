@@ -7,19 +7,19 @@
 *   File: agidl_vid_str.c
 *   Date: 3/15/2024
 *   Version: 0.4b
-*   Updated: 3/16/2024
+*   Updated: 6/10/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 #include <stdlib.h>
 #include <string.h>
-#include "agidl_vid_str.h"
-#include "agidl_mmu_utils.h"
-#include "agidl_file_utils.h"
-#include "agidl_img_error.h"
-#include "agidl_img_core.h"
-#include "agidl_math_utils.h"
-#include "agidl_img_bmp.h"
+#include <agidl_vid_str.h>
+#include <agidl_mmu_utils.h>
+#include <agidl_file_utils.h>
+#include <agidl_img_error.h>
+#include <agidl_img_core.h>
+#include <agidl_math_utils.h>
+#include <agidl_img_bmp.h>
 
 const int PSX_QUANTIZATION_TABLE[64] = {	
 	2, 16, 19, 22, 26, 27, 29, 34,

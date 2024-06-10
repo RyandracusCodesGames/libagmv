@@ -6,17 +6,17 @@
 *   Library: libagidl
 *   File: agidl_imgp_wrap.c
 *   Date: 12/13/2023
-*   Version: 0.2b
-*   Updated: 1/19/2024
+*   Version: 0.4b
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 #include <stdlib.h>
-#include "agidl_imgp_wrap.h"
+#include <agidl_imgp_wrap.h>
 
-void * AGIDL_WrapImgData(void* data, u16* width, u16 height, AGIDL_CLR_FMT fmt, u8 num_of_wraps){
+void * AGIDL_WrapImgData(void* data, u32* width, u32 height, AGIDL_CLR_FMT fmt, u8 num_of_wraps){
 	if(AGIDL_GetBitCount(fmt) == 24 || AGIDL_GetBitCount(fmt) == 32){
-		u16 w = *width;
+		u32 w = *width;
 		
 		COLOR* clrs = (COLOR*)data;
 		COLOR* wrap = (COLOR*)malloc(sizeof(COLOR)*(w*num_of_wraps)*height);
@@ -39,7 +39,7 @@ void * AGIDL_WrapImgData(void* data, u16* width, u16 height, AGIDL_CLR_FMT fmt, 
 		return wrap;
 	}
 	else{
-		u16 w = *width;
+		u32 w = *width;
 		
 		COLOR16* clrs = (COLOR16*)data;
 		COLOR16* wrap = (COLOR16*)malloc(sizeof(COLOR16)*(w*num_of_wraps)*height);
@@ -63,12 +63,12 @@ void * AGIDL_WrapImgData(void* data, u16* width, u16 height, AGIDL_CLR_FMT fmt, 
 	}
 }
 
-void * AGIDL_WrapAndMirrorImgData(void* data, u16* width, u16* height, AGIDL_CLR_FMT fmt, u8 num_of_wraps, AGIDL_MIRROR mirror){
+void * AGIDL_WrapAndMirrorImgData(void* data, u32* width, u32* height, AGIDL_CLR_FMT fmt, u8 num_of_wraps, AGIDL_MIRROR mirror){
 	if(AGIDL_GetBitCount(fmt) == 24 || AGIDL_GetBitCount(fmt) == 32){
 		COLOR* clrs = (COLOR*)data;
 		
-		u16 glacew = *width;
-		u16 glaceh = *height;
+		u32 glacew = *width;
+		u32 glaceh = *height;
 		
 		COLOR* glace = (COLOR*)AGIDL_MirrorImgData(clrs,&glacew,&glaceh,fmt,mirror);
 		
@@ -95,8 +95,8 @@ void * AGIDL_WrapAndMirrorImgData(void* data, u16* width, u16* height, AGIDL_CLR
 	else{
 		COLOR16* clrs = (COLOR16*)data;
 		
-		u16 glacew = *width;
-		u16 glaceh = *height;
+		u32 glacew = *width;
+		u32 glaceh = *height;
 		
 		COLOR16* glace = (COLOR16*)AGIDL_MirrorImgData(clrs,&glacew,&glaceh,fmt,mirror);
 		

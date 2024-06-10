@@ -886,11 +886,11 @@ Linker script and memory map
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000     0x5682
+.debug_info     0x00000000     0x5659
  *(.debug_info)
- .debug_info    0x00000000     0x5241 main.o
- .debug_info    0x00005241      0x41b C:/devkitPro/libgba/lib\libgba.a(interrupt.o)
- .debug_info    0x0000565c       0x26 C:/devkitPro/libgba/lib\libgba.a(InterruptDispatcher.o)
+ .debug_info    0x00000000     0x5218 main.o
+ .debug_info    0x00005218      0x41b C:/devkitPro/libgba/lib\libgba.a(interrupt.o)
+ .debug_info    0x00005633       0x26 C:/devkitPro/libgba/lib\libgba.a(InterruptDispatcher.o)
 
 .debug_abbrev   0x00000000      0x90e
  *(.debug_abbrev)
@@ -898,11 +898,11 @@ Linker script and memory map
  .debug_abbrev  0x0000070c      0x1ee C:/devkitPro/libgba/lib\libgba.a(interrupt.o)
  .debug_abbrev  0x000008fa       0x14 C:/devkitPro/libgba/lib\libgba.a(InterruptDispatcher.o)
 
-.debug_line     0x00000000     0x4f45
+.debug_line     0x00000000     0x4f13
  *(.debug_line)
- .debug_line    0x00000000     0x48e5 main.o
- .debug_line    0x000048e5      0x5ae C:/devkitPro/libgba/lib\libgba.a(interrupt.o)
- .debug_line    0x00004e93       0xb2 C:/devkitPro/libgba/lib\libgba.a(InterruptDispatcher.o)
+ .debug_line    0x00000000     0x48b3 main.o
+ .debug_line    0x000048b3      0x5ae C:/devkitPro/libgba/lib\libgba.a(interrupt.o)
+ .debug_line    0x00004e61       0xb2 C:/devkitPro/libgba/lib\libgba.a(InterruptDispatcher.o)
 
 .debug_frame    0x00000000      0x3f8
  *(.debug_frame)
@@ -1058,14 +1058,14 @@ OUTPUT(C:/Users/ryand/OneDrive/Desktop/AGMV/examples/simple_gba_video/simple_gba
 LOAD linker stubs
 
 .debug_loclists
-                0x00000000     0x4c0e
+                0x00000000     0x4c03
  .debug_loclists
-                0x00000000     0x4c0e main.o
+                0x00000000     0x4c03 main.o
 
 .debug_rnglists
-                0x00000000      0xf93
+                0x00000000      0xf84
  .debug_rnglists
-                0x00000000      0xf93 main.o
+                0x00000000      0xf84 main.o
 
 .debug_ranges   0x00000000       0x70
  .debug_ranges  0x00000000       0x70 C:/devkitPro/libgba/lib\libgba.a(interrupt.o)

@@ -11,7 +11,7 @@
 *   File: agmvcli.c
 *   Date: 4/13/2024
 *   Version: 1.0
-*   Updated: 6/5/2024
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
@@ -78,7 +78,7 @@ int main(int argc, char* argv[]){
 	}
 	else{	
 		if(mode[0] == 'E' && mode[1] == 'N' && mode[2] == 'C'){
-			char filename[100], directory[30], basename[30], type[3], opt[10], qopt[6], compression[5], at[3], track[100];
+			char filename[100], directory[100], basename[100], type[10], opt[11], qopt[11], compression[11], at[11], track[100];
 			u32 start_frame, end_frame, width, height, fps;
 			fscanf(file,"%s %s %s %s %ld %ld %ld %ld %ld %s %s %s %s %s",filename,directory,basename,type,&start_frame,&end_frame,&width,&height,&fps,opt,qopt,compression,at,track);
 
@@ -145,7 +145,7 @@ int main(int argc, char* argv[]){
 			
 		}
 		else if(mode[0] == 'D' && mode[1] == 'E' && mode[2] == 'C'){
-			char directory[30], filename[30], img_type[4], audio_type[6];
+			char directory[30], filename[30], img_type[10], audio_type[10];
 			fscanf(file,"%s %s %s %s",directory,filename,img_type,audio_type);
 			
 			if(!IsAGIDLImage(img_type)){
@@ -287,8 +287,11 @@ AGMV_OPT GetAGMVOpt(char* opt){
 	else if(opt[0] == 'O' &&  opt[1] == 'P' && opt[2] == 'T' && opt[3] == '_' && opt[4] == 'G' && opt[5] == 'B' && opt[6] == 'A' && opt[7] == '_' && opt[8] == 'I' && opt[9] != 'I'){
 		return AGMV_OPT_GBA_I;
 	}
-	else if(opt[0] == 'O' &&  opt[1] == 'P' && opt[2] == 'T' && opt[3] == '_' && opt[4] == 'G' && opt[5] == 'B' && opt[6] == 'A' && opt[7] == '_' && opt[8] == 'I' && opt[9] == 'I' && opt[10] == 'I'){
+	else if(opt[0] == 'O' &&  opt[1] == 'P' && opt[2] == 'T' && opt[3] == '_' && opt[4] == 'G' && opt[5] == 'B' && opt[6] == 'A' && opt[7] == '_' && opt[8] == 'I' && opt[9] == 'I' && opt[10] != 'I'){
 		return AGMV_OPT_GBA_II;
+	}
+	else if(opt[0] == 'O' &&  opt[1] == 'P' && opt[2] == 'T' && opt[3] == '_' && opt[4] == 'G' && opt[5] == 'B' && opt[6] == 'A' && opt[7] == '_' && opt[8] == 'I' && opt[9] == 'I' && opt[10] == 'I'){
+		return AGMV_OPT_GBA_III;
 	}
 	else if(opt[0] == 'O' &&  opt[1] == 'P' && opt[2] == 'T' && opt[3] == '_' && opt[4] == 'A' && opt[5] == 'N' && opt[6] == 'I' && opt[7] == 'M'){
 		return AGMV_OPT_ANIM;

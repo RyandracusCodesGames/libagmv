@@ -15,9 +15,9 @@
 *
 ********************************************/
 
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_types.h"
+#include <agidl_types.h>
+#include <agidl_cc_types.h>
+#include <agidl_img_types.h>
 
 #define MAX_POINTS 512
 
@@ -34,7 +34,7 @@ typedef enum AGIDL_LIGHT_DIR{
 }AGIDL_LIGHT_DIR;
 
 typedef struct AGIDL_Point{
-	u16 x,y;
+	u32 x,y;
 	u8 size;
 	float bias;
 	int inv;
@@ -44,45 +44,45 @@ typedef struct AGIDL_Point{
 
 typedef struct AGIDL_LIGHTMAP{
 	AGIDL_LIGHT light;
-	u16 width, height;
+	u32 width, height;
 	AGIDL_CLR_FMT fmt;
 	AGIDL_Point points[MAX_POINTS];
-	u16 num_of_points;
+	u32 num_of_points;
 }AGIDL_LIGHTMAP;
 
-void AGIDL_BindLightmapAndImg(void* data, void* lightdata, u16 width, u16 height, u16 widthl, u16 heightl, AGIDL_CLR_FMT imgfmt, AGIDL_CLR_FMT lightfmt, AGIDL_LIGHT light, COLOR blend);
+void AGIDL_BindLightmapAndImg(void* data, void* lightdata, u32 width, u32 height, u32 widthl, u32 heightl, AGIDL_CLR_FMT imgfmt, AGIDL_CLR_FMT lightfmt, AGIDL_LIGHT light, COLOR blend);
 void * AGIDL_GenerateLightmapImgData(AGIDL_LIGHTMAP lightmap);
-AGIDL_Point AGIDL_CreateLightPoint(u16 x, u16 y, u8 size, float bias, int inv, AGIDL_LIGHT_DIR dir, COLOR clr);
+AGIDL_Point AGIDL_CreateLightPoint(u32 x, u32 y, u8 size, float bias, int inv, AGIDL_LIGHT_DIR dir, COLOR clr);
 void AGIDL_SetLight(AGIDL_LIGHTMAP* lightmap, AGIDL_LIGHT light);
-void AGIDL_SetWidth(AGIDL_LIGHTMAP* lightmap, u16 width);
-void AGIDL_SetHeight(AGIDL_LIGHTMAP* lightmap, u16 height);
+void AGIDL_SetWidth(AGIDL_LIGHTMAP* lightmap, u32 width);
+void AGIDL_SetHeight(AGIDL_LIGHTMAP* lightmap, u32 height);
 void AGIDL_SetClrFmt(AGIDL_LIGHTMAP* lightmap, AGIDL_CLR_FMT fmt);
-int IsInXRange(float bias, u16 x, u8 size, u16 width);
-int IsInYRange(float bias, u16 y, u8 size, u16 height);
+int IsInXRange(float bias, u32 x, u8 size, u32 width);
+int IsInYRange(float bias, u32 y, u8 size, u32 height);
 
-void AGIDL_InitLightmap(AGIDL_LIGHTMAP* lightmap, AGIDL_LIGHT light, u16 width, u16 height, AGIDL_CLR_FMT fmt);
+void AGIDL_InitLightmap(AGIDL_LIGHTMAP* lightmap, AGIDL_LIGHT light, u32 width, u32 height, AGIDL_CLR_FMT fmt);
 void AGIDL_AddLightPoint(AGIDL_LIGHTMAP* lightmap, AGIDL_Point point);
 
-void AGIDL_FloodLightRectNE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size);
-void AGIDL_FloodLightRectSE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size);
-void AGIDL_FloodLightRectNWTOSE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size);
-void AGIDL_FloodLightRectSETONW(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size);
+void AGIDL_FloodLightRectNE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size);
+void AGIDL_FloodLightRectSE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size);
+void AGIDL_FloodLightRectNWTOSE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size);
+void AGIDL_FloodLightRectSETONW(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size);
 
-void AGIDL_FloodInvLightRectNE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size);
-void AGIDL_FloodInvLightRectSE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size);
-void AGIDL_FloodInvLightRectNWTOSE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size);
-void AGIDL_FloodInvLightRectSETONW(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size);
+void AGIDL_FloodInvLightRectNE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size);
+void AGIDL_FloodInvLightRectSE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size);
+void AGIDL_FloodInvLightRectNWTOSE(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size);
+void AGIDL_FloodInvLightRectSETONW(COLOR* clrs, COLOR clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size);
 
-void AGIDL_FloodLightRectNE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size);
-void AGIDL_FloodLightRectSE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size);
-void AGIDL_FloodLightRectNWTOSE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size);
-void AGIDL_FloodLightRectSETONW16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size);
+void AGIDL_FloodLightRectNE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size);
+void AGIDL_FloodLightRectSE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size);
+void AGIDL_FloodLightRectNWTOSE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size);
+void AGIDL_FloodLightRectSETONW16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size);
 
-void AGIDL_FloodInvLightRectNE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size);
-void AGIDL_FloodInvLightRectSE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size);
-void AGIDL_FloodInvLightRectNWTOSE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size);
-void AGIDL_FloodInvLightRectSETONW16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u16 x, u16 y, u16 width, u16 height, float bias, u8 size);
+void AGIDL_FloodInvLightRectNE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size);
+void AGIDL_FloodInvLightRectSE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size);
+void AGIDL_FloodInvLightRectNWTOSE16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size);
+void AGIDL_FloodInvLightRectSETONW16(COLOR16* clrs, COLOR16 clr, float clrfactor, AGIDL_CLR_FMT fmt, u32 x, u32 y, u32 width, u32 height, float bias, u8 size);
 
-void AGIDL_RemoveLightPoint(AGIDL_LIGHTMAP* lightmap, u16 index);
+void AGIDL_RemoveLightPoint(AGIDL_LIGHTMAP* lightmap, u32 index);
 
 #endif

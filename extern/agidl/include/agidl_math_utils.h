@@ -9,13 +9,13 @@
 *   Library: libagidl
 *   File: agidl_math_utils.h
 *   Date: 10/22/2023
-*   Version: 0.1b
-*   Updated: 4/4/2024
+*   Version: 0.4b
+*   Updated: 6/9/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 
-#include "agidl_types.h"
+#include <agidl_types.h>
 
 #define AGIDL_PI 3.141592
 
