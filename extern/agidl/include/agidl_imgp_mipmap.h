@@ -14,11 +14,12 @@
 *   Author: Ryandracus Chapman
 *
 ********************************************/
+
+#include <agidl_cc_types.h>
+#include <agidl_img_types.h>
+#include <agidl_types.h>
+
 #include <stdio.h>
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_types.h"
-#include "agidl_imgp_scale.h"
 
 #define MAX_MIP_LVL 16
 
@@ -40,14 +41,14 @@ typedef struct AGIDL_MIPMAPP{
 }AGIDL_MIPMAP;
 
 AGIDL_MIPMAP* AGIDL_CreateMipmapMMU(u16 width, u16 height, AGIDL_CLR_FMT fmt, AGIDL_Bool IsLinear);
-AGIDL_MIPMAP* AGIDL_GenerateMipmapFromImgData(void* data, u16 width, u16 height, AGIDL_CLR_FMT fmt);
+AGIDL_MIPMAP* AGIDL_GenerateMipmapFromImgData(const void* data, u16 width, u16 height, AGIDL_CLR_FMT fmt);
 AGIDL_MIPMAP* AGIDL_LoadMipmapImgData(FILE* file, u16 width, u16 height, AGIDL_CLR_FMT fmt, u8 count, AGIDL_Bool IsLinear);
 void AGIDL_DestroyMipmapMMU(AGIDL_MIPMAP* mipmap);
-void AGIDL_ExportMipmap(AGIDL_MIPMAP* mipmap, AGIDL_IMG_TYPE img_type, AGIDL_Bool flip);
-void AGIDL_FilterBilerpMipmapLevel(AGIDL_MIPMAP* mipmap, u8 mip_lvl);
-void AGIDL_FilterBilerpMipmap(AGIDL_MIPMAP* mipmap);
-void AGIDL_ClearMipmapLevel(AGIDL_MIPMAP* mipmap, u8 mip_lvl);
-void AGIDL_RebuildMipmapLevel(AGIDL_MIPMAP* mipmap, u8 mip_lvl);
+void AGIDL_ExportMipmap(const AGIDL_MIPMAP* mipmap, AGIDL_IMG_TYPE img_type, AGIDL_Bool flip);
+void AGIDL_FilterBilerpMipmapLevel(const AGIDL_MIPMAP* mipmap, u8 mip_lvl);
+void AGIDL_FilterBilerpMipmap(const AGIDL_MIPMAP* mipmap);
+void AGIDL_ClearMipmapLevel(const AGIDL_MIPMAP* mipmap, u8 mip_lvl);
+void AGIDL_RebuildMipmapLevel(const AGIDL_MIPMAP* mipmap, u8 mip_lvl);
 void AGIDL_BlendMipmapLevel(AGIDL_MIPMAP* mipmap, u8 mip_lvl1, u8 mip_lvl2);
 
 #endif

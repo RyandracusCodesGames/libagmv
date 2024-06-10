@@ -15,11 +15,12 @@
 *
 ********************************************/
 
+#include <agidl_cc_manager.h>
+#include <agidl_cc_types.h>
+#include <agidl_img_types.h>
+#include <agidl_types.h>
+
 #include <stdio.h>
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_types.h"
-#include "agidl_cc_manager.h"
 
 typedef enum AGIDL_ILBM_TYPE{
 	TYPE_ILBM = 0x1,
@@ -127,28 +128,28 @@ void AGIDL_LBMSetICPEncoding(AGIDL_LBM* lbm, AGIDL_ICP_ENCODE encode);
 void AGIDL_LBMSetMaxDiff(AGIDL_LBM* lbm, int max_diff);
 void AGIDL_LBMSetCompression(AGIDL_LBM* lbm, AGIDL_Bool compress);
 void AGIDL_LBMSetType(AGIDL_LBM* lbm, AGIDL_ILBM_TYPE type);
-void AGIDL_LBMSetClr(AGIDL_LBM* lbm, int x, int y, COLOR clr);
-void AGIDL_LBMSetClr16(AGIDL_LBM* lbm, int x, int y, COLOR16 clr);
-void AGIDL_LBMSetRGB(AGIDL_LBM* lbm, int x, int y, u8 r, u8 g, u8 b);
-void AGIDL_LBMSetRGBA(AGIDL_LBM* lbm, int x, int y, u8 r, u8 g, u8 b, u8 a);
-void AGIDL_LBMSetColor3f(AGIDL_LBM* lbm, int x, int y, f32 r, f32 g, f32 b);
-void AGIDL_LBMSetColor4f(AGIDL_LBM* lbm, int x, int y, f32 r, f32 g, f32 b, f32 a);
-void AGIDL_ClearLBM(AGIDL_LBM* lbm, COLOR clr);
-void AGIDL_ClearLBM16(AGIDL_LBM* lbm, COLOR16 clr);
-void AGIDL_ClearColorLBM(AGIDL_LBM* lbm, float r, float g, float b);
-void AGIDL_FlushLBM(AGIDL_LBM* lbm);
-u32 AGIDL_LBMGetWidth(AGIDL_LBM* lbm);
-u32 AGIDL_LBMGetHeight(AGIDL_LBM* lbm);
-u32 AGIDL_LBMGetSize(AGIDL_LBM* lbm);
-AGIDL_CLR_FMT AGIDL_LBMGetClrFmt(AGIDL_LBM* lbm);
-int AGIDL_LBMGetMaxDiff(AGIDL_LBM* lbm);
-AGIDL_ILBM_TYPE AGIDL_LBMGetType(AGIDL_LBM* lbm);
-COLOR AGIDL_LBMGetClr(AGIDL_LBM* lbm, int x, int y);
-COLOR16 AGIDL_LBMGetClr16(AGIDL_LBM* lbm, int, int y);
-void AGIDL_LBMSyncPix(AGIDL_LBM *lbm, COLOR *clrs);
-void AGIDL_LBMSyncPix16(AGIDL_LBM *lbm, COLOR16 *clrs);
-void AGIDL_LBMCopyPix(AGIDL_LBM* lbm, COLOR* clrs, u32 count);
-void AGIDL_LBMCopyPix16(AGIDL_LBM* lbm, COLOR16* clrs, u32 count);
+void AGIDL_LBMSetClr(const AGIDL_LBM* lbm, int x, int y, COLOR clr);
+void AGIDL_LBMSetClr16(const AGIDL_LBM* lbm, int x, int y, COLOR16 clr);
+void AGIDL_LBMSetRGB(const AGIDL_LBM* lbm, int x, int y, u8 r, u8 g, u8 b);
+void AGIDL_LBMSetRGBA(const AGIDL_LBM* lbm, int x, int y, u8 r, u8 g, u8 b, u8 a);
+void AGIDL_LBMSetColor3f(const AGIDL_LBM* lbm, int x, int y, f32 r, f32 g, f32 b);
+void AGIDL_LBMSetColor4f(const AGIDL_LBM* lbm, int x, int y, f32 r, f32 g, f32 b, f32 a);
+void AGIDL_ClearLBM(const AGIDL_LBM* lbm, COLOR clr);
+void AGIDL_ClearLBM16(const AGIDL_LBM* lbm, COLOR16 clr);
+void AGIDL_ClearColorLBM(const AGIDL_LBM* lbm, float r, float g, float b);
+void AGIDL_FlushLBM(const AGIDL_LBM* lbm);
+u32 AGIDL_LBMGetWidth(const AGIDL_LBM* lbm);
+u32 AGIDL_LBMGetHeight(const AGIDL_LBM* lbm);
+u32 AGIDL_LBMGetSize(const AGIDL_LBM* lbm);
+AGIDL_CLR_FMT AGIDL_LBMGetClrFmt(const AGIDL_LBM* lbm);
+int AGIDL_LBMGetMaxDiff(const AGIDL_LBM* lbm);
+AGIDL_ILBM_TYPE AGIDL_LBMGetType(const AGIDL_LBM* lbm);
+COLOR AGIDL_LBMGetClr(const AGIDL_LBM* lbm, int x, int y);
+COLOR16 AGIDL_LBMGetClr16(const AGIDL_LBM* lbm, int, int y);
+void AGIDL_LBMSyncPix(const AGIDL_LBM *lbm, const COLOR *clrs);
+void AGIDL_LBMSyncPix16(const AGIDL_LBM *lbm, const COLOR16 *clrs);
+void AGIDL_LBMCopyPix(const AGIDL_LBM* lbm, const COLOR* clrs, u32 count);
+void AGIDL_LBMCopyPix16(const AGIDL_LBM* lbm, const COLOR16* clrs, u32 count);
 void AGIDL_FreeLBM(AGIDL_LBM* lbm);
 void AGIDL_LBMRGB2BGR(AGIDL_LBM* lbm);
 void AGIDL_LBMBGR2RGB(AGIDL_LBM* lbm);
@@ -162,13 +163,13 @@ void AGIDL_LBMConvertRGB2RGBA(AGIDL_LBM* lbm);
 void AGIDL_ColorConvertLBM(AGIDL_LBM* lbm, AGIDL_CLR_FMT dest);
 
 int AGIDL_LBMDecodeHeader(AGIDL_LBM* lbm, FILE* file);
-void AGIDL_LBMDecompressData(AGIDL_LBM* lbm, u8* src, u8* dest);
-void AGIDL_LBMDeinterleaveData(AGIDL_LBM* lbm, u8* src, u8* dest);
+void AGIDL_LBMDecompressData(AGIDL_LBM* lbm, const u8* src, u8* dest);
+void AGIDL_LBMDeinterleaveData(const AGIDL_LBM* lbm, const u8* src, u8* dest);
 void AGIDL_LBMDecodeIMG(AGIDL_LBM* lbm);
-void AGIDL_LBMEncodeHeader(AGIDL_LBM* lbm, FILE* file);
+void AGIDL_LBMEncodeHeader(const AGIDL_LBM* lbm, FILE* file);
 void AGIDL_LBMEncodeICP(AGIDL_LBM* lbm);
 void AGIDL_LMPEncodeNearestICP(AGIDL_LBM* lbm, AGIDL_ICP palette);
-void AGIDL_LBMEncodeIMG(AGIDL_LBM* lbm, FILE* file);
+void AGIDL_LBMEncodeIMG(const AGIDL_LBM* lbm, FILE* file);
 
 AGIDL_LBM * AGIDL_CreateLBM(const char* filename, int width, int height, AGIDL_CLR_FMT fmt);
 AGIDL_LBM * AGIDL_LBMCopyImg(AGIDL_LBM* lbm);

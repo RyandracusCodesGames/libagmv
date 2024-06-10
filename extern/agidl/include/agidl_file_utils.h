@@ -15,9 +15,10 @@
 *
 ********************************************/
 
+#include <agidl_cc_types.h>
+#include <agidl_types.h>
+
 #include <stdio.h>
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
 
 void AGIDL_InitBigEndArch();
 void AGIDL_DisableBigEndArch();
@@ -39,12 +40,12 @@ void AGIDL_ReadBufBGR(FILE* file, COLOR* clr, u32 width, u32 height);
 void AGIDL_ReadBufRGBA(FILE* file, COLOR* clr, u32 width, u32 height);
 void AGIDL_ReadBufBGRA(FILE* file, COLOR* clr, u32 width, u32 height);
 
-void AGIDL_WriteBufRGB16(FILE* file, COLOR16* buf, u32 width, u32 height);
-void AGIDL_WriteBufClr16(FILE* file, COLOR16* buf, u32 width, u32 height);
-void AGIDL_WriteBufRGB(FILE* file, COLOR* clr, u32 width, u32 height);
-void AGIDL_WriteBufBGR(FILE* file, COLOR* clr, u32 width, u32 height);
-void AGIDL_WriteBufRGBA(FILE* file, COLOR* clr, u32 width, u32 height);
-void AGIDL_WriteBufBGRA(FILE* file, COLOR* clr, u32 width, u32 height, AGIDL_CLR_FMT fmt);
+void AGIDL_WriteBufRGB16(FILE* file, const COLOR16* buf, u32 width, u32 height);
+void AGIDL_WriteBufClr16(FILE* file, const COLOR16* buf, u32 width, u32 height);
+void AGIDL_WriteBufRGB(FILE* file, const COLOR* clr, u32 width, u32 height);
+void AGIDL_WriteBufBGR(FILE* file, const COLOR* clr, u32 width, u32 height);
+void AGIDL_WriteBufRGBA(FILE* file, const COLOR* clr, u32 width, u32 height);
+void AGIDL_WriteBufBGRA(FILE* file, const COLOR* clr, u32 width, u32 height, AGIDL_CLR_FMT fmt);
 
 void AGIDL_PrintFourCC(FILE* file, char f, char o, char u, char r);
 void AGIDL_ReadNBytes(FILE* file, u8* buf, int n);

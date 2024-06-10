@@ -15,11 +15,12 @@
 *
 ********************************************/
 
+#include <agidl_cc_manager.h>
+#include <agidl_cc_types.h>
+#include <agidl_img_types.h>
+#include <agidl_types.h>
+
 #include <stdio.h>
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_types.h"
-#include "agidl_cc_manager.h"
 
 typedef enum TGA_ICP_TYPE{
 	TGA_IMG_TYPE_ICP = 1,
@@ -66,25 +67,25 @@ void AGIDL_SetTGAFilename(AGIDL_TGA *tga, const char *filename);
 void AGIDL_TGASetWidth(AGIDL_TGA *tga, int width);
 void AGIDL_TGASetHeight(AGIDL_TGA *tga, int height);
 void AGIDL_TGASetClrFmt(AGIDL_TGA *tga, AGIDL_CLR_FMT fmt);
-void AGIDL_TGASetClr(AGIDL_TGA *tga, int x, int y, COLOR clr);
-void AGIDL_TGASetClr16(AGIDL_TGA *tga, int x, int y, COLOR16 clr);
-void AGIDL_TGASetRGB(AGIDL_TGA *tga, int x, int y, u8 r, u8 g, u8 b);
-void AGIDL_TGASetRGBA(AGIDL_TGA* tga, int x, int y, u8 r, u8 g, u8 b, u8 a);
+void AGIDL_TGASetClr(const AGIDL_TGA *tga, int x, int y, COLOR clr);
+void AGIDL_TGASetClr16(const AGIDL_TGA *tga, int x, int y, COLOR16 clr);
+void AGIDL_TGASetRGB(const AGIDL_TGA *tga, int x, int y, u8 r, u8 g, u8 b);
+void AGIDL_TGASetRGBA(const AGIDL_TGA* tga, int x, int y, u8 r, u8 g, u8 b, u8 a);
 void AGIDL_TGASetMaxDiff(AGIDL_TGA* tga, int max_diff);
 void AGIDL_TGASetICPMode(AGIDL_TGA *tga, int mode);
 void AGIDL_TGASetICPEncoding(AGIDL_TGA* tga, AGIDL_ICP_ENCODE encode);
 void AGIDL_TGASetCompression(AGIDL_TGA* tga, int compress);
-void AGIDL_ClearTGA(AGIDL_TGA *tga, COLOR clr);
-void AGIDL_ClearTGA16(AGIDL_TGA *tga, COLOR16 clr);
-void AGIDL_ClearColorTGA(AGIDL_TGA* tga, float r, float g, float b);
-void AGIDL_FlushTGA(AGIDL_TGA* tga);
-int AGIDL_TGAGetWidth(AGIDL_TGA *tga);
-int AGIDL_TGAGetHeight(AGIDL_TGA *tga);
-u32 AGIDL_TGAGetSize(AGIDL_TGA* tga);
-int AGIDL_TGAGetMaxDiff(AGIDL_TGA *tga);
-AGIDL_CLR_FMT AGIDL_TGAGetClrFmt(AGIDL_TGA* tga);
-COLOR AGIDL_TGAGetClr(AGIDL_TGA *tga, int x, int y);
-COLOR16 AGIDL_TGAGetClr16(AGIDL_TGA *tga, int x, int y);
+void AGIDL_ClearTGA(const AGIDL_TGA *tga, COLOR clr);
+void AGIDL_ClearTGA16(const AGIDL_TGA *tga, COLOR16 clr);
+void AGIDL_ClearColorTGA(const AGIDL_TGA* tga, float r, float g, float b);
+void AGIDL_FlushTGA(const AGIDL_TGA* tga);
+int AGIDL_TGAGetWidth(const AGIDL_TGA *tga);
+int AGIDL_TGAGetHeight(const AGIDL_TGA *tga);
+u32 AGIDL_TGAGetSize(const AGIDL_TGA* tga);
+int AGIDL_TGAGetMaxDiff(const AGIDL_TGA *tga);
+AGIDL_CLR_FMT AGIDL_TGAGetClrFmt(const AGIDL_TGA* tga);
+COLOR AGIDL_TGAGetClr(const AGIDL_TGA *tga, int x, int y);
+COLOR16 AGIDL_TGAGetClr16(const AGIDL_TGA *tga, int x, int y);
 void AGIDL_FreeTGA(AGIDL_TGA *tga);
 void AGIDL_TGARGB2BGR(AGIDL_TGA *tga);
 void AGIDL_TGABGR2RGB(AGIDL_TGA *tga);
@@ -93,23 +94,23 @@ void AGIDL_TGAConvert24BPPTO16BPP(AGIDL_TGA *tga);
 void AGIDL_TGAConvert555TO565(AGIDL_TGA *tga);
 void AGIDL_TGAConvert565TO555(AGIDL_TGA *tga);
 void AGIDL_ColorConvertTGA(AGIDL_TGA* tga, AGIDL_CLR_FMT dest);
-void AGIDL_TGASyncPix(AGIDL_TGA *tga, COLOR *clrs);
-void AGIDL_TGASyncPix16(AGIDL_TGA *tga, COLOR16 *clrs);
-void AGIDL_TGACopyPix(AGIDL_TGA* tga, COLOR* clrs, u32 count);
-void AGIDL_TGACopyPix16(AGIDL_TGA* tga, COLOR16* clrs, u32 count);
+void AGIDL_TGASyncPix(const AGIDL_TGA *tga, const COLOR *clrs);
+void AGIDL_TGASyncPix16(const AGIDL_TGA *tga, const COLOR16 *clrs);
+void AGIDL_TGACopyPix(const AGIDL_TGA* tga, const COLOR* clrs, u32 count);
+void AGIDL_TGACopyPix16(const AGIDL_TGA* tga, const COLOR16* clrs, u32 count);
 AGIDL_TGA * AGIDL_LoadTGA(char *filename);
 AGIDL_TGA * AGIDL_CreateTGA(const char *filename, int width, int height, AGIDL_CLR_FMT fmt);
 void AGIDL_ExportTGA(AGIDL_TGA *tga);
 TGA_ICP_TYPE AGIDL_TGAGetICPType(int num);
 TGA_IMG_TYPE AGIDL_TGAGetIMGType(int bits);
-int AGIDL_IsTGA(AGIDL_TGA* tga);
+int AGIDL_IsTGA(const AGIDL_TGA* tga);
 int AGIDL_TGADecodeHeader(AGIDL_TGA* tga, FILE* file);
-void AGIDL_TGAEncodeNearestICP(AGIDL_TGA* tga, AGIDL_ICP palette, FILE* file);
+void AGIDL_TGAEncodeNearestICP(const AGIDL_TGA* tga, AGIDL_ICP palette, FILE* file);
 void AGIDL_TGADecodeIMG(AGIDL_TGA *tga, FILE* file, TGA_ICP_TYPE icp, TGA_IMG_TYPE img_type);
 void AGIDL_TGADecodeRLE(AGIDL_TGA *tga, FILE* file, TGA_ICP_TYPE icp, TGA_IMG_TYPE img_type);
 void AGIDL_TGAEncodeHeader(AGIDL_TGA* tga, FILE* file);
-void AGIDL_TGAEncodeIMG(AGIDL_TGA* tga, FILE* file);
+void AGIDL_TGAEncodeIMG(const AGIDL_TGA* tga, FILE* file);
 void AGIDL_TGAEncodeICP(AGIDL_TGA* tga, FILE* file);
-void AGIDL_TGAEncodeRLE(AGIDL_TGA* tga, FILE* file);
-AGIDL_TGA* AGIDL_TGACpyImg(AGIDL_TGA* tga);
+void AGIDL_TGAEncodeRLE(const AGIDL_TGA* tga, FILE* file);
+AGIDL_TGA* AGIDL_TGACpyImg(const AGIDL_TGA* tga);
 #endif

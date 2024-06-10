@@ -11,12 +11,12 @@
 *   Author: Ryandracus Chapman
 *
 ********************************************/
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "agidl_img_converter.h"
 
-AGIDL_TGA* AGIDL_ConvertBMP2TGA(AGIDL_BMP* bmp){
+#include <agidl_img_converter.h>
+
+#include <stdlib.h>
+
+AGIDL_TGA* AGIDL_ConvertBMP2TGA(const AGIDL_BMP* bmp){
 	char* imgname = AGIDL_GetImgName(bmp->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_TGA);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -31,8 +31,8 @@ AGIDL_TGA* AGIDL_ConvertBMP2TGA(AGIDL_BMP* bmp){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_BMPGetClrFmt(bmp));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_BMPGetClrFmt(bmp));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_TGASyncPix(tga,bmp->pixels.pix32);
@@ -43,7 +43,7 @@ AGIDL_TGA* AGIDL_ConvertBMP2TGA(AGIDL_BMP* bmp){
 	return tga;
 }
 
-AGIDL_TIM* AGIDL_ConvertBMP2TIM(AGIDL_BMP* bmp){
+AGIDL_TIM* AGIDL_ConvertBMP2TIM(const AGIDL_BMP* bmp){
 	char* imgname = AGIDL_GetImgName(bmp->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_TIM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -56,8 +56,8 @@ AGIDL_TIM* AGIDL_ConvertBMP2TIM(AGIDL_BMP* bmp){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_BMPGetClrFmt(bmp));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_BMPGetClrFmt(bmp));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_TIMSyncPix(tim,bmp->pixels.pix32);
@@ -68,7 +68,7 @@ AGIDL_TIM* AGIDL_ConvertBMP2TIM(AGIDL_BMP* bmp){
 	return tim;
 }
 
-AGIDL_PCX* AGIDL_ConvertBMP2PCX(AGIDL_BMP* bmp){
+AGIDL_PCX* AGIDL_ConvertBMP2PCX(const AGIDL_BMP* bmp){
 	char* imgname = AGIDL_GetImgName(bmp->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PCX);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -79,8 +79,8 @@ AGIDL_PCX* AGIDL_ConvertBMP2PCX(AGIDL_BMP* bmp){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_BMPGetClrFmt(bmp));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_BMPGetClrFmt(bmp));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PCXSyncPix(pcx,bmp->pixels.pix32);
@@ -91,7 +91,7 @@ AGIDL_PCX* AGIDL_ConvertBMP2PCX(AGIDL_BMP* bmp){
 	return pcx;
 }
 
-AGIDL_LMP* AGIDL_ConvertBMP2LMP(AGIDL_BMP* bmp){
+AGIDL_LMP* AGIDL_ConvertBMP2LMP(const AGIDL_BMP* bmp){
 	char* imgname = AGIDL_GetImgName(bmp->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_LMP);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -104,8 +104,8 @@ AGIDL_LMP* AGIDL_ConvertBMP2LMP(AGIDL_BMP* bmp){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_BMPGetClrFmt(bmp));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_BMPGetClrFmt(bmp));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_LMPSyncPix(lmp,bmp->pixels.pix32);
@@ -116,7 +116,7 @@ AGIDL_LMP* AGIDL_ConvertBMP2LMP(AGIDL_BMP* bmp){
 	return lmp;
 }
 
-AGIDL_PVR* AGIDL_ConvertBMP2PVR(AGIDL_BMP* bmp){
+AGIDL_PVR* AGIDL_ConvertBMP2PVR(const AGIDL_BMP* bmp){
 	char* imgname = AGIDL_GetImgName(bmp->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PVR);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -128,8 +128,8 @@ AGIDL_PVR* AGIDL_ConvertBMP2PVR(AGIDL_BMP* bmp){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_BMPGetClrFmt(bmp));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_BMPGetClrFmt(bmp));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PVRSyncPix(pvr,bmp->pixels.pix32);
@@ -140,7 +140,7 @@ AGIDL_PVR* AGIDL_ConvertBMP2PVR(AGIDL_BMP* bmp){
 	return pvr;
 }
 
-AGIDL_GXT* AGIDL_ConvertBMP2GXT(AGIDL_BMP* bmp){
+AGIDL_GXT* AGIDL_ConvertBMP2GXT(const AGIDL_BMP* bmp){
 	char* imgname = AGIDL_GetImgName(bmp->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_GXT);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -153,8 +153,8 @@ AGIDL_GXT* AGIDL_ConvertBMP2GXT(AGIDL_BMP* bmp){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_BMPGetClrFmt(bmp));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_BMPGetClrFmt(bmp));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_GXTSyncPix(gxt,bmp->pixels.pix32);
@@ -165,7 +165,7 @@ AGIDL_GXT* AGIDL_ConvertBMP2GXT(AGIDL_BMP* bmp){
 	return gxt;
 }
 
-AGIDL_BTI* AGIDL_ConvertBMP2BTI(AGIDL_BMP* bmp){
+AGIDL_BTI* AGIDL_ConvertBMP2BTI(const AGIDL_BMP* bmp){
 	char* imgname = AGIDL_GetImgName(bmp->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_BTI);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -178,8 +178,8 @@ AGIDL_BTI* AGIDL_ConvertBMP2BTI(AGIDL_BMP* bmp){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_BMPGetClrFmt(bmp));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_BMPGetClrFmt(bmp));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_BTISyncPix(bti,bmp->pixels.pix32);
@@ -190,7 +190,7 @@ AGIDL_BTI* AGIDL_ConvertBMP2BTI(AGIDL_BMP* bmp){
 	return bti;
 }
 
-AGIDL_3DF* AGIDL_ConvertBMP23DF(AGIDL_BMP* bmp){
+AGIDL_3DF* AGIDL_ConvertBMP23DF(const AGIDL_BMP* bmp){
 	char* imgname = AGIDL_GetImgName(bmp->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_3DF);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -204,8 +204,8 @@ AGIDL_3DF* AGIDL_ConvertBMP23DF(AGIDL_BMP* bmp){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_BMPGetClrFmt(bmp));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_BMPGetClrFmt(bmp));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_3DFSyncPix(glide,bmp->pixels.pix32);
@@ -216,7 +216,7 @@ AGIDL_3DF* AGIDL_ConvertBMP23DF(AGIDL_BMP* bmp){
 	return glide;
 }
 
-AGIDL_PPM* AGIDL_ConvertBMP2PPM(AGIDL_BMP* bmp){
+AGIDL_PPM* AGIDL_ConvertBMP2PPM(const AGIDL_BMP* bmp){
 	char* imgname = AGIDL_GetImgName(bmp->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PPM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -227,8 +227,8 @@ AGIDL_PPM* AGIDL_ConvertBMP2PPM(AGIDL_BMP* bmp){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_BMPGetClrFmt(bmp));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_BMPGetClrFmt(bmp));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PPMSyncPix(ppm,bmp->pixels.pix32);
@@ -239,7 +239,7 @@ AGIDL_PPM* AGIDL_ConvertBMP2PPM(AGIDL_BMP* bmp){
 	return ppm;
 }
 
-AGIDL_LBM* AGIDL_ConvertBMP2LBM(AGIDL_BMP* bmp){
+AGIDL_LBM* AGIDL_ConvertBMP2LBM(const AGIDL_BMP* bmp){
 	char* imgname = AGIDL_GetImgName(bmp->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_LBM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -254,8 +254,8 @@ AGIDL_LBM* AGIDL_ConvertBMP2LBM(AGIDL_BMP* bmp){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_BMPGetClrFmt(bmp));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_BMPGetClrFmt(bmp));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_LBMSyncPix(lbm,bmp->pixels.pix32);
@@ -266,7 +266,7 @@ AGIDL_LBM* AGIDL_ConvertBMP2LBM(AGIDL_BMP* bmp){
 	return lbm;
 }
 
-AGIDL_BMP* AGIDL_ConvertTGA2BMP(AGIDL_TGA* tga){
+AGIDL_BMP* AGIDL_ConvertTGA2BMP(const AGIDL_TGA* tga){
 	char* imgname = AGIDL_GetImgName(tga->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_BMP);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -280,8 +280,8 @@ AGIDL_BMP* AGIDL_ConvertTGA2BMP(AGIDL_TGA* tga){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_TGAGetClrFmt(tga));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_TGAGetClrFmt(tga));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_BMPSyncPix(bmp,tga->pixels.pix32);
@@ -292,7 +292,7 @@ AGIDL_BMP* AGIDL_ConvertTGA2BMP(AGIDL_TGA* tga){
 	return bmp;
 }
 
-AGIDL_TIM* AGIDL_ConvertTGA2TIM(AGIDL_TGA* tga){
+AGIDL_TIM* AGIDL_ConvertTGA2TIM(const AGIDL_TGA* tga){
 	char* imgname = AGIDL_GetImgName(tga->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_TIM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -305,8 +305,8 @@ AGIDL_TIM* AGIDL_ConvertTGA2TIM(AGIDL_TGA* tga){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_TGAGetClrFmt(tga));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_TGAGetClrFmt(tga));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_TIMSyncPix(tim,tga->pixels.pix32);
@@ -317,7 +317,7 @@ AGIDL_TIM* AGIDL_ConvertTGA2TIM(AGIDL_TGA* tga){
 	return tim;
 }
 
-AGIDL_PCX* AGIDL_ConvertTGA2PCX(AGIDL_TGA* tga){
+AGIDL_PCX* AGIDL_ConvertTGA2PCX(const AGIDL_TGA* tga){
 	char* imgname = AGIDL_GetImgName(tga->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PCX);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -328,8 +328,8 @@ AGIDL_PCX* AGIDL_ConvertTGA2PCX(AGIDL_TGA* tga){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_TGAGetClrFmt(tga));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_TGAGetClrFmt(tga));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PCXSyncPix(pcx,tga->pixels.pix32);
@@ -340,7 +340,7 @@ AGIDL_PCX* AGIDL_ConvertTGA2PCX(AGIDL_TGA* tga){
 	return pcx;
 }
 
-AGIDL_LMP* AGIDL_ConvertTGA2LMP(AGIDL_TGA* tga){
+AGIDL_LMP* AGIDL_ConvertTGA2LMP(const AGIDL_TGA* tga){
 	char* imgname = AGIDL_GetImgName(tga->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_LMP);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -352,8 +352,8 @@ AGIDL_LMP* AGIDL_ConvertTGA2LMP(AGIDL_TGA* tga){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_TGAGetClrFmt(tga));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_TGAGetClrFmt(tga));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_LMPSyncPix(lmp,tga->pixels.pix32);
@@ -364,7 +364,7 @@ AGIDL_LMP* AGIDL_ConvertTGA2LMP(AGIDL_TGA* tga){
 	return lmp;
 }
 
-AGIDL_PVR* AGIDL_ConvertTGA2PVR(AGIDL_TGA* tga){
+AGIDL_PVR* AGIDL_ConvertTGA2PVR(const AGIDL_TGA* tga){
 	char* imgname = AGIDL_GetImgName(tga->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PVR);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -376,8 +376,8 @@ AGIDL_PVR* AGIDL_ConvertTGA2PVR(AGIDL_TGA* tga){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_TGAGetClrFmt(tga));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_TGAGetClrFmt(tga));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PVRSyncPix(pvr,tga->pixels.pix32);
@@ -388,7 +388,7 @@ AGIDL_PVR* AGIDL_ConvertTGA2PVR(AGIDL_TGA* tga){
 	return pvr;
 }
 
-AGIDL_GXT* AGIDL_ConvertTGA2GXT(AGIDL_TGA* tga){
+AGIDL_GXT* AGIDL_ConvertTGA2GXT(const AGIDL_TGA* tga){
 	char* imgname = AGIDL_GetImgName(tga->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_GXT);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -401,8 +401,8 @@ AGIDL_GXT* AGIDL_ConvertTGA2GXT(AGIDL_TGA* tga){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_TGAGetClrFmt(tga));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_TGAGetClrFmt(tga));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_GXTSyncPix(gxt,tga->pixels.pix32);
@@ -413,7 +413,7 @@ AGIDL_GXT* AGIDL_ConvertTGA2GXT(AGIDL_TGA* tga){
 	return gxt;
 }
 
-AGIDL_BTI* AGIDL_ConvertTGA2BTI(AGIDL_TGA* tga){
+AGIDL_BTI* AGIDL_ConvertTGA2BTI(const AGIDL_TGA* tga){
 	char* imgname = AGIDL_GetImgName(tga->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_BTI);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -426,8 +426,8 @@ AGIDL_BTI* AGIDL_ConvertTGA2BTI(AGIDL_TGA* tga){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_TGAGetClrFmt(tga));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_TGAGetClrFmt(tga));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_BTISyncPix(bti,tga->pixels.pix32);
@@ -438,7 +438,7 @@ AGIDL_BTI* AGIDL_ConvertTGA2BTI(AGIDL_TGA* tga){
 	return bti;
 }
 
-AGIDL_3DF* AGIDL_ConvertTGA23DF(AGIDL_TGA* tga){
+AGIDL_3DF* AGIDL_ConvertTGA23DF(const AGIDL_TGA* tga){
 	char* imgname = AGIDL_GetImgName(tga->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_3DF);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -451,8 +451,8 @@ AGIDL_3DF* AGIDL_ConvertTGA23DF(AGIDL_TGA* tga){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_TGAGetClrFmt(tga));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_TGAGetClrFmt(tga));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_3DFSyncPix(glide,tga->pixels.pix32);
@@ -463,15 +463,15 @@ AGIDL_3DF* AGIDL_ConvertTGA23DF(AGIDL_TGA* tga){
 	return glide;
 }
 
-AGIDL_PPM* AGIDL_ConvertTGA2PPM(AGIDL_TGA* tga){
-	char* imgname = AGIDL_GetImgName(tga->filename);
-	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PPM);
-	char* filename = AGIDL_StrCpy(imgname,ext);
+AGIDL_PPM* AGIDL_ConvertTGA2PPM(const AGIDL_TGA* tga){
+	const char* imgname = AGIDL_GetImgName(tga->filename);
+	const char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PPM);
+	const char* filename = AGIDL_StrCpy(imgname,ext);
 	
 	AGIDL_PPM* ppm = AGIDL_CreatePPM(filename,AGIDL_TGAGetWidth(tga),AGIDL_TGAGetHeight(tga),
 	AGIDL_TGAGetClrFmt(tga));
-	
-	int bits = AGIDL_GetBitCount(AGIDL_TGAGetClrFmt(tga));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_TGAGetClrFmt(tga));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PPMSyncPix(ppm,tga->pixels.pix32);
@@ -482,7 +482,7 @@ AGIDL_PPM* AGIDL_ConvertTGA2PPM(AGIDL_TGA* tga){
 	return ppm;
 }
 
-AGIDL_LBM* AGIDL_ConvertTGA2LBM(AGIDL_TGA* tga){
+AGIDL_LBM* AGIDL_ConvertTGA2LBM(const AGIDL_TGA* tga){
 	char* imgname = AGIDL_GetImgName(tga->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_LBM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -496,8 +496,8 @@ AGIDL_LBM* AGIDL_ConvertTGA2LBM(AGIDL_TGA* tga){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_TGAGetClrFmt(tga));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_TGAGetClrFmt(tga));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_LBMSyncPix(lbm,tga->pixels.pix32);
@@ -508,7 +508,7 @@ AGIDL_LBM* AGIDL_ConvertTGA2LBM(AGIDL_TGA* tga){
 	return lbm;
 }
 
-AGIDL_BMP* AGIDL_ConvertTIM2BMP(AGIDL_TIM* tim){
+AGIDL_BMP* AGIDL_ConvertTIM2BMP(const AGIDL_TIM* tim){
 	char* imgname = AGIDL_GetImgName(tim->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_BMP);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -522,7 +522,7 @@ AGIDL_BMP* AGIDL_ConvertTIM2BMP(AGIDL_TIM* tim){
 	free(ext);
 	free(filename);
 
-	int bits = AGIDL_GetBitCount(AGIDL_TIMGetClrFmt(tim));
+	const int bits = AGIDL_GetBitCount(AGIDL_TIMGetClrFmt(tim));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_BMPSyncPix(bmp,tim->pixels.pix32);
@@ -534,7 +534,7 @@ AGIDL_BMP* AGIDL_ConvertTIM2BMP(AGIDL_TIM* tim){
 	return bmp;
 }
 
-AGIDL_TGA* AGIDL_ConvertTIM2TGA(AGIDL_TIM* tim){
+AGIDL_TGA* AGIDL_ConvertTIM2TGA(const AGIDL_TIM* tim){
 	char* imgname = AGIDL_GetImgName(tim->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_TGA);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -547,8 +547,8 @@ AGIDL_TGA* AGIDL_ConvertTIM2TGA(AGIDL_TIM* tim){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_TIMGetClrFmt(tim));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_TIMGetClrFmt(tim));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_TGASyncPix(tga,tim->pixels.pix32);
@@ -559,7 +559,7 @@ AGIDL_TGA* AGIDL_ConvertTIM2TGA(AGIDL_TIM* tim){
 	return tga;
 }
 
-AGIDL_PCX* AGIDL_ConvertTIM2PCX(AGIDL_TIM* tim){
+AGIDL_PCX* AGIDL_ConvertTIM2PCX(const AGIDL_TIM* tim){
 	char* imgname = AGIDL_GetImgName(tim->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PCX);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -570,8 +570,8 @@ AGIDL_PCX* AGIDL_ConvertTIM2PCX(AGIDL_TIM* tim){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_TIMGetClrFmt(tim));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_TIMGetClrFmt(tim));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PCXSyncPix(pcx,tim->pixels.pix32);
@@ -583,7 +583,7 @@ AGIDL_PCX* AGIDL_ConvertTIM2PCX(AGIDL_TIM* tim){
 	return pcx;
 }
 
-AGIDL_LMP* AGIDL_ConvertTIM2LMP(AGIDL_TIM* tim){
+AGIDL_LMP* AGIDL_ConvertTIM2LMP(const AGIDL_TIM* tim){
 	char* imgname = AGIDL_GetImgName(tim->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_LMP);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -595,8 +595,8 @@ AGIDL_LMP* AGIDL_ConvertTIM2LMP(AGIDL_TIM* tim){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_TIMGetClrFmt(tim));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_TIMGetClrFmt(tim));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_LMPSyncPix(lmp,tim->pixels.pix32);
@@ -607,7 +607,7 @@ AGIDL_LMP* AGIDL_ConvertTIM2LMP(AGIDL_TIM* tim){
 	return lmp;
 }
 
-AGIDL_PVR* AGIDL_ConvertTIM2PVR(AGIDL_TIM* tim){
+AGIDL_PVR* AGIDL_ConvertTIM2PVR(const AGIDL_TIM* tim){
 	char* imgname = AGIDL_GetImgName(tim->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PVR);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -620,8 +620,8 @@ AGIDL_PVR* AGIDL_ConvertTIM2PVR(AGIDL_TIM* tim){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_TIMGetClrFmt(tim));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_TIMGetClrFmt(tim));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PVRSyncPix(pvr,tim->pixels.pix32);
@@ -632,7 +632,7 @@ AGIDL_PVR* AGIDL_ConvertTIM2PVR(AGIDL_TIM* tim){
 	return pvr;
 }
 
-AGIDL_GXT* AGIDL_ConvertTIM2GXT(AGIDL_TIM* tim){
+AGIDL_GXT* AGIDL_ConvertTIM2GXT(const AGIDL_TIM* tim){
 	char* imgname = AGIDL_GetImgName(tim->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_GXT);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -645,8 +645,8 @@ AGIDL_GXT* AGIDL_ConvertTIM2GXT(AGIDL_TIM* tim){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_TIMGetClrFmt(tim));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_TIMGetClrFmt(tim));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_GXTSyncPix(gxt,tim->pixels.pix32);
@@ -657,7 +657,7 @@ AGIDL_GXT* AGIDL_ConvertTIM2GXT(AGIDL_TIM* tim){
 	return gxt;
 }
 
-AGIDL_BTI* AGIDL_ConvertTIM2BTI(AGIDL_TIM* tim){
+AGIDL_BTI* AGIDL_ConvertTIM2BTI(const AGIDL_TIM* tim){
 	char* imgname = AGIDL_GetImgName(tim->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_BTI);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -670,8 +670,8 @@ AGIDL_BTI* AGIDL_ConvertTIM2BTI(AGIDL_TIM* tim){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_TIMGetClrFmt(tim));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_TIMGetClrFmt(tim));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_BTISyncPix(bti,tim->pixels.pix32);
@@ -682,7 +682,7 @@ AGIDL_BTI* AGIDL_ConvertTIM2BTI(AGIDL_TIM* tim){
 	return bti;
 }
 
-AGIDL_3DF* AGIDL_ConvertTIM23DF(AGIDL_TIM* tim){
+AGIDL_3DF* AGIDL_ConvertTIM23DF(const AGIDL_TIM* tim){
 	char* imgname = AGIDL_GetImgName(tim->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_3DF);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -695,8 +695,8 @@ AGIDL_3DF* AGIDL_ConvertTIM23DF(AGIDL_TIM* tim){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_TIMGetClrFmt(tim));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_TIMGetClrFmt(tim));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_3DFSyncPix(glide,tim->pixels.pix32);
@@ -707,7 +707,7 @@ AGIDL_3DF* AGIDL_ConvertTIM23DF(AGIDL_TIM* tim){
 	return glide;
 }
 
-AGIDL_PPM* AGIDL_ConvertTIM2PPM(AGIDL_TIM* tim){
+AGIDL_PPM* AGIDL_ConvertTIM2PPM(const AGIDL_TIM* tim){
 	char* imgname = AGIDL_GetImgName(tim->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PPM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -718,8 +718,8 @@ AGIDL_PPM* AGIDL_ConvertTIM2PPM(AGIDL_TIM* tim){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_TIMGetClrFmt(tim));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_TIMGetClrFmt(tim));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PPMSyncPix(ppm,tim->pixels.pix32);
@@ -730,7 +730,7 @@ AGIDL_PPM* AGIDL_ConvertTIM2PPM(AGIDL_TIM* tim){
 	return ppm;
 }
 
-AGIDL_LBM* AGIDL_ConvertTIM2LBM(AGIDL_TIM* tim){
+AGIDL_LBM* AGIDL_ConvertTIM2LBM(const AGIDL_TIM* tim){
 	char* imgname = AGIDL_GetImgName(tim->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_LBM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -744,7 +744,7 @@ AGIDL_LBM* AGIDL_ConvertTIM2LBM(AGIDL_TIM* tim){
 	free(ext);
 	free(filename);
 
-	int bits = AGIDL_GetBitCount(AGIDL_TIMGetClrFmt(tim));
+	const int bits = AGIDL_GetBitCount(AGIDL_TIMGetClrFmt(tim));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_LBMSyncPix(lbm,tim->pixels.pix32);
@@ -756,7 +756,7 @@ AGIDL_LBM* AGIDL_ConvertTIM2LBM(AGIDL_TIM* tim){
 	return lbm;
 }
 
-AGIDL_BMP* AGIDL_ConvertPCX2BMP(AGIDL_PCX* pcx){
+AGIDL_BMP* AGIDL_ConvertPCX2BMP(const AGIDL_PCX* pcx){
 	char* imgname = AGIDL_GetImgName(pcx->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_BMP);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -768,8 +768,8 @@ AGIDL_BMP* AGIDL_ConvertPCX2BMP(AGIDL_PCX* pcx){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_BMPSyncPix(bmp,pcx->pixels.pix32);
@@ -780,7 +780,7 @@ AGIDL_BMP* AGIDL_ConvertPCX2BMP(AGIDL_PCX* pcx){
 	return bmp;
 }
 
-AGIDL_TGA* AGIDL_ConvertPCX2TGA(AGIDL_PCX* pcx){
+AGIDL_TGA* AGIDL_ConvertPCX2TGA(const AGIDL_PCX* pcx){
 	char* imgname = AGIDL_GetImgName(pcx->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_TGA);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -792,8 +792,8 @@ AGIDL_TGA* AGIDL_ConvertPCX2TGA(AGIDL_PCX* pcx){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_TGASyncPix(tga,pcx->pixels.pix32);
@@ -804,7 +804,7 @@ AGIDL_TGA* AGIDL_ConvertPCX2TGA(AGIDL_PCX* pcx){
 	return tga;
 }
 
-AGIDL_TIM* AGIDL_ConvertPCX2TIM(AGIDL_PCX* pcx){
+AGIDL_TIM* AGIDL_ConvertPCX2TIM(const AGIDL_PCX* pcx){
 	char* imgname = AGIDL_GetImgName(pcx->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_TIM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -816,8 +816,8 @@ AGIDL_TIM* AGIDL_ConvertPCX2TIM(AGIDL_PCX* pcx){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_TIMSyncPix(tim,pcx->pixels.pix32);
@@ -828,7 +828,7 @@ AGIDL_TIM* AGIDL_ConvertPCX2TIM(AGIDL_PCX* pcx){
 	return tim;
 }
 
-AGIDL_LMP* AGIDL_ConvertPCX2LMP(AGIDL_PCX* pcx){
+AGIDL_LMP* AGIDL_ConvertPCX2LMP(const AGIDL_PCX* pcx){
 	char* imgname = AGIDL_GetImgName(pcx->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_LMP);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -840,8 +840,8 @@ AGIDL_LMP* AGIDL_ConvertPCX2LMP(AGIDL_PCX* pcx){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_LMPSyncPix(lmp,pcx->pixels.pix32);
@@ -852,7 +852,7 @@ AGIDL_LMP* AGIDL_ConvertPCX2LMP(AGIDL_PCX* pcx){
 	return lmp;
 }
 
-AGIDL_PVR* AGIDL_ConvertPCX2PVR(AGIDL_PCX* pcx){
+AGIDL_PVR* AGIDL_ConvertPCX2PVR(const AGIDL_PCX* pcx){
 	char* imgname = AGIDL_GetImgName(pcx->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PVR);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -864,8 +864,8 @@ AGIDL_PVR* AGIDL_ConvertPCX2PVR(AGIDL_PCX* pcx){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PVRSyncPix(pvr,pcx->pixels.pix32);
@@ -876,7 +876,7 @@ AGIDL_PVR* AGIDL_ConvertPCX2PVR(AGIDL_PCX* pcx){
 	return pvr;
 }
 
-AGIDL_GXT* AGIDL_ConvertPCXT2GXT(AGIDL_PCX* pcx){
+AGIDL_GXT* AGIDL_ConvertPCXT2GXT(const AGIDL_PCX* pcx){
 	char* imgname = AGIDL_GetImgName(pcx->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_GXT);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -889,8 +889,8 @@ AGIDL_GXT* AGIDL_ConvertPCXT2GXT(AGIDL_PCX* pcx){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_GXTSyncPix(gxt,pcx->pixels.pix32);
@@ -901,7 +901,7 @@ AGIDL_GXT* AGIDL_ConvertPCXT2GXT(AGIDL_PCX* pcx){
 	return gxt;
 }
 
-AGIDL_BTI* AGIDL_ConvertPCXT2BTI(AGIDL_PCX* pcx){
+AGIDL_BTI* AGIDL_ConvertPCXT2BTI(const AGIDL_PCX* pcx){
 	char* imgname = AGIDL_GetImgName(pcx->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_BTI);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -914,8 +914,8 @@ AGIDL_BTI* AGIDL_ConvertPCXT2BTI(AGIDL_PCX* pcx){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_BTISyncPix(bti,pcx->pixels.pix32);
@@ -926,7 +926,7 @@ AGIDL_BTI* AGIDL_ConvertPCXT2BTI(AGIDL_PCX* pcx){
 	return bti;
 }
 
-AGIDL_3DF* AGIDL_ConvertPCXT23DF(AGIDL_PCX* pcx){
+AGIDL_3DF* AGIDL_ConvertPCXT23DF(const AGIDL_PCX* pcx){
 	char* imgname = AGIDL_GetImgName(pcx->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_3DF);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -939,8 +939,8 @@ AGIDL_3DF* AGIDL_ConvertPCXT23DF(AGIDL_PCX* pcx){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_3DFSyncPix(glide,pcx->pixels.pix32);
@@ -951,7 +951,7 @@ AGIDL_3DF* AGIDL_ConvertPCXT23DF(AGIDL_PCX* pcx){
 	return glide;
 }
 
-AGIDL_PPM* AGIDL_ConvertPCXT2PPM(AGIDL_PCX* pcx){
+AGIDL_PPM* AGIDL_ConvertPCXT2PPM(const AGIDL_PCX* pcx){
 	char* imgname = AGIDL_GetImgName(pcx->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PPM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -962,8 +962,8 @@ AGIDL_PPM* AGIDL_ConvertPCXT2PPM(AGIDL_PCX* pcx){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PPMSyncPix(ppm,pcx->pixels.pix32);
@@ -974,7 +974,7 @@ AGIDL_PPM* AGIDL_ConvertPCXT2PPM(AGIDL_PCX* pcx){
 	return ppm;
 }
 
-AGIDL_LBM* AGIDL_ConvertPCX2LBM(AGIDL_PCX* pcx){
+AGIDL_LBM* AGIDL_ConvertPCX2LBM(const AGIDL_PCX* pcx){
 	char* imgname = AGIDL_GetImgName(pcx->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_LBM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -986,8 +986,8 @@ AGIDL_LBM* AGIDL_ConvertPCX2LBM(AGIDL_PCX* pcx){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PCXGetClrFmt(pcx));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_LBMSyncPix(lbm,pcx->pixels.pix32);
@@ -998,7 +998,7 @@ AGIDL_LBM* AGIDL_ConvertPCX2LBM(AGIDL_PCX* pcx){
 	return lbm;
 }
 
-AGIDL_BMP* AGIDL_ConvertLMP2BMP(AGIDL_LMP* lmp){
+AGIDL_BMP* AGIDL_ConvertLMP2BMP(const AGIDL_LMP* lmp){
 	char* imgname = AGIDL_GetImgName(lmp->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_BMP);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1010,8 +1010,8 @@ AGIDL_BMP* AGIDL_ConvertLMP2BMP(AGIDL_LMP* lmp){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_BMPSyncPix(bmp,lmp->pixels.pix32);
@@ -1022,7 +1022,7 @@ AGIDL_BMP* AGIDL_ConvertLMP2BMP(AGIDL_LMP* lmp){
 	return bmp;
 }
 
-AGIDL_TGA* AGIDL_ConvertLMP2TGA(AGIDL_LMP* lmp){
+AGIDL_TGA* AGIDL_ConvertLMP2TGA(const AGIDL_LMP* lmp){
 	char* imgname = AGIDL_GetImgName(lmp->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_TGA);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1034,8 +1034,8 @@ AGIDL_TGA* AGIDL_ConvertLMP2TGA(AGIDL_LMP* lmp){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_TGASyncPix(tga,lmp->pixels.pix32);
@@ -1046,7 +1046,7 @@ AGIDL_TGA* AGIDL_ConvertLMP2TGA(AGIDL_LMP* lmp){
 	return tga;
 }
 
-AGIDL_TIM* AGIDL_ConvertLMP2TIM(AGIDL_LMP* lmp){
+AGIDL_TIM* AGIDL_ConvertLMP2TIM(const AGIDL_LMP* lmp){
 	char* imgname = AGIDL_GetImgName(lmp->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_TIM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1058,8 +1058,8 @@ AGIDL_TIM* AGIDL_ConvertLMP2TIM(AGIDL_LMP* lmp){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_TIMSyncPix(tim,lmp->pixels.pix32);
@@ -1070,7 +1070,7 @@ AGIDL_TIM* AGIDL_ConvertLMP2TIM(AGIDL_LMP* lmp){
 	return tim;
 }
 
-AGIDL_PCX* AGIDL_ConvertLMP2PCX(AGIDL_LMP* lmp){
+AGIDL_PCX* AGIDL_ConvertLMP2PCX(const AGIDL_LMP* lmp){
 	char* imgname = AGIDL_GetImgName(lmp->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PCX);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1082,8 +1082,8 @@ AGIDL_PCX* AGIDL_ConvertLMP2PCX(AGIDL_LMP* lmp){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PCXSyncPix(pcx,lmp->pixels.pix32);
@@ -1094,7 +1094,7 @@ AGIDL_PCX* AGIDL_ConvertLMP2PCX(AGIDL_LMP* lmp){
 	return pcx;
 }
 
-AGIDL_PVR* AGIDL_ConvertLMP2PVR(AGIDL_LMP* lmp){
+AGIDL_PVR* AGIDL_ConvertLMP2PVR(const AGIDL_LMP* lmp){
 	char* imgname = AGIDL_GetImgName(lmp->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PVR);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1106,8 +1106,8 @@ AGIDL_PVR* AGIDL_ConvertLMP2PVR(AGIDL_LMP* lmp){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PVRSyncPix(pvr,lmp->pixels.pix32);
@@ -1118,7 +1118,7 @@ AGIDL_PVR* AGIDL_ConvertLMP2PVR(AGIDL_LMP* lmp){
 	return pvr;
 }
 
-AGIDL_GXT* AGIDL_ConvertLMP2GXT(AGIDL_LMP* lmp){
+AGIDL_GXT* AGIDL_ConvertLMP2GXT(const AGIDL_LMP* lmp){
 	char* imgname = AGIDL_GetImgName(lmp->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_GXT);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1130,8 +1130,8 @@ AGIDL_GXT* AGIDL_ConvertLMP2GXT(AGIDL_LMP* lmp){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_GXTSyncPix(gxt,lmp->pixels.pix32);
@@ -1142,7 +1142,7 @@ AGIDL_GXT* AGIDL_ConvertLMP2GXT(AGIDL_LMP* lmp){
 	return gxt;
 }
 
-AGIDL_BTI* AGIDL_ConvertLMP2BTI(AGIDL_LMP* lmp){
+AGIDL_BTI* AGIDL_ConvertLMP2BTI(const AGIDL_LMP* lmp){
 	char* imgname = AGIDL_GetImgName(lmp->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_BTI);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1154,8 +1154,8 @@ AGIDL_BTI* AGIDL_ConvertLMP2BTI(AGIDL_LMP* lmp){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_BTISyncPix(bti,lmp->pixels.pix32);
@@ -1166,7 +1166,7 @@ AGIDL_BTI* AGIDL_ConvertLMP2BTI(AGIDL_LMP* lmp){
 	return bti;
 }
 
-AGIDL_3DF* AGIDL_ConvertLMP23DF(AGIDL_LMP* lmp){
+AGIDL_3DF* AGIDL_ConvertLMP23DF(const AGIDL_LMP* lmp){
 	char* imgname = AGIDL_GetImgName(lmp->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_3DF);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1178,8 +1178,8 @@ AGIDL_3DF* AGIDL_ConvertLMP23DF(AGIDL_LMP* lmp){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_3DFSyncPix(glide,lmp->pixels.pix32);
@@ -1190,7 +1190,7 @@ AGIDL_3DF* AGIDL_ConvertLMP23DF(AGIDL_LMP* lmp){
 	return glide;
 }
 
-AGIDL_PPM* AGIDL_ConvertLMP2PPM(AGIDL_LMP* lmp){
+AGIDL_PPM* AGIDL_ConvertLMP2PPM(const AGIDL_LMP* lmp){
 	char* imgname = AGIDL_GetImgName(lmp->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PPM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1201,8 +1201,8 @@ AGIDL_PPM* AGIDL_ConvertLMP2PPM(AGIDL_LMP* lmp){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PPMSyncPix(ppm,lmp->pixels.pix32);
@@ -1213,7 +1213,7 @@ AGIDL_PPM* AGIDL_ConvertLMP2PPM(AGIDL_LMP* lmp){
 	return ppm;
 }
 
-AGIDL_LBM* AGIDL_ConvertLMP2LBM(AGIDL_LMP* lmp){
+AGIDL_LBM* AGIDL_ConvertLMP2LBM(const AGIDL_LMP* lmp){
 	char* imgname = AGIDL_GetImgName(lmp->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_LBM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1225,8 +1225,8 @@ AGIDL_LBM* AGIDL_ConvertLMP2LBM(AGIDL_LMP* lmp){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_LBMSyncPix(lbm,lmp->pixels.pix32);
@@ -1237,7 +1237,7 @@ AGIDL_LBM* AGIDL_ConvertLMP2LBM(AGIDL_LMP* lmp){
 	return lbm;
 }
 
-AGIDL_BMP* AGIDL_ConvertPVR2BMP(AGIDL_PVR* pvr){
+AGIDL_BMP* AGIDL_ConvertPVR2BMP(const AGIDL_PVR* pvr){
 	char* imgname = AGIDL_GetImgName(pvr->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_BMP);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1250,8 +1250,8 @@ AGIDL_BMP* AGIDL_ConvertPVR2BMP(AGIDL_PVR* pvr){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PVRGetClrFmt(pvr));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PVRGetClrFmt(pvr));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_BMPSyncPix(bmp,pvr->pixels.pix32);
@@ -1263,7 +1263,7 @@ AGIDL_BMP* AGIDL_ConvertPVR2BMP(AGIDL_PVR* pvr){
 	return bmp;
 }
 
-AGIDL_TGA* AGIDL_ConvertPVR2TGA(AGIDL_PVR* pvr){
+AGIDL_TGA* AGIDL_ConvertPVR2TGA(const AGIDL_PVR* pvr){
 	char* imgname = AGIDL_GetImgName(pvr->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_TGA);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1276,8 +1276,8 @@ AGIDL_TGA* AGIDL_ConvertPVR2TGA(AGIDL_PVR* pvr){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PVRGetClrFmt(pvr));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PVRGetClrFmt(pvr));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_TGASyncPix(tga,pvr->pixels.pix32);
@@ -1288,7 +1288,7 @@ AGIDL_TGA* AGIDL_ConvertPVR2TGA(AGIDL_PVR* pvr){
 	return tga;
 }
 
-AGIDL_TIM* AGIDL_ConvertPVR2TIM(AGIDL_PVR* pvr){
+AGIDL_TIM* AGIDL_ConvertPVR2TIM(const AGIDL_PVR* pvr){
 	char* imgname = AGIDL_GetImgName(pvr->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_TIM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1301,8 +1301,8 @@ AGIDL_TIM* AGIDL_ConvertPVR2TIM(AGIDL_PVR* pvr){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PVRGetClrFmt(pvr));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PVRGetClrFmt(pvr));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_TIMSyncPix(tim,pvr->pixels.pix32);
@@ -1313,7 +1313,7 @@ AGIDL_TIM* AGIDL_ConvertPVR2TIM(AGIDL_PVR* pvr){
 	return tim;
 }
 
-AGIDL_PCX* AGIDL_ConvertPVR2PCX(AGIDL_PVR* pvr){
+AGIDL_PCX* AGIDL_ConvertPVR2PCX(const AGIDL_PVR* pvr){
 	char* imgname = AGIDL_GetImgName(pvr->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PCX);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1324,8 +1324,8 @@ AGIDL_PCX* AGIDL_ConvertPVR2PCX(AGIDL_PVR* pvr){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PVRGetClrFmt(pvr));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PVRGetClrFmt(pvr));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PCXSyncPix(pcx,pvr->pixels.pix32);
@@ -1336,7 +1336,7 @@ AGIDL_PCX* AGIDL_ConvertPVR2PCX(AGIDL_PVR* pvr){
 	return pcx;
 }
 
-AGIDL_LMP* AGIDL_ConvertPVR2LMP(AGIDL_PVR* pvr){
+AGIDL_LMP* AGIDL_ConvertPVR2LMP(const AGIDL_PVR* pvr){
 	char* imgname = AGIDL_GetImgName(pvr->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_LMP);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1348,8 +1348,8 @@ AGIDL_LMP* AGIDL_ConvertPVR2LMP(AGIDL_PVR* pvr){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PVRGetClrFmt(pvr));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PVRGetClrFmt(pvr));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_LMPSyncPix(lmp,pvr->pixels.pix32);
@@ -1360,7 +1360,7 @@ AGIDL_LMP* AGIDL_ConvertPVR2LMP(AGIDL_PVR* pvr){
 	return lmp;
 }
 
-AGIDL_GXT* AGIDL_ConvertPVR2GXT(AGIDL_PVR* pvr){
+AGIDL_GXT* AGIDL_ConvertPVR2GXT(const AGIDL_PVR* pvr){
 	char* imgname = AGIDL_GetImgName(pvr->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_GXT);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1373,8 +1373,8 @@ AGIDL_GXT* AGIDL_ConvertPVR2GXT(AGIDL_PVR* pvr){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PVRGetClrFmt(pvr));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PVRGetClrFmt(pvr));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_GXTSyncPix(gxt,pvr->pixels.pix32);
@@ -1385,7 +1385,7 @@ AGIDL_GXT* AGIDL_ConvertPVR2GXT(AGIDL_PVR* pvr){
 	return gxt;
 }
 
-AGIDL_BTI* AGIDL_ConvertPVR2BTI(AGIDL_PVR* pvr){
+AGIDL_BTI* AGIDL_ConvertPVR2BTI(const AGIDL_PVR* pvr){
 	char* imgname = AGIDL_GetImgName(pvr->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_BTI);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1398,8 +1398,8 @@ AGIDL_BTI* AGIDL_ConvertPVR2BTI(AGIDL_PVR* pvr){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PVRGetClrFmt(pvr));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PVRGetClrFmt(pvr));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_BTISyncPix(bti,pvr->pixels.pix32);
@@ -1410,7 +1410,7 @@ AGIDL_BTI* AGIDL_ConvertPVR2BTI(AGIDL_PVR* pvr){
 	return bti;
 }
 
-AGIDL_3DF* AGIDL_ConvertPVR23DF(AGIDL_PVR* pvr){
+AGIDL_3DF* AGIDL_ConvertPVR23DF(const AGIDL_PVR* pvr){
 	char* imgname = AGIDL_GetImgName(pvr->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_3DF);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1423,8 +1423,8 @@ AGIDL_3DF* AGIDL_ConvertPVR23DF(AGIDL_PVR* pvr){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PVRGetClrFmt(pvr));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PVRGetClrFmt(pvr));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_3DFSyncPix(glide,pvr->pixels.pix32);
@@ -1435,7 +1435,7 @@ AGIDL_3DF* AGIDL_ConvertPVR23DF(AGIDL_PVR* pvr){
 	return glide;
 }
 
-AGIDL_PPM* AGIDL_ConvertPVR2PPM(AGIDL_PVR* pvr){
+AGIDL_PPM* AGIDL_ConvertPVR2PPM(const AGIDL_PVR* pvr){
 	char* imgname = AGIDL_GetImgName(pvr->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PPM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1446,8 +1446,8 @@ AGIDL_PPM* AGIDL_ConvertPVR2PPM(AGIDL_PVR* pvr){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PVRGetClrFmt(pvr));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PVRGetClrFmt(pvr));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PPMSyncPix(ppm,pvr->pixels.pix32);
@@ -1458,7 +1458,7 @@ AGIDL_PPM* AGIDL_ConvertPVR2PPM(AGIDL_PVR* pvr){
 	return ppm;
 }
 
-AGIDL_LBM* AGIDL_ConvertPVR2LBM(AGIDL_PVR* pvr){
+AGIDL_LBM* AGIDL_ConvertPVR2LBM(const AGIDL_PVR* pvr){
 	char* imgname = AGIDL_GetImgName(pvr->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_LBM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1471,8 +1471,8 @@ AGIDL_LBM* AGIDL_ConvertPVR2LBM(AGIDL_PVR* pvr){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PVRGetClrFmt(pvr));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PVRGetClrFmt(pvr));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_LBMSyncPix(lbm,pvr->pixels.pix32);
@@ -1484,7 +1484,7 @@ AGIDL_LBM* AGIDL_ConvertPVR2LBM(AGIDL_PVR* pvr){
 	return lbm;
 }
 
-AGIDL_BMP* AGIDL_ConvertGXT2BMP(AGIDL_GXT* gxt){
+AGIDL_BMP* AGIDL_ConvertGXT2BMP(const AGIDL_GXT* gxt){
 	char* imgname = AGIDL_GetImgName(gxt->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_BMP);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1497,8 +1497,8 @@ AGIDL_BMP* AGIDL_ConvertGXT2BMP(AGIDL_GXT* gxt){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_GXTGetClrFmt(gxt));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_GXTGetClrFmt(gxt));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_BMPSyncPix(bmp,gxt->pixels.pix32);
@@ -1509,7 +1509,7 @@ AGIDL_BMP* AGIDL_ConvertGXT2BMP(AGIDL_GXT* gxt){
 	return bmp;
 }
 
-AGIDL_TGA* AGIDL_ConvertGXT2TGA(AGIDL_GXT* gxt){
+AGIDL_TGA* AGIDL_ConvertGXT2TGA(const AGIDL_GXT* gxt){
 	char* imgname = AGIDL_GetImgName(gxt->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_TGA);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1522,8 +1522,8 @@ AGIDL_TGA* AGIDL_ConvertGXT2TGA(AGIDL_GXT* gxt){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_GXTGetClrFmt(gxt));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_GXTGetClrFmt(gxt));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_TGASyncPix(tga,gxt->pixels.pix32);
@@ -1534,7 +1534,7 @@ AGIDL_TGA* AGIDL_ConvertGXT2TGA(AGIDL_GXT* gxt){
 	return tga;
 }
 
-AGIDL_TIM* AGIDL_ConvertGXT2TIM(AGIDL_GXT* gxt){
+AGIDL_TIM* AGIDL_ConvertGXT2TIM(const AGIDL_GXT* gxt){
 	char* imgname = AGIDL_GetImgName(gxt->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_TIM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1547,8 +1547,8 @@ AGIDL_TIM* AGIDL_ConvertGXT2TIM(AGIDL_GXT* gxt){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_GXTGetClrFmt(gxt));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_GXTGetClrFmt(gxt));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_TIMSyncPix(tim,gxt->pixels.pix32);
@@ -1559,7 +1559,7 @@ AGIDL_TIM* AGIDL_ConvertGXT2TIM(AGIDL_GXT* gxt){
 	return tim;
 }
 
-AGIDL_PCX* AGIDL_ConvertGXT2PCX(AGIDL_GXT* gxt){
+AGIDL_PCX* AGIDL_ConvertGXT2PCX(const AGIDL_GXT* gxt){
 	char* imgname = AGIDL_GetImgName(gxt->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PCX);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1572,8 +1572,8 @@ AGIDL_PCX* AGIDL_ConvertGXT2PCX(AGIDL_GXT* gxt){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_GXTGetClrFmt(gxt));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_GXTGetClrFmt(gxt));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PCXSyncPix(pcx,gxt->pixels.pix32);
@@ -1584,7 +1584,7 @@ AGIDL_PCX* AGIDL_ConvertGXT2PCX(AGIDL_GXT* gxt){
 	return pcx;
 }
 
-AGIDL_LMP* AGIDL_ConvertGXT2LMP(AGIDL_GXT* gxt){
+AGIDL_LMP* AGIDL_ConvertGXT2LMP(const AGIDL_GXT* gxt){
 	char* imgname = AGIDL_GetImgName(gxt->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_LMP);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1596,8 +1596,8 @@ AGIDL_LMP* AGIDL_ConvertGXT2LMP(AGIDL_GXT* gxt){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_GXTGetClrFmt(gxt));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_GXTGetClrFmt(gxt));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_LMPSyncPix(lmp,gxt->pixels.pix32);
@@ -1608,7 +1608,7 @@ AGIDL_LMP* AGIDL_ConvertGXT2LMP(AGIDL_GXT* gxt){
 	return lmp;
 }
 
-AGIDL_PVR* AGIDL_ConvertGXT2PVR(AGIDL_GXT* gxt){
+AGIDL_PVR* AGIDL_ConvertGXT2PVR(const AGIDL_GXT* gxt){
 	char* imgname = AGIDL_GetImgName(gxt->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_GXT);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1621,8 +1621,8 @@ AGIDL_PVR* AGIDL_ConvertGXT2PVR(AGIDL_GXT* gxt){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_GXTGetClrFmt(gxt));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_GXTGetClrFmt(gxt));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PVRSyncPix(pvr,gxt->pixels.pix32);
@@ -1633,7 +1633,7 @@ AGIDL_PVR* AGIDL_ConvertGXT2PVR(AGIDL_GXT* gxt){
 	return pvr;
 }
 
-AGIDL_BTI* AGIDL_ConvertGXT2BTI(AGIDL_GXT* gxt){
+AGIDL_BTI* AGIDL_ConvertGXT2BTI(const AGIDL_GXT* gxt){
 	char* imgname = AGIDL_GetImgName(gxt->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_BTI);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1646,8 +1646,8 @@ AGIDL_BTI* AGIDL_ConvertGXT2BTI(AGIDL_GXT* gxt){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_GXTGetClrFmt(gxt));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_GXTGetClrFmt(gxt));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_BTISyncPix(bti,gxt->pixels.pix32);
@@ -1658,7 +1658,7 @@ AGIDL_BTI* AGIDL_ConvertGXT2BTI(AGIDL_GXT* gxt){
 	return bti;
 }
 
-AGIDL_3DF* AGIDL_ConvertGXT23DF(AGIDL_GXT* gxt){
+AGIDL_3DF* AGIDL_ConvertGXT23DF(const AGIDL_GXT* gxt){
 	char* imgname = AGIDL_GetImgName(gxt->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_3DF);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1671,8 +1671,8 @@ AGIDL_3DF* AGIDL_ConvertGXT23DF(AGIDL_GXT* gxt){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_GXTGetClrFmt(gxt));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_GXTGetClrFmt(gxt));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_3DFSyncPix(glide,gxt->pixels.pix32);
@@ -1683,7 +1683,7 @@ AGIDL_3DF* AGIDL_ConvertGXT23DF(AGIDL_GXT* gxt){
 	return glide;
 }
 
-AGIDL_PPM* AGIDL_ConvertGXT2PPM(AGIDL_GXT* gxt){
+AGIDL_PPM* AGIDL_ConvertGXT2PPM(const AGIDL_GXT* gxt){
 	char* imgname = AGIDL_GetImgName(gxt->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PPM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1694,8 +1694,8 @@ AGIDL_PPM* AGIDL_ConvertGXT2PPM(AGIDL_GXT* gxt){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_GXTGetClrFmt(gxt));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_GXTGetClrFmt(gxt));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PPMSyncPix(pmm,gxt->pixels.pix32);
@@ -1706,7 +1706,7 @@ AGIDL_PPM* AGIDL_ConvertGXT2PPM(AGIDL_GXT* gxt){
 	return pmm;
 }
 
-AGIDL_LBM* AGIDL_ConvertGXT2LBM(AGIDL_GXT* gxt){
+AGIDL_LBM* AGIDL_ConvertGXT2LBM(const AGIDL_GXT* gxt){
 	char* imgname = AGIDL_GetImgName(gxt->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_LBM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1719,8 +1719,8 @@ AGIDL_LBM* AGIDL_ConvertGXT2LBM(AGIDL_GXT* gxt){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_GXTGetClrFmt(gxt));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_GXTGetClrFmt(gxt));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_LBMSyncPix(lbm,gxt->pixels.pix32);
@@ -1731,7 +1731,7 @@ AGIDL_LBM* AGIDL_ConvertGXT2LBM(AGIDL_GXT* gxt){
 	return lbm;
 }
 
-AGIDL_BMP* AGIDL_ConvertBTI2BMP(AGIDL_BTI* bti){
+AGIDL_BMP* AGIDL_ConvertBTI2BMP(const AGIDL_BTI* bti){
 	char* imgname = AGIDL_GetImgName(bti->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_BMP);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1744,8 +1744,8 @@ AGIDL_BMP* AGIDL_ConvertBTI2BMP(AGIDL_BTI* bti){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_BMPSyncPix(bmp,bti->pixels.pix32);
@@ -1756,7 +1756,7 @@ AGIDL_BMP* AGIDL_ConvertBTI2BMP(AGIDL_BTI* bti){
 	return bmp;
 }
 
-AGIDL_TGA* AGIDL_ConvertBTI2TGA(AGIDL_BTI* bti){
+AGIDL_TGA* AGIDL_ConvertBTI2TGA(const AGIDL_BTI* bti){
 	char* imgname = AGIDL_GetImgName(bti->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_TGA);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1769,8 +1769,8 @@ AGIDL_TGA* AGIDL_ConvertBTI2TGA(AGIDL_BTI* bti){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_TGASyncPix(tga,bti->pixels.pix32);
@@ -1781,7 +1781,7 @@ AGIDL_TGA* AGIDL_ConvertBTI2TGA(AGIDL_BTI* bti){
 	return tga;
 }
 
-AGIDL_TIM* AGIDL_ConvertBTI2TIM(AGIDL_BTI* bti){
+AGIDL_TIM* AGIDL_ConvertBTI2TIM(const AGIDL_BTI* bti){
 	char* imgname = AGIDL_GetImgName(bti->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_TIM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1794,8 +1794,8 @@ AGIDL_TIM* AGIDL_ConvertBTI2TIM(AGIDL_BTI* bti){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_TIMSyncPix(tim,bti->pixels.pix32);
@@ -1806,7 +1806,7 @@ AGIDL_TIM* AGIDL_ConvertBTI2TIM(AGIDL_BTI* bti){
 	return tim;
 }
 
-AGIDL_PCX* AGIDL_ConvertBTI2PCX(AGIDL_BTI* bti){
+AGIDL_PCX* AGIDL_ConvertBTI2PCX(const AGIDL_BTI* bti){
 	char* imgname = AGIDL_GetImgName(bti->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PCX);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1819,8 +1819,8 @@ AGIDL_PCX* AGIDL_ConvertBTI2PCX(AGIDL_BTI* bti){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PCXSyncPix(pcx,bti->pixels.pix32);
@@ -1831,7 +1831,7 @@ AGIDL_PCX* AGIDL_ConvertBTI2PCX(AGIDL_BTI* bti){
 	return pcx;
 }
 
-AGIDL_LMP* AGIDL_ConvertBTI2LMP(AGIDL_BTI* bti){
+AGIDL_LMP* AGIDL_ConvertBTI2LMP(const AGIDL_BTI* bti){
 	char* imgname = AGIDL_GetImgName(bti->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_LMP);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1843,8 +1843,8 @@ AGIDL_LMP* AGIDL_ConvertBTI2LMP(AGIDL_BTI* bti){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_LMPSyncPix(lmp,bti->pixels.pix32);
@@ -1855,7 +1855,7 @@ AGIDL_LMP* AGIDL_ConvertBTI2LMP(AGIDL_BTI* bti){
 	return lmp;
 }
 
-AGIDL_PVR* AGIDL_ConvertBTI2PVR(AGIDL_BTI* bti){
+AGIDL_PVR* AGIDL_ConvertBTI2PVR(const AGIDL_BTI* bti){
 	char* imgname = AGIDL_GetImgName(bti->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PVR);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1868,8 +1868,8 @@ AGIDL_PVR* AGIDL_ConvertBTI2PVR(AGIDL_BTI* bti){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PVRSyncPix(pvr,bti->pixels.pix32);
@@ -1880,7 +1880,7 @@ AGIDL_PVR* AGIDL_ConvertBTI2PVR(AGIDL_BTI* bti){
 	return pvr;
 }
 
-AGIDL_GXT* AGIDL_ConvertBTI2GXT(AGIDL_BTI* bti){
+AGIDL_GXT* AGIDL_ConvertBTI2GXT(const AGIDL_BTI* bti){
 	char* imgname = AGIDL_GetImgName(bti->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_GXT);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1893,8 +1893,8 @@ AGIDL_GXT* AGIDL_ConvertBTI2GXT(AGIDL_BTI* bti){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_GXTSyncPix(gxt,bti->pixels.pix32);
@@ -1905,7 +1905,7 @@ AGIDL_GXT* AGIDL_ConvertBTI2GXT(AGIDL_BTI* bti){
 	return gxt;
 }
 
-AGIDL_3DF* AGIDL_ConvertBTI23DF(AGIDL_BTI* bti){
+AGIDL_3DF* AGIDL_ConvertBTI23DF(const AGIDL_BTI* bti){
 	char* imgname = AGIDL_GetImgName(bti->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_3DF);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1918,8 +1918,8 @@ AGIDL_3DF* AGIDL_ConvertBTI23DF(AGIDL_BTI* bti){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_3DFSyncPix(glide,bti->pixels.pix32);
@@ -1930,7 +1930,7 @@ AGIDL_3DF* AGIDL_ConvertBTI23DF(AGIDL_BTI* bti){
 	return glide;
 }
 
-AGIDL_PPM* AGIDL_ConvertBTI2PPM(AGIDL_BTI* bti){
+AGIDL_PPM* AGIDL_ConvertBTI2PPM(const AGIDL_BTI* bti){
 	char* imgname = AGIDL_GetImgName(bti->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PPM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1941,8 +1941,8 @@ AGIDL_PPM* AGIDL_ConvertBTI2PPM(AGIDL_BTI* bti){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PPMSyncPix(pmm,bti->pixels.pix32);
@@ -1953,7 +1953,7 @@ AGIDL_PPM* AGIDL_ConvertBTI2PPM(AGIDL_BTI* bti){
 	return pmm;
 }
 
-AGIDL_LBM* AGIDL_ConvertBTI2LBM(AGIDL_BTI* bti){
+AGIDL_LBM* AGIDL_ConvertBTI2LBM(const AGIDL_BTI* bti){
 	char* imgname = AGIDL_GetImgName(bti->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_LBM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1966,8 +1966,8 @@ AGIDL_LBM* AGIDL_ConvertBTI2LBM(AGIDL_BTI* bti){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_BTIGetClrFmt(bti));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_LBMSyncPix(lbm,bti->pixels.pix32);
@@ -1978,7 +1978,7 @@ AGIDL_LBM* AGIDL_ConvertBTI2LBM(AGIDL_BTI* bti){
 	return lbm;
 }
 
-AGIDL_BMP* AGIDL_Convert3DF2BMP(AGIDL_3DF* glide){
+AGIDL_BMP* AGIDL_Convert3DF2BMP(const AGIDL_3DF* glide){
 	char* imgname = AGIDL_GetImgName(glide->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_BMP);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -1991,8 +1991,8 @@ AGIDL_BMP* AGIDL_Convert3DF2BMP(AGIDL_3DF* glide){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_3DFGetClrFmt(glide));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_3DFGetClrFmt(glide));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_BMPSyncPix(bmp,glide->pixels.pix32);
@@ -2003,7 +2003,7 @@ AGIDL_BMP* AGIDL_Convert3DF2BMP(AGIDL_3DF* glide){
 	return bmp;
 }
 
-AGIDL_TGA* AGIDL_Convert3DF2TGA(AGIDL_3DF* glide){
+AGIDL_TGA* AGIDL_Convert3DF2TGA(const AGIDL_3DF* glide){
 	char* imgname = AGIDL_GetImgName(glide->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_TGA);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2016,8 +2016,8 @@ AGIDL_TGA* AGIDL_Convert3DF2TGA(AGIDL_3DF* glide){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_3DFGetClrFmt(glide));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_3DFGetClrFmt(glide));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_TGASyncPix(tga,glide->pixels.pix32);
@@ -2028,7 +2028,7 @@ AGIDL_TGA* AGIDL_Convert3DF2TGA(AGIDL_3DF* glide){
 	return tga;
 }
 
-AGIDL_TIM* AGIDL_Convert3DF2TIM(AGIDL_3DF* glide){
+AGIDL_TIM* AGIDL_Convert3DF2TIM(const AGIDL_3DF* glide){
 	char* imgname = AGIDL_GetImgName(glide->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_TIM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2041,8 +2041,8 @@ AGIDL_TIM* AGIDL_Convert3DF2TIM(AGIDL_3DF* glide){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_3DFGetClrFmt(glide));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_3DFGetClrFmt(glide));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_TIMSyncPix(tim,glide->pixels.pix32);
@@ -2053,7 +2053,7 @@ AGIDL_TIM* AGIDL_Convert3DF2TIM(AGIDL_3DF* glide){
 	return tim;
 }
 
-AGIDL_PCX* AGIDL_Convert3DF2PCX(AGIDL_3DF* glide){
+AGIDL_PCX* AGIDL_Convert3DF2PCX(const AGIDL_3DF* glide){
 	char* imgname = AGIDL_GetImgName(glide->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PCX);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2066,8 +2066,8 @@ AGIDL_PCX* AGIDL_Convert3DF2PCX(AGIDL_3DF* glide){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_3DFGetClrFmt(glide));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_3DFGetClrFmt(glide));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PCXSyncPix(pcx,glide->pixels.pix32);
@@ -2078,7 +2078,7 @@ AGIDL_PCX* AGIDL_Convert3DF2PCX(AGIDL_3DF* glide){
 	return pcx;
 }
 
-AGIDL_LMP* AGIDL_Convert3DF2LMP(AGIDL_3DF* glide){
+AGIDL_LMP* AGIDL_Convert3DF2LMP(const AGIDL_3DF* glide){
 	char* imgname = AGIDL_GetImgName(glide->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_LMP);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2090,8 +2090,8 @@ AGIDL_LMP* AGIDL_Convert3DF2LMP(AGIDL_3DF* glide){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_3DFGetClrFmt(glide));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_3DFGetClrFmt(glide));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_LMPSyncPix(lmp,glide->pixels.pix32);
@@ -2102,7 +2102,7 @@ AGIDL_LMP* AGIDL_Convert3DF2LMP(AGIDL_3DF* glide){
 	return lmp;
 }
 
-AGIDL_PVR* AGIDL_Convert3DF2PVR(AGIDL_3DF* glide){
+AGIDL_PVR* AGIDL_Convert3DF2PVR(const AGIDL_3DF* glide){
 	char* imgname = AGIDL_GetImgName(glide->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PVR);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2115,8 +2115,8 @@ AGIDL_PVR* AGIDL_Convert3DF2PVR(AGIDL_3DF* glide){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_3DFGetClrFmt(glide));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_3DFGetClrFmt(glide));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PVRSyncPix(pvr,glide->pixels.pix32);
@@ -2127,7 +2127,7 @@ AGIDL_PVR* AGIDL_Convert3DF2PVR(AGIDL_3DF* glide){
 	return pvr;
 }
 
-AGIDL_GXT* AGIDL_Convert3DF2GXT(AGIDL_3DF* glide){
+AGIDL_GXT* AGIDL_Convert3DF2GXT(const AGIDL_3DF* glide){
 	char* imgname = AGIDL_GetImgName(glide->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_GXT);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2140,8 +2140,8 @@ AGIDL_GXT* AGIDL_Convert3DF2GXT(AGIDL_3DF* glide){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_3DFGetClrFmt(glide));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_3DFGetClrFmt(glide));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_GXTSyncPix(gxt,glide->pixels.pix32);
@@ -2152,7 +2152,7 @@ AGIDL_GXT* AGIDL_Convert3DF2GXT(AGIDL_3DF* glide){
 	return gxt;
 }
 
-AGIDL_BTI* AGIDL_Convert3DF2BTI(AGIDL_3DF* glide){
+AGIDL_BTI* AGIDL_Convert3DF2BTI(const AGIDL_3DF* glide){
 	char* imgname = AGIDL_GetImgName(glide->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_BTI);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2165,8 +2165,8 @@ AGIDL_BTI* AGIDL_Convert3DF2BTI(AGIDL_3DF* glide){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_3DFGetClrFmt(glide));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_3DFGetClrFmt(glide));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_BTISyncPix(bti,glide->pixels.pix32);
@@ -2177,7 +2177,7 @@ AGIDL_BTI* AGIDL_Convert3DF2BTI(AGIDL_3DF* glide){
 	return bti;
 }
 
-AGIDL_PPM* AGIDL_Convert3DF2PPM(AGIDL_3DF* glide){
+AGIDL_PPM* AGIDL_Convert3DF2PPM(const AGIDL_3DF* glide){
 	char* imgname = AGIDL_GetImgName(glide->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PPM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2188,8 +2188,8 @@ AGIDL_PPM* AGIDL_Convert3DF2PPM(AGIDL_3DF* glide){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_3DFGetClrFmt(glide));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_3DFGetClrFmt(glide));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PPMSyncPix(ppm,glide->pixels.pix32);
@@ -2200,7 +2200,7 @@ AGIDL_PPM* AGIDL_Convert3DF2PPM(AGIDL_3DF* glide){
 	return ppm;
 }
 
-AGIDL_LBM* AGIDL_Convert3DF2LBM(AGIDL_3DF* glide){
+AGIDL_LBM* AGIDL_Convert3DF2LBM(const AGIDL_3DF* glide){
 	char* imgname = AGIDL_GetImgName(glide->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_LBM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2213,8 +2213,8 @@ AGIDL_LBM* AGIDL_Convert3DF2LBM(AGIDL_3DF* glide){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_3DFGetClrFmt(glide));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_3DFGetClrFmt(glide));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_LBMSyncPix(lbm,glide->pixels.pix32);
@@ -2225,7 +2225,7 @@ AGIDL_LBM* AGIDL_Convert3DF2LBM(AGIDL_3DF* glide){
 	return lbm;
 }
 
-AGIDL_BMP* AGIDL_ConvertPPM2BMP(AGIDL_PPM* ppm){
+AGIDL_BMP* AGIDL_ConvertPPM2BMP(const AGIDL_PPM* ppm){
 	char* imgname = AGIDL_GetImgName(ppm->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_BMP);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2236,8 +2236,8 @@ AGIDL_BMP* AGIDL_ConvertPPM2BMP(AGIDL_PPM* ppm){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PPMGetClrFmt(ppm));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PPMGetClrFmt(ppm));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_BMPSyncPix(bmp,ppm->pixels.pix32);
@@ -2248,7 +2248,7 @@ AGIDL_BMP* AGIDL_ConvertPPM2BMP(AGIDL_PPM* ppm){
 	return bmp;
 }
 
-AGIDL_TGA* AGIDL_ConvertPPM2TGA(AGIDL_PPM* ppm){
+AGIDL_TGA* AGIDL_ConvertPPM2TGA(const AGIDL_PPM* ppm){
 	char* imgname = AGIDL_GetImgName(ppm->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_TGA);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2259,8 +2259,8 @@ AGIDL_TGA* AGIDL_ConvertPPM2TGA(AGIDL_PPM* ppm){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PPMGetClrFmt(ppm));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PPMGetClrFmt(ppm));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_TGASyncPix(tga,ppm->pixels.pix32);
@@ -2271,7 +2271,7 @@ AGIDL_TGA* AGIDL_ConvertPPM2TGA(AGIDL_PPM* ppm){
 	return tga;
 }
 
-AGIDL_TIM* AGIDL_ConvertPPM2TIM(AGIDL_PPM* ppm){
+AGIDL_TIM* AGIDL_ConvertPPM2TIM(const AGIDL_PPM* ppm){
 	char* imgname = AGIDL_GetImgName(ppm->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_TIM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2282,8 +2282,8 @@ AGIDL_TIM* AGIDL_ConvertPPM2TIM(AGIDL_PPM* ppm){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PPMGetClrFmt(ppm));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PPMGetClrFmt(ppm));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_TIMSyncPix(tim,ppm->pixels.pix32);
@@ -2294,7 +2294,7 @@ AGIDL_TIM* AGIDL_ConvertPPM2TIM(AGIDL_PPM* ppm){
 	return tim;
 }
 
-AGIDL_PCX* AGIDL_ConvertPPM2PCX(AGIDL_PPM* ppm){
+AGIDL_PCX* AGIDL_ConvertPPM2PCX(const AGIDL_PPM* ppm){
 	char* imgname = AGIDL_GetImgName(ppm->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PCX);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2305,8 +2305,8 @@ AGIDL_PCX* AGIDL_ConvertPPM2PCX(AGIDL_PPM* ppm){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PPMGetClrFmt(ppm));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PPMGetClrFmt(ppm));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PCXSyncPix(pcx,ppm->pixels.pix32);
@@ -2317,7 +2317,7 @@ AGIDL_PCX* AGIDL_ConvertPPM2PCX(AGIDL_PPM* ppm){
 	return pcx;
 }
 
-AGIDL_LMP* AGIDL_ConvertPPM2LMP(AGIDL_PPM* ppm){
+AGIDL_LMP* AGIDL_ConvertPPM2LMP(const AGIDL_PPM* ppm){
 	char* imgname = AGIDL_GetImgName(ppm->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_LMP);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2328,8 +2328,8 @@ AGIDL_LMP* AGIDL_ConvertPPM2LMP(AGIDL_PPM* ppm){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PPMGetClrFmt(ppm));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PPMGetClrFmt(ppm));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_LMPSyncPix(lmp,ppm->pixels.pix32);
@@ -2340,7 +2340,7 @@ AGIDL_LMP* AGIDL_ConvertPPM2LMP(AGIDL_PPM* ppm){
 	return lmp;
 }
 
-AGIDL_PVR* AGIDL_ConvertPPM2PVR(AGIDL_PPM* ppm){
+AGIDL_PVR* AGIDL_ConvertPPM2PVR(const AGIDL_PPM* ppm){
 	char* imgname = AGIDL_GetImgName(ppm->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PVR);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2351,8 +2351,8 @@ AGIDL_PVR* AGIDL_ConvertPPM2PVR(AGIDL_PPM* ppm){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PPMGetClrFmt(ppm));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PPMGetClrFmt(ppm));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PVRSyncPix(pvr,ppm->pixels.pix32);
@@ -2363,7 +2363,7 @@ AGIDL_PVR* AGIDL_ConvertPPM2PVR(AGIDL_PPM* ppm){
 	return pvr;
 }
 
-AGIDL_GXT* AGIDL_ConvertPPM2GXT(AGIDL_PPM* ppm){
+AGIDL_GXT* AGIDL_ConvertPPM2GXT(const AGIDL_PPM* ppm){
 	char* imgname = AGIDL_GetImgName(ppm->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_GXT);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2374,8 +2374,8 @@ AGIDL_GXT* AGIDL_ConvertPPM2GXT(AGIDL_PPM* ppm){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PPMGetClrFmt(ppm));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PPMGetClrFmt(ppm));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_GXTSyncPix(gxt,ppm->pixels.pix32);
@@ -2386,7 +2386,7 @@ AGIDL_GXT* AGIDL_ConvertPPM2GXT(AGIDL_PPM* ppm){
 	return gxt;
 }
 
-AGIDL_BTI* AGIDL_ConvertPPM2BTI(AGIDL_PPM* ppm){
+AGIDL_BTI* AGIDL_ConvertPPM2BTI(const AGIDL_PPM* ppm){
 	char* imgname = AGIDL_GetImgName(ppm->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_BTI);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2397,8 +2397,8 @@ AGIDL_BTI* AGIDL_ConvertPPM2BTI(AGIDL_PPM* ppm){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PPMGetClrFmt(ppm));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PPMGetClrFmt(ppm));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_BTISyncPix(bti,ppm->pixels.pix32);
@@ -2409,7 +2409,7 @@ AGIDL_BTI* AGIDL_ConvertPPM2BTI(AGIDL_PPM* ppm){
 	return bti;
 }
 
-AGIDL_3DF* AGIDL_ConvertPPM23DF(AGIDL_PPM* ppm){
+AGIDL_3DF* AGIDL_ConvertPPM23DF(const AGIDL_PPM* ppm){
 	char* imgname = AGIDL_GetImgName(ppm->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_3DF);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2420,8 +2420,8 @@ AGIDL_3DF* AGIDL_ConvertPPM23DF(AGIDL_PPM* ppm){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PPMGetClrFmt(ppm));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PPMGetClrFmt(ppm));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_3DFSyncPix(glide,ppm->pixels.pix32);
@@ -2432,7 +2432,7 @@ AGIDL_3DF* AGIDL_ConvertPPM23DF(AGIDL_PPM* ppm){
 	return glide;
 }
 
-AGIDL_LBM* AGIDL_ConvertPPM2LBM(AGIDL_PPM* ppm){
+AGIDL_LBM* AGIDL_ConvertPPM2LBM(const AGIDL_PPM* ppm){
 	char* imgname = AGIDL_GetImgName(ppm->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_LBM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2443,8 +2443,8 @@ AGIDL_LBM* AGIDL_ConvertPPM2LBM(AGIDL_PPM* ppm){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_PPMGetClrFmt(ppm));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_PPMGetClrFmt(ppm));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_LBMSyncPix(lbm,ppm->pixels.pix32);
@@ -2455,7 +2455,7 @@ AGIDL_LBM* AGIDL_ConvertPPM2LBM(AGIDL_PPM* ppm){
 	return lbm;
 }
 
-AGIDL_BMP* AGIDL_ConvertLBM2BMP(AGIDL_LBM* lbm){
+AGIDL_BMP* AGIDL_ConvertLBM2BMP(const AGIDL_LBM* lbm){
 	char* imgname = AGIDL_GetImgName(lbm->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_BMP);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2468,8 +2468,8 @@ AGIDL_BMP* AGIDL_ConvertLBM2BMP(AGIDL_LBM* lbm){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_BMPSyncPix(bmp,lbm->pixels.pix32);
@@ -2480,7 +2480,7 @@ AGIDL_BMP* AGIDL_ConvertLBM2BMP(AGIDL_LBM* lbm){
 	return bmp;
 }
 
-AGIDL_TGA* AGIDL_ConvertLBM2TGA(AGIDL_LBM* lbm){
+AGIDL_TGA* AGIDL_ConvertLBM2TGA(const AGIDL_LBM* lbm){
 	char* imgname = AGIDL_GetImgName(lbm->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_TGA);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2493,8 +2493,8 @@ AGIDL_TGA* AGIDL_ConvertLBM2TGA(AGIDL_LBM* lbm){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_TGASyncPix(tga,lbm->pixels.pix32);
@@ -2505,7 +2505,7 @@ AGIDL_TGA* AGIDL_ConvertLBM2TGA(AGIDL_LBM* lbm){
 	return tga;
 }
 
-AGIDL_TIM* AGIDL_ConvertLBM2TIM(AGIDL_LBM* lbm){
+AGIDL_TIM* AGIDL_ConvertLBM2TIM(const AGIDL_LBM* lbm){
 	char* imgname = AGIDL_GetImgName(lbm->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_TIM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2518,8 +2518,8 @@ AGIDL_TIM* AGIDL_ConvertLBM2TIM(AGIDL_LBM* lbm){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_TIMSyncPix(tim,lbm->pixels.pix32);
@@ -2530,7 +2530,7 @@ AGIDL_TIM* AGIDL_ConvertLBM2TIM(AGIDL_LBM* lbm){
 	return tim;
 }
 
-AGIDL_PCX* AGIDL_ConvertLBM2PCX(AGIDL_LBM* lbm){
+AGIDL_PCX* AGIDL_ConvertLBM2PCX(const AGIDL_LBM* lbm){
 	char* imgname = AGIDL_GetImgName(lbm->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PCX);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2543,8 +2543,8 @@ AGIDL_PCX* AGIDL_ConvertLBM2PCX(AGIDL_LBM* lbm){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PCXSyncPix(pcx,lbm->pixels.pix32);
@@ -2555,7 +2555,7 @@ AGIDL_PCX* AGIDL_ConvertLBM2PCX(AGIDL_LBM* lbm){
 	return pcx;
 }
 
-AGIDL_LMP* AGIDL_ConvertLBM2LMP(AGIDL_LBM* lbm){
+AGIDL_LMP* AGIDL_ConvertLBM2LMP(const AGIDL_LBM* lbm){
 	char* imgname = AGIDL_GetImgName(lbm->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_LMP);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2567,8 +2567,8 @@ AGIDL_LMP* AGIDL_ConvertLBM2LMP(AGIDL_LBM* lbm){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_LMPSyncPix(lmp,lbm->pixels.pix32);
@@ -2579,7 +2579,7 @@ AGIDL_LMP* AGIDL_ConvertLBM2LMP(AGIDL_LBM* lbm){
 	return lmp;
 }
 
-AGIDL_PVR* AGIDL_ConvertLBM2PVR(AGIDL_LBM* lbm){
+AGIDL_PVR* AGIDL_ConvertLBM2PVR(const AGIDL_LBM* lbm){
 	char* imgname = AGIDL_GetImgName(lbm->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PVR);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2592,8 +2592,8 @@ AGIDL_PVR* AGIDL_ConvertLBM2PVR(AGIDL_LBM* lbm){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PVRSyncPix(pvr,lbm->pixels.pix32);
@@ -2604,7 +2604,7 @@ AGIDL_PVR* AGIDL_ConvertLBM2PVR(AGIDL_LBM* lbm){
 	return pvr;
 }
 
-AGIDL_GXT* AGIDL_ConvertLBM2GXT(AGIDL_LBM* lbm){
+AGIDL_GXT* AGIDL_ConvertLBM2GXT(const AGIDL_LBM* lbm){
 	char* imgname = AGIDL_GetImgName(lbm->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_GXT);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2617,8 +2617,8 @@ AGIDL_GXT* AGIDL_ConvertLBM2GXT(AGIDL_LBM* lbm){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_GXTSyncPix(gxt,lbm->pixels.pix32);
@@ -2629,7 +2629,7 @@ AGIDL_GXT* AGIDL_ConvertLBM2GXT(AGIDL_LBM* lbm){
 	return gxt;
 }
 
-AGIDL_3DF* AGIDL_ConvertLBM23DF(AGIDL_LBM* lbm){
+AGIDL_3DF* AGIDL_ConvertLBM23DF(const AGIDL_LBM* lbm){
 	char* imgname = AGIDL_GetImgName(lbm->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_3DF);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2642,8 +2642,8 @@ AGIDL_3DF* AGIDL_ConvertLBM23DF(AGIDL_LBM* lbm){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_3DFSyncPix(glide,lbm->pixels.pix32);
@@ -2654,7 +2654,7 @@ AGIDL_3DF* AGIDL_ConvertLBM23DF(AGIDL_LBM* lbm){
 	return glide;
 }
 
-AGIDL_PPM* AGIDL_ConvertLBM2PPM(AGIDL_LBM* lbm){
+AGIDL_PPM* AGIDL_ConvertLBM2PPM(const AGIDL_LBM* lbm){
 	char* imgname = AGIDL_GetImgName(lbm->filename);
 	char* ext = AGIDL_GetImgExtension(AGIDL_IMG_PPM);
 	char* filename = AGIDL_StrCpy(imgname,ext);
@@ -2665,8 +2665,8 @@ AGIDL_PPM* AGIDL_ConvertLBM2PPM(AGIDL_LBM* lbm){
 	free(imgname);
 	free(ext);
 	free(filename);
-	
-	int bits = AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm));
+
+	const int bits = AGIDL_GetBitCount(AGIDL_LBMGetClrFmt(lbm));
 	
 	if(bits == 24 || bits == 32){
 		AGIDL_PPMSyncPix(ppm,lbm->pixels.pix32);

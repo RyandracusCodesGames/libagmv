@@ -1,3 +1,6 @@
+#ifndef AGIDL_IMG_EXPORT_H
+#define AGIDL_IMG_EXPORT_H
+
 /********************************************
 *   Adaptive Graphics Image Display Library
 *
@@ -11,8 +14,11 @@
 *   Author: Ryandracus Chapman
 *
 ********************************************/
-#include "agidl_types.h"
-#include "agidl_img_types.h"
-#include "agidl_cc_types.h"
 
-void AGIDL_QuickExport(void* data, u32 width, u32 height, AGIDL_CLR_FMT fmt, AGIDL_IMG_TYPE img_type);
+#include <agidl_cc_types.h>
+#include <agidl_img_types.h>
+#include <agidl_types.h>
+
+void AGIDL_QuickExport(const void* data, u32 width, u32 height, AGIDL_CLR_FMT fmt, AGIDL_IMG_TYPE img_type);
+
+#endif

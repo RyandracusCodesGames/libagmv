@@ -15,10 +15,11 @@
 *
 ********************************************/
 
+#include <agidl_cc_types.h>
+#include <agidl_img_types.h>
+#include <agidl_types.h>
+
 #include <stdio.h>
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_types.h"
 
 #define GXT_TEXTURE_BASE_FORMAT 0x0010
 
@@ -79,26 +80,26 @@ typedef struct AGIDL_GXT{
 	char* filename;
 }AGIDL_GXT;
 
-void AGIDL_SetGXTFilename(AGIDL_GXT* gtx, const char* filename);
+void AGIDL_SetGXTFilename(AGIDL_GXT* gxt, const char* filename);
 void AGIDL_GXTSetWidth(AGIDL_GXT* gxt, int width);
 void AGIDL_GXTSetHeight(AGIDL_GXT* gxt, int height);
 void AGIDL_GXTSetClrFmt(AGIDL_GXT* gxt, AGIDL_CLR_FMT fmt);
 void AGIDL_GXTSetICPMode(AGIDL_GXT* gxt, int mode);
 void AGIDL_GXTSetMaxDiff(AGIDL_GXT* gxt, int max_diff);
-void AGIDL_GXTSetClr(AGIDL_GXT* gxt, int x, int y, COLOR clr);
-void AGIDL_GXTSetClr16(AGIDL_GXT* gxt, int x, int y, COLOR16 clr);
-void AGIDL_GXTSetRGB(AGIDL_GXT* gxt, int x, int y, u8 r, u8 g, u8 b);
-void AGIDL_ClearGXT(AGIDL_GXT* gxt, COLOR clr);
-void AGIDL_ClearGXT16(AGIDL_GXT* gxt, COLOR16 clr);
-void AGIDL_ClearColorGXT(AGIDL_GXT* gxt, float r, float g, float b);
-void AGIDL_FlushGXT(AGIDL_GXT* gxt);
-int AGIDL_GXTGetWidth(AGIDL_GXT* gxt);
-int AGIDL_GXTGetHeight(AGIDL_GXT* gxt);
-u32 AGIDL_GXTGetSize(AGIDL_GXT* gxt);
-AGIDL_CLR_FMT AGIDL_GXTGetClrFmt(AGIDL_GXT* gxt);
-int AGIDL_GXTGetMaxDiff(AGIDL_GXT* gxt);
-COLOR AGIDL_GXTGetClr(AGIDL_GXT* gxt, int x, int y);
-COLOR16 AGIDL_GXTGetClr16(AGIDL_GXT* gxt, int x, int y);
+void AGIDL_GXTSetClr(const AGIDL_GXT* gxt, int x, int y, COLOR clr);
+void AGIDL_GXTSetClr16(const AGIDL_GXT* gxt, int x, int y, COLOR16 clr);
+void AGIDL_GXTSetRGB(const AGIDL_GXT* gxt, int x, int y, u8 r, u8 g, u8 b);
+void AGIDL_ClearGXT(const AGIDL_GXT* gxt, COLOR clr);
+void AGIDL_ClearGXT16(const AGIDL_GXT* gxt, COLOR16 clr);
+void AGIDL_ClearColorGXT(const AGIDL_GXT* gxt, float r, float g, float b);
+void AGIDL_FlushGXT(const AGIDL_GXT* gxt);
+int AGIDL_GXTGetWidth(const AGIDL_GXT* gxt);
+int AGIDL_GXTGetHeight(const AGIDL_GXT* gxt);
+u32 AGIDL_GXTGetSize(const AGIDL_GXT* gxt);
+AGIDL_CLR_FMT AGIDL_GXTGetClrFmt(const AGIDL_GXT* gxt);
+int AGIDL_GXTGetMaxDiff(const AGIDL_GXT* gxt);
+COLOR AGIDL_GXTGetClr(const AGIDL_GXT* gxt, int x, int y);
+COLOR16 AGIDL_GXTGetClr16(const AGIDL_GXT* gxt, int x, int y);
 void AGIDL_GXTRGB2BGR(AGIDL_GXT* gxt);
 void AGIDL_GXTBGR2RGB(AGIDL_GXT* gxt);
 void AGIDL_GXTConvert24BPPTO16BPP(AGIDL_GXT* gxt);
@@ -106,13 +107,13 @@ void AGIDL_GXTConvert16BPPTO24BPP(AGIDL_GXT* gxt);
 void AGIDL_GXT555TO565(AGIDL_GXT* gxt);
 void AGIDL_GXT565TO555(AGIDL_GXT* gxt);
 void AGIDL_ColorConvertGXT(AGIDL_GXT* gxt, AGIDL_CLR_FMT dest);
-void AGIDL_GXTSyncPix(AGIDL_GXT *gxt, COLOR *clrs);
-void AGIDL_GXTSyncPix16(AGIDL_GXT *gxt, COLOR16 *clrs);
-void AGIDL_GXTCopyPix(AGIDL_GXT* gxt, COLOR* clrs, u32 count);
-void AGIDL_GXTCopyPix16(AGIDL_GXT* gxt, COLOR16* clrs, u32 count);
+void AGIDL_GXTSyncPix(const AGIDL_GXT *gxt, const COLOR *clrs);
+void AGIDL_GXTSyncPix16(const AGIDL_GXT *gxt, const COLOR16 *clrs);
+void AGIDL_GXTCopyPix(const AGIDL_GXT* gxt, const COLOR* clrs, u32 count);
+void AGIDL_GXTCopyPix16(const AGIDL_GXT* gxt, const COLOR16* clrs, u32 count);
 AGIDL_GXT* AGIDL_LoadGXT(char* filename);
 AGIDL_GXT* AGIDL_CreateGXT(const char* filename, int width, int height, AGIDL_CLR_FMT fmt);
-AGIDL_GXT* AGIDL_GXTCpyImg(AGIDL_GXT* gxt);
+AGIDL_GXT* AGIDL_GXTCpyImg(const AGIDL_GXT* gxt);
 void AGIDL_ExportGXT(AGIDL_GXT* gxt);
 void AGIDL_FreeGXT(AGIDL_GXT* gxt);
 GXT_CLR_FMT AGIDL_GetGXTClrFmt(u8 type);
@@ -122,7 +123,7 @@ int AGIDL_GXTDecodeTextureHeader(AGIDL_GXT* gxt, FILE* file);
 void AGIDL_GXTDecodeIMG(AGIDL_GXT* gxt, FILE* file);
 void AGIDL_GXTDecodeSwizzledIMG(AGIDL_GXT* gxt, FILE* file);
 void AGIDL_GXTEncodeHeader(AGIDL_GXT* gxt, FILE* file);
-void AGIDL_GXTEncodeTextureHeader(AGIDL_GXT* gxt, FILE* file);
+void AGIDL_GXTEncodeTextureHeader(const AGIDL_GXT* gxt, FILE* file);
 void AGIDL_GXTEncodeICP(AGIDL_GXT* gxt, FILE* file);
-void AGIDL_GXTEncodeIMG(AGIDL_GXT* gxt, FILE* file);
+void AGIDL_GXTEncodeIMG(const AGIDL_GXT* gxt, FILE* file);
 #endif

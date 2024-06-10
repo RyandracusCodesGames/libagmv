@@ -15,9 +15,8 @@
 *
 ********************************************/
 
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_types.h"
+#include <agidl_cc_types.h>
+#include <agidl_types.h>
 
 void AGIDL_HalftoneImgData(void* data, u16 width, u16 height, AGIDL_CLR_FMT fmt, u8 threshold);
 

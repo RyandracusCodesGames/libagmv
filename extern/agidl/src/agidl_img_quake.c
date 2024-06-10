@@ -1,11 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "agidl_cc_core.h"
-#include "agidl_img_quake.h"
-#include "agidl_file_utils.h"
-#include "agidl_mmu_utils.h"
-
 /********************************************
 *   Adaptive Graphics Image Display Library
 *
@@ -20,24 +12,33 @@
 *
 ********************************************/
 
+#include <agidl_img_quake.h>
+
+#include <stdlib.h>
+#include <string.h>
+
+#include <agidl_cc_core.h>
+#include <agidl_file_utils.h>
+#include <agidl_mmu_utils.h>
+
 void AGIDL_SetLMPFilename(AGIDL_LMP *lmp, const char *filename){
 	lmp->filename = (char*)realloc(lmp->filename,strlen(filename));
 	AGIDL_FilenameCpy(lmp->filename,filename);
 }
 
-void AGIDL_LMPSetWidth(AGIDL_LMP *lmp, int width){
+void AGIDL_LMPSetWidth(AGIDL_LMP *lmp, const int width){
 	lmp->width = width;
 }
 
-void AGIDL_LMPSetHeight(AGIDL_LMP *lmp, int height){
+void AGIDL_LMPSetHeight(AGIDL_LMP *lmp, const int height){
 	lmp->height = height;
 }
 
-void AGIDL_LMPSetClrFmt(AGIDL_LMP *lmp, AGIDL_CLR_FMT fmt){
+void AGIDL_LMPSetClrFmt(AGIDL_LMP *lmp, const AGIDL_CLR_FMT fmt){
 	lmp->fmt = fmt;
 }
 
-void AGIDL_LMPSetClr(AGIDL_LMP *lmp, int x, int y, COLOR clr){
+void AGIDL_LMPSetClr(const AGIDL_LMP *lmp, const int x, const int y, const COLOR clr){
 	if(AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp)) != 16){
 		AGIDL_SetClr(lmp->pixels.pix32,clr,x,y,AGIDL_LMPGetWidth(lmp),AGIDL_LMPGetHeight(lmp));
 	}
@@ -46,7 +47,7 @@ void AGIDL_LMPSetClr(AGIDL_LMP *lmp, int x, int y, COLOR clr){
 	}
 }
 
-void AGIDL_LMPSetClr16(AGIDL_LMP *lmp, int x, int y, COLOR16 clr){
+void AGIDL_LMPSetClr16(const AGIDL_LMP *lmp, const int x, const int y, const COLOR16 clr){
 	if(AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp) == 16)){
 		AGIDL_SetClr16(lmp->pixels.pix16,clr,x,y,AGIDL_LMPGetWidth(lmp),AGIDL_LMPGetHeight(lmp));
 	}
@@ -55,7 +56,7 @@ void AGIDL_LMPSetClr16(AGIDL_LMP *lmp, int x, int y, COLOR16 clr){
 	}
 }
 
-void AGIDL_LMPSetRGB(AGIDL_LMP *lmp, int x, int y, u8 r, u8 g, u8 b){
+void AGIDL_LMPSetRGB(const AGIDL_LMP *lmp, const int x, const int y, const u8 r, const u8 g, const u8 b){
 	switch(AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp))){
 		case 24:{
 			AGIDL_LMPSetClr(lmp,x,y,AGIDL_RGB(r,g,b,AGIDL_LMPGetClrFmt(lmp)));
@@ -69,16 +70,16 @@ void AGIDL_LMPSetRGB(AGIDL_LMP *lmp, int x, int y, u8 r, u8 g, u8 b){
 	}
 }
 
-void AGIDL_ClearLMP(AGIDL_LMP *lmp, COLOR clr){
+void AGIDL_ClearLMP(const AGIDL_LMP *lmp, const COLOR clr){
 	if(AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp)) != 16){
 		AGIDL_ClrMemset(lmp->pixels.pix32,clr,AGIDL_LMPGetSize(lmp));
 	}
 	else{
-		AGIDL_ClrMemset16(lmp->pixels.pix16,(COLOR16)clr,AGIDL_LMPGetSize(lmp));
+		AGIDL_ClrMemset16(lmp->pixels.pix16,clr,AGIDL_LMPGetSize(lmp));
 	}
 }
 
-void AGIDL_ClearLMP16(AGIDL_LMP *lmp, COLOR16 clr){
+void AGIDL_ClearLMP16(const AGIDL_LMP *lmp, const COLOR16 clr){
 	if(AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp)) == 16){
 		AGIDL_ClrMemset16(lmp->pixels.pix16,clr,AGIDL_LMPGetSize(lmp));
 	}
@@ -87,7 +88,7 @@ void AGIDL_ClearLMP16(AGIDL_LMP *lmp, COLOR16 clr){
 	}
 }
 
-void AGIDL_ClearColorLMP(AGIDL_LMP* lmp, float r, float g, float b){
+void AGIDL_ClearColorLMP(const AGIDL_LMP* lmp, const float r, const float g, const float b){
 	if(AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp)) == 16){
 		AGIDL_ClearColorBuffer(lmp->pixels.pix16,r,g,b,AGIDL_LMPGetClrFmt(lmp),AGIDL_LMPGetSize(lmp));
 	}
@@ -96,36 +97,40 @@ void AGIDL_ClearColorLMP(AGIDL_LMP* lmp, float r, float g, float b){
 	}
 }
 
-void AGIDL_FlushLMP(AGIDL_LMP* lmp){
+void AGIDL_FlushLMP(const AGIDL_LMP* lmp){
 	AGIDL_ClearLMP(lmp,0);
 }
 
-int AGIDL_LMPGetWidth(AGIDL_LMP *lmp){
+int AGIDL_LMPGetWidth(const AGIDL_LMP *lmp){
 	return lmp->width;
 }
 
-int AGIDL_LMPGetHeight(AGIDL_LMP *lmp){
+int AGIDL_LMPGetHeight(const AGIDL_LMP *lmp){
 	return lmp->height;
 }
 
-u32 AGIDL_LMPGetSize(AGIDL_LMP* lmp){
+u32 AGIDL_LMPGetSize(const AGIDL_LMP* lmp){
 	return AGIDL_LMPGetWidth(lmp) * AGIDL_LMPGetHeight(lmp);
 }
 
-AGIDL_CLR_FMT AGIDL_LMPGetClrFmt(AGIDL_LMP* lmp){
+AGIDL_CLR_FMT AGIDL_LMPGetClrFmt(const AGIDL_LMP* lmp){
 	return lmp->fmt;
 }
 
-COLOR AGIDL_LMPGetClr(AGIDL_LMP *lmp, int x, int y){
+COLOR AGIDL_LMPGetClr(const AGIDL_LMP *lmp, const int x, const int y){
 	if(x >= 0 && y >= 0 && x < AGIDL_LMPGetWidth(lmp) && y < AGIDL_LMPGetHeight(lmp)){
 		return lmp->pixels.pix32[x+y*AGIDL_LMPGetWidth(lmp)];
 	}
+	fprintf(stderr, "%s: Index out of range", __FUNCTION__);
+	abort();
 }
 
-COLOR16 AGIDL_LMPGetClr16(AGIDL_LMP *lmp, int x, int y){
+COLOR16 AGIDL_LMPGetClr16(const AGIDL_LMP *lmp, const int x, const int y){
 	if(x >= 0 && y >= 0 && x < AGIDL_LMPGetWidth(lmp) && y < AGIDL_LMPGetHeight(lmp)){
 		return lmp->pixels.pix16[x+y*AGIDL_LMPGetWidth(lmp)];
 	}
+	fprintf(stderr, "%s: Index out of range", __FUNCTION__);
+	abort();
 }
 
 void AGIDL_FreeLMP(AGIDL_LMP *lmp){
@@ -189,8 +194,8 @@ void AGIDL_LMPConvert565TO555(AGIDL_LMP* lmp){
 	AGIDL_565TO555(lmp->pixels.pix16,AGIDL_LMPGetWidth(lmp),AGIDL_LMPGetHeight(lmp),&lmp->fmt);
 }
 
-void AGIDL_ColorConvertLMP(AGIDL_LMP* lmp, AGIDL_CLR_FMT dest){
-	u8 sbits = AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp)), dbits = AGIDL_GetBitCount(dest);
+void AGIDL_ColorConvertLMP(AGIDL_LMP* lmp, const AGIDL_CLR_FMT dest){
+	const u8 sbits = AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp)), dbits = AGIDL_GetBitCount(dest);
 	if(sbits == 16 && dbits == 16){
 		AGIDL_ColorConvertImgData(lmp->pixels.pix16,NULL,AGIDL_LMPGetWidth(lmp),AGIDL_LMPGetHeight(lmp),AGIDL_LMPGetClrFmt(lmp),dest);
 		AGIDL_LMPSetClrFmt(lmp,dest);
@@ -213,32 +218,32 @@ void AGIDL_ColorConvertLMP(AGIDL_LMP* lmp, AGIDL_CLR_FMT dest){
 	}
 }
 
-void AGIDL_LMPSyncPix(AGIDL_LMP *lmp, COLOR *clrs){
+void AGIDL_LMPSyncPix(const AGIDL_LMP *lmp, const COLOR *clrs){
 	if(AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp)) != 16){
 		AGIDL_ClrMemcpy(lmp->pixels.pix32,clrs,AGIDL_LMPGetSize(lmp));
 	}
 }
 
-void AGIDL_LMPSyncPix16(AGIDL_LMP *lmp, COLOR16 *clrs){
+void AGIDL_LMPSyncPix16(const AGIDL_LMP *lmp, const COLOR16 *clrs){
 	if(AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp)) == 16){
 		AGIDL_ClrMemcpy16(lmp->pixels.pix16,clrs,AGIDL_LMPGetSize(lmp));
 	}
 }
 
-void AGIDL_LMPCopyPix(AGIDL_LMP* lmp, COLOR* clrs, u32 count){
+void AGIDL_LMPCopyPix(const AGIDL_LMP* lmp, const COLOR* clrs, const u32 count){
 	if(AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp)) != 16){
 		AGIDL_ClrMemcpy(lmp->pixels.pix32,clrs,count);
 	}
 }
 
-void AGIDL_LMPCopyPix16(AGIDL_LMP* lmp, COLOR16* clrs, u32 count){
+void AGIDL_LMPCopyPix16(const AGIDL_LMP* lmp, const COLOR16* clrs, const u32 count){
 	if(AGIDL_GetBitCount(AGIDL_LMPGetClrFmt(lmp)) == 16){
 		AGIDL_ClrMemcpy16(lmp->pixels.pix16,clrs,count);
 	}
 }
 
-AGIDL_LMP * AGIDL_CreateLMP(const char *filename, int width, int height, AGIDL_CLR_FMT fmt){
-	AGIDL_LMP* lmp = (AGIDL_LMP*)malloc(sizeof(AGIDL_LMP));
+AGIDL_LMP * AGIDL_CreateLMP(const char *filename, const int width, const int height, const AGIDL_CLR_FMT fmt){
+	AGIDL_LMP* lmp = malloc(sizeof(AGIDL_LMP));
 	lmp->filename = (char*)malloc(strlen(filename)+1);
 	AGIDL_FilenameCpy(lmp->filename,filename);
 	AGIDL_LMPSetWidth(lmp,width);
@@ -258,7 +263,7 @@ AGIDL_LMP * AGIDL_CreateLMP(const char *filename, int width, int height, AGIDL_C
 	return lmp;
 }
 
-AGIDL_LMP* AGIDL_LMPCpyImg(AGIDL_LMP* lmp){
+AGIDL_LMP* AGIDL_LMPCpyImg(const AGIDL_LMP* lmp){
 	AGIDL_LMP* lmpcpy = AGIDL_CreateLMP("lmpcpy.lmp",AGIDL_LMPGetWidth(lmp),AGIDL_LMPGetHeight(lmp),lmp->fmt);
 	AGIDL_LMPSetMaxDiff(lmpcpy,AGIDL_LMPGetMaxDiff(lmp));
 	if(lmp->fmt == AGIDL_RGB_888 || lmp->fmt == AGIDL_BGR_888 || lmp->fmt == AGIDL_RGBA_8888 || lmp->fmt == AGIDL_ARGB_8888){
@@ -375,9 +380,8 @@ AGIDL_ICP AGIDL_GenerateQuakeICP(){
 	AGIDL_ICP pal;
 	pal.mode = AGIDL_ICP_256;
 	pal.fmt = AGIDL_RGB_888;
-	
-	int i;
-	for(i = 0; i < 256; i++){
+
+	for(int i = 0; i < 256; i++){
 		pal.icp.palette_256[i] = icp[i];
 	}
 	
@@ -389,11 +393,10 @@ void AGIDL_LMPDecodeHeader(AGIDL_LMP* lmp, FILE* file){
 	lmp->height = AGIDL_ReadLong(file);
 }
 
-void AGIDL_LMPDecodeIMG(AGIDL_LMP* lmp, FILE* file){
-	int x,y;
-	for(y = AGIDL_LMPGetHeight(lmp)-1; y >= 0; y--){
-		for(x = 0; x < AGIDL_LMPGetWidth(lmp); x++){
-			u8 index = AGIDL_ReadByte(file);
+void AGIDL_LMPDecodeIMG(const AGIDL_LMP* lmp, FILE* file){
+	for(int y = AGIDL_LMPGetHeight(lmp) - 1; y >= 0; y--){
+		for(int x = 0; x < AGIDL_LMPGetWidth(lmp); x++){
+			const u8 index = AGIDL_ReadByte(file);
 			AGIDL_LMPSetClr(lmp,x,y,lmp->palette.icp.palette_256[index]);
 		}
 	}
@@ -406,7 +409,7 @@ AGIDL_LMP * AGIDL_LoadLMP(char *filename){
 		printf("Could not open/locate Quake LMP Image - %s!\n",filename);
 	}
 	
-	AGIDL_LMP* lmp = (AGIDL_LMP*)malloc(sizeof(AGIDL_LMP));
+	AGIDL_LMP* lmp = malloc(sizeof(AGIDL_LMP));
 	lmp->filename = (char*)malloc(strlen(filename)+1);
 	AGIDL_FilenameCpy(lmp->filename,filename);
 	lmp->palette = AGIDL_GenerateQuakeICP();
@@ -422,27 +425,26 @@ AGIDL_LMP * AGIDL_LoadLMP(char *filename){
 	return lmp;
 }
 
-void AGIDL_LMPSetMaxDiff(AGIDL_LMP* lmp, int max_diff){
+void AGIDL_LMPSetMaxDiff(AGIDL_LMP* lmp, const int max_diff){
 	lmp->max_diff = max_diff;
 }
 
-int AGIDL_LMPGetMaxDiff(AGIDL_LMP* lmp){
+int AGIDL_LMPGetMaxDiff(const AGIDL_LMP* lmp){
 	return lmp->max_diff;
 }
 
-void AGIDL_LMPEncodeICP(AGIDL_LMP* lmp, FILE* file){
-	int x,y;
-	for(y = AGIDL_LMPGetHeight(lmp) - 1; y >= 0; y--){
-		for(x = 0; x < AGIDL_LMPGetWidth(lmp); x++){
-			COLOR clr = AGIDL_LMPGetClr(lmp,x,y);
-			u8 index = AGIDL_FindNearestColor(lmp->palette,clr,AGIDL_RGB_888);
+void AGIDL_LMPEncodeICP(const AGIDL_LMP* lmp, FILE* file){
+	for(int y = AGIDL_LMPGetHeight(lmp) - 1; y >= 0; y--){
+		for(int x = 0; x < AGIDL_LMPGetWidth(lmp); x++){
+			const COLOR clr = AGIDL_LMPGetClr(lmp,x,y);
+			const u8 index = AGIDL_FindNearestColor(lmp->palette,clr,AGIDL_RGB_888);
 			AGIDL_WriteByte(file,index);
 		}
 	}
 }
 
-void AGIDL_LMPEncodeHeader(AGIDL_LMP* lmp, FILE* file){
-	u32 width = AGIDL_LMPGetWidth(lmp), height = AGIDL_LMPGetHeight(lmp);
+void AGIDL_LMPEncodeHeader(const AGIDL_LMP* lmp, FILE* file){
+	const u32 width = AGIDL_LMPGetWidth(lmp), height = AGIDL_LMPGetHeight(lmp);
 	AGIDL_WriteLong(file,width);
 	AGIDL_WriteLong(file,height);
 }
@@ -494,9 +496,9 @@ void AGIDL_ExportLMP(AGIDL_LMP *lmp){
 			AGIDL_LMPConvert555TO565(lmp);
 		}break;
 		case AGIDL_RGBA_8888:{
-			COLOR* buf = (COLOR*)AGIDL_AllocImgDataMMU(AGIDL_LMPGetWidth(lmp),AGIDL_LMPGetHeight(lmp),AGIDL_LMPGetClrFmt(lmp));
+			COLOR* buf = AGIDL_AllocImgDataMMU(AGIDL_LMPGetWidth(lmp),AGIDL_LMPGetHeight(lmp),AGIDL_LMPGetClrFmt(lmp));
 			AGIDL_ClrMemcpy(buf,lmp->pixels.pix32,AGIDL_LMPGetSize(lmp));
-			AGIDL_CLR_FMT src = AGIDL_LMPGetClrFmt(lmp);
+			const AGIDL_CLR_FMT src = AGIDL_LMPGetClrFmt(lmp);
 			AGIDL_ColorConvertLMP(lmp,AGIDL_RGB_888);
 			AGIDL_LMPEncodeICP(lmp,file);
 			AGIDL_ColorConvertLMP(lmp,src);
@@ -505,9 +507,9 @@ void AGIDL_ExportLMP(AGIDL_LMP *lmp){
 			free(buf);
 		}break;
 		case AGIDL_ARGB_8888:{
-			COLOR* buf = (COLOR*)AGIDL_AllocImgDataMMU(AGIDL_LMPGetWidth(lmp),AGIDL_LMPGetHeight(lmp),AGIDL_LMPGetClrFmt(lmp));
+			COLOR* buf = AGIDL_AllocImgDataMMU(AGIDL_LMPGetWidth(lmp),AGIDL_LMPGetHeight(lmp),AGIDL_LMPGetClrFmt(lmp));
 			AGIDL_ClrMemcpy(buf,lmp->pixels.pix32,AGIDL_LMPGetSize(lmp));
-			AGIDL_CLR_FMT src = AGIDL_LMPGetClrFmt(lmp);
+			const AGIDL_CLR_FMT src = AGIDL_LMPGetClrFmt(lmp);
 			AGIDL_ColorConvertLMP(lmp,AGIDL_RGB_888);
 			AGIDL_LMPEncodeICP(lmp,file);
 			AGIDL_ColorConvertLMP(lmp,src);

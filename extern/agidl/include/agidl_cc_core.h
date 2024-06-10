@@ -15,10 +15,10 @@
 *
 ********************************************/
 
-#include "agidl_cc_types.h"
-#include "agidl_cc_manager.h"
-#include "agidl_cc_converter.h"
-#include "agidl_cc_mixer.h"
-#include "agidl_cc_chromascan.h"
+#include <agidl_cc_chromascan.h>
+#include <agidl_cc_converter.h>
+#include <agidl_cc_manager.h>
+#include <agidl_cc_mixer.h>
+#include <agidl_cc_types.h>
 
 #endif

@@ -15,11 +15,12 @@
 *
 ********************************************/
 
+#include <agidl_cc_types.h>
+#include <agidl_imgp_mipmap.h>
+#include <agidl_img_types.h>
+#include <agidl_types.h>
+
 #include <stdio.h>
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_types.h"
-#include "agidl_imgp_mipmap.h"
 
 typedef enum PVR_TYPE{
 	DREAMCAST_PVR = 0x0,
@@ -118,25 +119,25 @@ void AGIDL_PVRSetCompression(AGIDL_PVR* pvr, AGIDL_Bool compression);
 void AGIDL_PVRBuildMipmap(AGIDL_PVR* pvr, AGIDL_Bool mipped);
 void AGIDL_PVRSetMipmapLevel(AGIDL_PVR* pvr, u8 mip_lvl);
 void AGIDL_PVRSetType(AGIDL_PVR* pvr, PVR_TYPE pvr_type);
-void AGIDL_PVRSetClr(AGIDL_PVR* pvr, int x, int y, COLOR clr);
-void AGIDL_PVRSetClr16(AGIDL_PVR* pvr, int x, int y, COLOR16 clr);
-void AGIDL_PVRSetRGB(AGIDL_PVR* pvr, int x, int y, u8 r, u8 g, u8 b);
-void AGIDL_ClearPVR(AGIDL_PVR* pvr, COLOR clr);
-void AGIDL_ClearPVR16(AGIDL_PVR* pvr, COLOR16 clr);
-void AGIDL_ClearColorPVR(AGIDL_PVR* pvr, float r, float g, float b);
-void AGIDL_FlushPVR(AGIDL_PVR* pvr);
-int AGIDL_PVRGetWidth(AGIDL_PVR* pvr);
-int AGIDL_PVRGetHeight(AGIDL_PVR* pvr);
-u32 AGIDL_PVRGetSize(AGIDL_PVR* pvr);
-AGIDL_CLR_FMT AGIDL_PVRGetClrFmt(AGIDL_PVR* pvr);
-PVR_TYPE AGIDL_PVRGetType(AGIDL_PVR* pvr);
-int AGIDL_PVRGetMaxDiff(AGIDL_PVR* pvr);
-COLOR AGIDL_PVRGetClr(AGIDL_PVR* pvr, int x, int y);
-COLOR16 AGIDL_PVRGetClr16(AGIDL_PVR* pvr, int, int y);
-void AGIDL_PVRSyncPix(AGIDL_PVR *pvr, COLOR *clrs);
-void AGIDL_PVRSyncPix16(AGIDL_PVR *pvr, COLOR16 *clrs);
-void AGIDL_PVRCopyPix(AGIDL_PVR* pvr, COLOR* clrs, u32 count);
-void AGIDL_PVRCopyPix16(AGIDL_PVR* pvr, COLOR16* clrs, u32 count);
+void AGIDL_PVRSetClr(const AGIDL_PVR* pvr, int x, int y, COLOR clr);
+void AGIDL_PVRSetClr16(const AGIDL_PVR* pvr, int x, int y, COLOR16 clr);
+void AGIDL_PVRSetRGB(const AGIDL_PVR* pvr, int x, int y, u8 r, u8 g, u8 b);
+void AGIDL_ClearPVR(const AGIDL_PVR* pvr, COLOR clr);
+void AGIDL_ClearPVR16(const AGIDL_PVR* pvr, COLOR16 clr);
+void AGIDL_ClearColorPVR(const AGIDL_PVR* pvr, float r, float g, float b);
+void AGIDL_FlushPVR(const AGIDL_PVR* pvr);
+int AGIDL_PVRGetWidth(const AGIDL_PVR* pvr);
+int AGIDL_PVRGetHeight(const AGIDL_PVR* pvr);
+u32 AGIDL_PVRGetSize(const AGIDL_PVR* pvr);
+AGIDL_CLR_FMT AGIDL_PVRGetClrFmt(const AGIDL_PVR* pvr);
+PVR_TYPE AGIDL_PVRGetType(const AGIDL_PVR* pvr);
+int AGIDL_PVRGetMaxDiff(const AGIDL_PVR* pvr);
+COLOR AGIDL_PVRGetClr(const AGIDL_PVR* pvr, int x, int y);
+COLOR16 AGIDL_PVRGetClr16(const AGIDL_PVR* pvr, int, int y);
+void AGIDL_PVRSyncPix(const AGIDL_PVR *pvr, const COLOR *clrs);
+void AGIDL_PVRSyncPix16(const AGIDL_PVR *pvr, const COLOR16 *clrs);
+void AGIDL_PVRCopyPix(const AGIDL_PVR* pvr, const COLOR* clrs, u32 count);
+void AGIDL_PVRCopyPix16(const AGIDL_PVR* pvr, const COLOR16* clrs, u32 count);
 void AGIDL_FreePVR(AGIDL_PVR* pvr);
 void AGIDL_PVRRGB2BGR(AGIDL_PVR* pvr);
 void AGIDL_PVRBGR2RGB(AGIDL_PVR* pvr);
@@ -148,7 +149,7 @@ void AGIDL_PVR565TO555(AGIDL_PVR* pvr);
 void AGIDL_ColorConvertPVR(AGIDL_PVR* pvr, AGIDL_CLR_FMT dest);
 AGIDL_PVR * AGIDL_LoadPVR(char *filename);
 AGIDL_PVR * AGIDL_CreatePVR(const char *filename, int width, int height, AGIDL_CLR_FMT fmt);
-AGIDL_PVR* AGIDL_PVRCpyImg(AGIDL_PVR* pvr);
+AGIDL_PVR* AGIDL_PVRCpyImg(const AGIDL_PVR* pvr);
 void AGIDL_ExportPVR(AGIDL_PVR *pvr);
 
 int isImgPVR(u32 gbix, u32 pvrt);

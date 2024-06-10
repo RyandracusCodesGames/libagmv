@@ -15,19 +15,20 @@
 *
 ********************************************/
 
+#include <agmv_defines.h>
+
 #include <stdio.h>
-#include "agmv_defines.h"
 
 /*-------------AGMV PLAYBACK UTILITY FUNCTIONS-------------------*/
 
 void AGMV_ResetVideo(FILE* file, AGMV* agmv);
-Bool AGMV_IsVideoDone(AGMV* agmv);
+Bool AGMV_IsVideoDone(const AGMV* agmv);
 void AGMV_SkipForwards(FILE* file, AGMV* agmv, int n);
 void AGMV_SkipForwardsAndDecodeAudio(FILE* file, AGMV* agmv, int n);
 void AGMV_SkipBackwards(FILE* file, AGMV* agmv, int n);
 void AGMV_SkipTo(FILE* file, AGMV* agmv, int n);
 void AGMV_PlayAGMV(FILE* file, AGMV* agmv);
 void PlotPixel(u32* vram, int x, int y, int w, int h, u32 color);
-void AGMV_DisplayFrame(u32* vram, u16 width, u16 height, AGMV* agmv);
+void AGMV_DisplayFrame(u32* vram, u16 width, u16 height, const AGMV* agmv);
 
 #endif

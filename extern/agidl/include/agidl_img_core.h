@@ -15,11 +15,11 @@
 *
 ********************************************/
 
-#include "agidl_img_types.h"
-#include "agidl_img_converter.h"
-#include "agidl_img_search.h"
-#include "agidl_img_compression.h"
-#include "agidl_img_error.h"
-#include "agidl_img_export.h"
+#include <agidl_img_compression.h>
+#include <agidl_img_converter.h>
+#include <agidl_img_error.h>
+#include <agidl_img_export.h>
+#include <agidl_img_search.h>
+#include <agidl_img_types.h>
 
 #endif

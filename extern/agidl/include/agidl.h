@@ -15,12 +15,12 @@
 *
 ********************************************/
 
-#include "agidl_math_utils.h"
-#include "agidl_file_utils.h"
-#include "agidl_cc_core.h"
-#include "agidl_img_core.h"
-#include "agidl_imgp_core.h"
-#include "agidl_gd_display.h"
-#include "agidl_vid_str.h"
+#include <agidl_cc_core.h>
+#include <agidl_file_utils.h>
+#include <agidl_gd_display.h>
+#include <agidl_imgp_core.h>
+#include <agidl_img_core.h>
+#include <agidl_math_utils.h>
+#include <agidl_vid_str.h>
 
 #endif

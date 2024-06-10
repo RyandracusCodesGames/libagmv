@@ -15,8 +15,8 @@
 *
 ********************************************/
 
-#include "agidl_types.h"
-#include "agidl_cc_core.h"
+#include <agidl_cc_core.h>
+#include <agidl_types.h>
 
 /* MULTIPLY SOURCE COLOR BY INVERSE BLEND FACTOR AND DEST COLOR BY BLEND FACTOR
    COL1*(1-blend_factor)+COL2*(blend_factor)*/

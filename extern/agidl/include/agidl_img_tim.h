@@ -15,11 +15,12 @@
 *
 ********************************************/
 
+#include <agidl_cc_manager.h>
+#include <agidl_cc_types.h>
+#include <agidl_img_types.h>
+#include <agidl_types.h>
+
 #include <stdio.h>
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
-#include "agidl_img_types.h"
-#include "agidl_cc_manager.h"
 
 #define TIM_MAGIC 0x10
 
@@ -69,25 +70,25 @@ void AGIDL_SetTIMFilename(AGIDL_TIM *tim, const char *filename);
 void AGIDL_TIMSetWidth(AGIDL_TIM *tim, int width);
 void AGIDL_TIMSetHeight(AGIDL_TIM *tim, int height);
 void AGIDL_TIMSetClrFmt(AGIDL_TIM *tim, AGIDL_CLR_FMT fmt);
-void AGIDL_TIMSetClr(AGIDL_TIM *tim, int x, int y, COLOR clr);
-void AGIDL_TIMSetClr16(AGIDL_TIM *tim, int x, int y, COLOR16 clr);
-void AGIDL_TIMSetRGB(AGIDL_TIM *tim, int x, int y, u8 r, u8 g, u8 b);
+void AGIDL_TIMSetClr(const AGIDL_TIM *tim, int x, int y, COLOR clr);
+void AGIDL_TIMSetClr16(const AGIDL_TIM *tim, int x, int y, COLOR16 clr);
+void AGIDL_TIMSetRGB(const AGIDL_TIM *tim, int x, int y, u8 r, u8 g, u8 b);
 void AGIDL_TIMSetICPMode(AGIDL_TIM *tim, int mode);
 void AGIDL_TIMSetICPEncoding(AGIDL_TIM* tim, AGIDL_ICP_ENCODE encode);
 void AGIDL_TIMForce4BPPEncoding(AGIDL_TIM* tim, AGIDL_Bool force4bpp);
 void AGIDL_TIMInitAttributes(AGIDL_TIM* tim, u16 pal_mem_add_x, u16 pal_mem_add_y, u16 img_mem_add_x, u16 img_mem_add_y);
 void AGIDL_TIMSetMaxDiff(AGIDL_TIM *tim, int max_diff);
-void AGIDL_ClearTIM(AGIDL_TIM *tim, COLOR clr);
-void AGIDL_ClearTIM16(AGIDL_TIM *tim, COLOR16 clr);
-void AGIDL_ClearColorTIM(AGIDL_TIM* tim, float r, float g, float b);
-void AGIDL_FlushTIM(AGIDL_TIM* tim);
-int AGIDL_TIMGetWidth(AGIDL_TIM *tim);
-int AGIDL_TIMGetHeight(AGIDL_TIM *tim);
-u32 AGIDL_TIMGetSize(AGIDL_TIM* tim);
-int AGIDL_TIMGetMaxDiff(AGIDL_TIM *tim);
-AGIDL_CLR_FMT AGIDL_TIMGetClrFmt(AGIDL_TIM *tim);
-COLOR AGIDL_TIMGetClr(AGIDL_TIM *tim, int x, int y);
-COLOR16 AGIDL_TIMGetClr16(AGIDL_TIM *tim, int x, int y);
+void AGIDL_ClearTIM(const AGIDL_TIM *tim, COLOR clr);
+void AGIDL_ClearTIM16(const AGIDL_TIM *tim, COLOR16 clr);
+void AGIDL_ClearColorTIM(const AGIDL_TIM* tim, float r, float g, float b);
+void AGIDL_FlushTIM(const AGIDL_TIM* tim);
+int AGIDL_TIMGetWidth(const AGIDL_TIM *tim);
+int AGIDL_TIMGetHeight(const AGIDL_TIM *tim);
+u32 AGIDL_TIMGetSize(const AGIDL_TIM* tim);
+int AGIDL_TIMGetMaxDiff(const AGIDL_TIM *tim);
+AGIDL_CLR_FMT AGIDL_TIMGetClrFmt(const AGIDL_TIM *tim);
+COLOR AGIDL_TIMGetClr(const AGIDL_TIM *tim, int x, int y);
+COLOR16 AGIDL_TIMGetClr16(const AGIDL_TIM *tim, int x, int y);
 void AGIDL_FreeTIM(AGIDL_TIM *tim);
 void AGIDL_TIMRGB2BGR(AGIDL_TIM *tim);
 void AGIDL_TIMBGR2RGB(AGIDL_TIM *tim);
@@ -96,20 +97,20 @@ void AGIDL_TIMConvert24BPPTO16BPP(AGIDL_TIM *tim);
 void AGIDL_TIMConvert555TO565(AGIDL_TIM *tim);
 void AGIDL_TIMConvert565TO555(AGIDL_TIM *tim);
 void AGIDL_ColorConvertTIM(AGIDL_TIM* tim, AGIDL_CLR_FMT dest);
-void AGIDL_TIMSyncPix(AGIDL_TIM *tim, COLOR *clrs);
-void AGIDL_TIMSyncPix16(AGIDL_TIM *tim, COLOR16 *clrs);
-void AGIDL_TIMCopyPix(AGIDL_TIM* tim, COLOR* clrs, u32 count);
-void AGIDL_TIMCopyPix16(AGIDL_TIM* tim, COLOR16* clrs, u32 count);
+void AGIDL_TIMSyncPix(const AGIDL_TIM *tim, const COLOR *clrs);
+void AGIDL_TIMSyncPix16(const AGIDL_TIM *tim, const COLOR16 *clrs);
+void AGIDL_TIMCopyPix(const AGIDL_TIM* tim, const COLOR* clrs, u32 count);
+void AGIDL_TIMCopyPix16(const AGIDL_TIM* tim, const COLOR16* clrs, u32 count);
 AGIDL_TIM * AGIDL_LoadTIM(char *filename);
 AGIDL_TIM * AGIDL_CreateTIM(const char *filename, int width, int height, AGIDL_CLR_FMT fmt);
 void AGIDL_ExportTIM(AGIDL_TIM *tim);
-AGIDL_TIM* AGIDL_TIMCpyImg(AGIDL_TIM* tim);
+AGIDL_TIM* AGIDL_TIMCpyImg(const AGIDL_TIM* tim);
 void AGIDL_TIMEncodeHeader(AGIDL_TIM* tim, FILE* file);
 void AGIDL_TIMEncodeICP(AGIDL_TIM* tim);
-void AGIDL_TIMEncodeIMG(AGIDL_TIM* tim, FILE* file);
+void AGIDL_TIMEncodeIMG(const AGIDL_TIM* tim, FILE* file);
 int AGIDL_TIMDecodeHeader(AGIDL_TIM* tim, FILE* file);
 int AGIDL_TIMDecodeIMG(AGIDL_TIM* tim, FILE* file);
-void AGIDL_TIMEncodeNearestICP(AGIDL_TIM* tim, AGIDL_ICP palette, FILE* file);
-int AGIDL_IsTIM(AGIDL_TIM* tim);
-int AGIDL_IsTIMHeader(AGIDL_TIM* tim);
+void AGIDL_TIMEncodeNearestICP(const AGIDL_TIM* tim, AGIDL_ICP palette, FILE* file);
+int AGIDL_IsTIM(const AGIDL_TIM* tim);
+int AGIDL_IsTIMHeader(const AGIDL_TIM* tim);
 #endif

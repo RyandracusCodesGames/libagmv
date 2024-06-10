@@ -7,7 +7,7 @@ AGMV is an indexed colored, block-based full-motion video codec that utilizes cl
 color quantization, progressive interpolated motion compensation, lz77/lzss data compression,
 a routine 2:1 audio compression algorithm, and various other old-school video compression techniques
 inspired from the classics such as Smacker video and Quake 2's Cinematics video formats to achieve real-time video playback on low-end graphical devices
-favoring decoding speed over aggressive compression routines to ensure that even a CPU clocked at 16.78MHz like the Nintendo Gameboy Advance can decode individual frames in real time.
+favoring decoding speed over aggressive compression routines to ensure that even a CPU clocked at 16.78MHz like the Nintendo Game Boy Advance can decode individual frames in real time.
 
 Why use AGMV? AGMV serves four purposes:
 
@@ -95,4 +95,3 @@ int main(){
 9. In ```Header```, select ```Raw(header-less)```
 10. In ```encoding```, select ```Signed 8-bit PCM```
 11. Now, click save
-

@@ -15,8 +15,8 @@
 *
 ********************************************/
 
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
+#include <agidl_cc_types.h>
+#include <agidl_types.h>
 
 void AGIDL_GrayscaleImgData(void* data, u32 width, u32 height, AGIDL_CLR_FMT fmt);
 

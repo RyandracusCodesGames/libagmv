@@ -15,8 +15,8 @@
 *
 ********************************************/
 
-#include "agidl_types.h"
-#include "agidl_cc_types.h"
+#include <agidl_cc_types.h>
+#include <agidl_types.h>
 
 COLOR AGIDL_CLR16_TO_CLR(COLOR16 clr, AGIDL_CLR_FMT srcfmt, AGIDL_CLR_FMT destfmt);
 COLOR16 AGIDL_CLR_TO_CLR16(COLOR clr, AGIDL_CLR_FMT srcfmt, AGIDL_CLR_FMT destfmt);

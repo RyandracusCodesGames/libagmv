@@ -11,15 +11,19 @@
 *   Author: Ryandracus Chapman
 *
 ********************************************/
-#include <stdlib.h>
-#include "agidl_imgp_mipmap.h"
-#include "agidl_cc_manager.h"
-#include "agidl_img_core.h"
-#include "agidl_imgp_impl.h"
-#include "agidl_mmu_utils.h"
-#include "agidl_file_utils.h"
 
-AGIDL_MIPMAP* AGIDL_CreateMipmapMMU(u16 width, u16 height, AGIDL_CLR_FMT fmt, AGIDL_Bool IsLinear){
+#include <agidl_imgp_mipmap.h>
+
+#include <stdlib.h>
+
+#include <agidl_cc_manager.h>
+#include <agidl_file_utils.h>
+#include <agidl_imgp_filter.h>
+#include <agidl_imgp_impl.h>
+#include <agidl_img_core.h>
+#include <agidl_mmu_utils.h>
+
+AGIDL_MIPMAP* AGIDL_CreateMipmapMMU(const u16 width, const u16 height, const AGIDL_CLR_FMT fmt, const AGIDL_Bool IsLinear){
 	u16 w = width;
 	u16 h = height;
 	
@@ -32,7 +36,7 @@ AGIDL_MIPMAP* AGIDL_CreateMipmapMMU(u16 width, u16 height, AGIDL_CLR_FMT fmt, AG
 		mipcount++;
 	}
 	
-	AGIDL_MIPMAP* mipmap = (AGIDL_MIPMAP*)malloc(sizeof(AGIDL_MIPMAP));
+	AGIDL_MIPMAP* mipmap = malloc(sizeof(AGIDL_MIPMAP));
 	mipmap->width = width;
 	mipmap->height = height;
 	mipmap->fmt = fmt;
@@ -43,8 +47,7 @@ AGIDL_MIPMAP* AGIDL_CreateMipmapMMU(u16 width, u16 height, AGIDL_CLR_FMT fmt, AG
 }
 
 void AGIDL_DestroyMipmapMMU(AGIDL_MIPMAP* mipmap){
-	int i;
-	for(i = 0; i < mipmap->mipcount; i++){
+	for(int i = 0; i < mipmap->mipcount; i++){
 		printf("started %dth mipmap level\n",i);
 		if(mipmap->mipmap[i].img_data != NULL){
 			free(mipmap->mipmap[i].img_data);
@@ -60,12 +63,12 @@ void AGIDL_DestroyMipmapMMU(AGIDL_MIPMAP* mipmap){
 	}
 }
 
-AGIDL_MIPMAP* AGIDL_GenerateMipmapFromImgData(void* data, u16 width, u16 height, AGIDL_CLR_FMT fmt){
+AGIDL_MIPMAP* AGIDL_GenerateMipmapFromImgData(const void* data, u16 width, u16 height, const AGIDL_CLR_FMT fmt){
 	AGIDL_MIPMAP* mipmap = AGIDL_CreateMipmapMMU(width,height,fmt,FALSE);
 	
 	if(AGIDL_GetBitCount(fmt) == 16){
-		COLOR16* clr_data = (COLOR16*)data;
-		COLOR16* clr_cpy = (COLOR16*)AGIDL_AllocImgDataMMU(width,height,fmt);
+		const COLOR16* clr_data = data;
+		COLOR16* clr_cpy = AGIDL_AllocImgDataMMU(width,height,fmt);
 		
 		mipmap->mipmap[0].width = width;
 		mipmap->mipmap[0].height = height;
@@ -74,9 +77,8 @@ AGIDL_MIPMAP* AGIDL_GenerateMipmapFromImgData(void* data, u16 width, u16 height,
 		
 		AGIDL_ClrMemcpy16(mipmap->mipmap[0].img_data,clr_data,width*height);
 		AGIDL_ClrMemcpy16(clr_cpy,clr_data,width*height);
-		
-		int i;
-		for(i = 1; i < mipmap->mipcount; i++){
+
+		for(int i = 1; i < mipmap->mipcount; i++){
 			
 			width >>= 1;
 			height >>= 1;
@@ -96,8 +98,8 @@ AGIDL_MIPMAP* AGIDL_GenerateMipmapFromImgData(void* data, u16 width, u16 height,
 		free(clr_cpy);
 	}
 	else{
-		COLOR* clr_data = (COLOR*)data;
-		COLOR* clr_cpy = (COLOR*)AGIDL_AllocImgDataMMU(width,height,fmt);
+		const COLOR* clr_data = data;
+		COLOR* clr_cpy = AGIDL_AllocImgDataMMU(width,height,fmt);
 		
 		mipmap->mipmap[0].width = width;
 		mipmap->mipmap[0].height = height;
@@ -106,9 +108,8 @@ AGIDL_MIPMAP* AGIDL_GenerateMipmapFromImgData(void* data, u16 width, u16 height,
 		
 		AGIDL_ClrMemcpy(mipmap->mipmap[0].img_data,clr_data,width*height);
 		AGIDL_ClrMemcpy(clr_cpy,clr_data,width*height);
-		
-		int i;
-		for(i = 1; i < mipmap->mipcount; i++){
+
+		for(int i = 1; i < mipmap->mipcount; i++){
 			
 			width >>= 1;
 			height >>= 1;
@@ -131,8 +132,8 @@ AGIDL_MIPMAP* AGIDL_GenerateMipmapFromImgData(void* data, u16 width, u16 height,
 	return mipmap;
 }
 
-AGIDL_MIPMAP* AGIDL_LoadMipmapImgData(FILE* file, u16 width, u16 height, AGIDL_CLR_FMT fmt, u8 count, AGIDL_Bool IsLinear){
-	AGIDL_MIPMAP* mipmap = (AGIDL_MIPMAP*)malloc(sizeof(AGIDL_MIPMAP));
+AGIDL_MIPMAP* AGIDL_LoadMipmapImgData(FILE* file, u16 width, u16 height, const AGIDL_CLR_FMT fmt, const u8 count, const AGIDL_Bool IsLinear){
+	AGIDL_MIPMAP* mipmap = malloc(sizeof(AGIDL_MIPMAP));
 	mipmap->width = width;
 	mipmap->height = height;
 	mipmap->fmt = fmt;
@@ -140,8 +141,7 @@ AGIDL_MIPMAP* AGIDL_LoadMipmapImgData(FILE* file, u16 width, u16 height, AGIDL_C
 	mipmap->mipcount = count;
 	
 	if(AGIDL_GetBitCount(fmt) == 16){
-		int i;
-		for(i = 0; i < mipmap->mipcount; i++){
+		for(int i = 0; i < mipmap->mipcount; i++){
 			mipmap->mipmap[i].width = width;
 			mipmap->mipmap[i].height = height;
 			mipmap->mipmap[i].fmt = fmt;
@@ -149,9 +149,8 @@ AGIDL_MIPMAP* AGIDL_LoadMipmapImgData(FILE* file, u16 width, u16 height, AGIDL_C
 			AGIDL_ReadBufClr16(file,mipmap->mipmap[i].img_data,width,height);
 			
 			if(IsLinear == TRUE){
-				int x,y;
-				for(y = 0; y < height; y++){
-					for(x = 0; x < width; x++){
+				for(int y = 0; y < height; y++){
+					for(int x = 0; x < width; x++){
 						u16 clr = AGIDL_GetClr16(mipmap->mipmap[i].img_data,x,y,width,height);
 						clr = AGIDL_GammaCorrectColor(clr,2.2f,mipmap->fmt);
 						AGIDL_SetClr16(mipmap->mipmap[i].img_data,clr,x,y,width,height);
@@ -164,8 +163,7 @@ AGIDL_MIPMAP* AGIDL_LoadMipmapImgData(FILE* file, u16 width, u16 height, AGIDL_C
 		}
 	}
 	else{
-		int i;
-		for(i = 0; i < mipmap->mipcount; i++){
+		for(int i = 0; i < mipmap->mipcount; i++){
 			mipmap->mipmap[i].width = width;
 			mipmap->mipmap[i].height = height;
 			mipmap->mipmap[i].fmt = fmt;
@@ -179,9 +177,8 @@ AGIDL_MIPMAP* AGIDL_LoadMipmapImgData(FILE* file, u16 width, u16 height, AGIDL_C
 			}
 			
 			if(IsLinear == TRUE){
-				int x,y;
-				for(y = 0; y < height; y++){
-					for(x = 0; x < width; x++){
+				for(int y = 0; y < height; y++){
+					for(int x = 0; x < width; x++){
 						u32 clr = AGIDL_GetClr(mipmap->mipmap[i].img_data,x,y,width,height);
 						clr = AGIDL_GammaCorrectColor(clr,2.2f,mipmap->fmt);
 						AGIDL_SetClr(mipmap->mipmap[i].img_data,clr,x,y,width,height);
@@ -197,11 +194,10 @@ AGIDL_MIPMAP* AGIDL_LoadMipmapImgData(FILE* file, u16 width, u16 height, AGIDL_C
 	return mipmap;
 }
 
-void AGIDL_ExportMipmap(AGIDL_MIPMAP* mipmap, AGIDL_IMG_TYPE img_type, AGIDL_Bool flip){
-	int i;
-	for(i = 0; i < mipmap->mipcount; i++){
-		u16 w = mipmap->mipmap[i].width;
-		u16 h = mipmap->mipmap[i].height;
+void AGIDL_ExportMipmap(const AGIDL_MIPMAP* mipmap, const AGIDL_IMG_TYPE img_type, const AGIDL_Bool flip){
+	for(int i = 0; i < mipmap->mipcount; i++){
+		const u16 w = mipmap->mipmap[i].width;
+		const u16 h = mipmap->mipmap[i].height;
 		
 		char filename[30];
 		
@@ -210,11 +206,11 @@ void AGIDL_ExportMipmap(AGIDL_MIPMAP* mipmap, AGIDL_IMG_TYPE img_type, AGIDL_Boo
 				sprintf(filename,"mipmap_%d.bmp",i+1);
 				AGIDL_BMP* bmp = AGIDL_CreateBMP(filename,w,h,mipmap->fmt);
 				if(AGIDL_GetBitCount(mipmap->fmt) == 16){
-					COLOR16* img = (COLOR16*)mipmap->mipmap[i].img_data;
+					const COLOR16* img = mipmap->mipmap[i].img_data;
 					AGIDL_BMPSyncPix16(bmp,img);
 				}
 				else{
-					COLOR* img = (COLOR*)mipmap->mipmap[i].img_data;
+					const COLOR* img = mipmap->mipmap[i].img_data;
 					AGIDL_BMPSyncPix(bmp,img);
 				}
 				if(flip == TRUE){
@@ -227,11 +223,11 @@ void AGIDL_ExportMipmap(AGIDL_MIPMAP* mipmap, AGIDL_IMG_TYPE img_type, AGIDL_Boo
 				sprintf(filename,"mipmap_%d.tga",i+1);
 				AGIDL_TGA* tga = AGIDL_CreateTGA(filename,w,h,mipmap->fmt);
 				if(AGIDL_GetBitCount(mipmap->fmt) == 16){
-					COLOR16* img = (COLOR16*)mipmap->mipmap[i].img_data;
+					const COLOR16* img = mipmap->mipmap[i].img_data;
 					AGIDL_TGASyncPix16(tga,img);
 				}
 				else{
-					COLOR* img = (COLOR*)mipmap->mipmap[i].img_data;
+					const COLOR* img = mipmap->mipmap[i].img_data;
 					AGIDL_TGASyncPix(tga,img);
 				}
 				if(flip == TRUE){
@@ -244,11 +240,11 @@ void AGIDL_ExportMipmap(AGIDL_MIPMAP* mipmap, AGIDL_IMG_TYPE img_type, AGIDL_Boo
 				sprintf(filename,"mipmap_%d.tim",i+1);
 				AGIDL_TIM* tim = AGIDL_CreateTIM(filename,w,h,mipmap->fmt);
 				if(AGIDL_GetBitCount(mipmap->fmt) == 16){
-					COLOR16* img = (COLOR16*)mipmap->mipmap[i].img_data;
+					const COLOR16* img = mipmap->mipmap[i].img_data;
 					AGIDL_TIMSyncPix16(tim,img);
 				}
 				else{
-					COLOR* img = (COLOR*)mipmap->mipmap[i].img_data;
+					const COLOR* img = mipmap->mipmap[i].img_data;
 					AGIDL_TIMSyncPix(tim,img);
 				}
 				if(flip == TRUE){
@@ -261,11 +257,11 @@ void AGIDL_ExportMipmap(AGIDL_MIPMAP* mipmap, AGIDL_IMG_TYPE img_type, AGIDL_Boo
 				sprintf(filename,"mipmap_%d.pcx",i+1);
 				AGIDL_PCX* pcx = AGIDL_CreatePCX(filename,w,h,mipmap->fmt);
 				if(AGIDL_GetBitCount(mipmap->fmt) == 16){
-					COLOR16* img = (COLOR16*)mipmap->mipmap[i].img_data;
+					const COLOR16* img = mipmap->mipmap[i].img_data;
 					AGIDL_PCXSyncPix16(pcx,img);
 				}
 				else{
-					COLOR* img = (COLOR*)mipmap->mipmap[i].img_data;
+					const COLOR* img = mipmap->mipmap[i].img_data;
 					AGIDL_PCXSyncPix(pcx,img);
 				}
 				if(flip == TRUE){
@@ -278,11 +274,11 @@ void AGIDL_ExportMipmap(AGIDL_MIPMAP* mipmap, AGIDL_IMG_TYPE img_type, AGIDL_Boo
 				sprintf(filename,"mipmap_%d.lmp",i+1);
 				AGIDL_LMP* lmp = AGIDL_CreateLMP(filename,w,h,mipmap->fmt);
 				if(AGIDL_GetBitCount(mipmap->fmt) == 16){
-					COLOR16* img = (COLOR16*)mipmap->mipmap[i].img_data;
+					const COLOR16* img = mipmap->mipmap[i].img_data;
 					AGIDL_LMPSyncPix16(lmp,img);
 				}
 				else{
-					COLOR* img = (COLOR*)mipmap->mipmap[i].img_data;
+					const COLOR* img = mipmap->mipmap[i].img_data;
 					AGIDL_LMPSyncPix(lmp,img);
 				}
 				if(flip == TRUE){
@@ -295,11 +291,11 @@ void AGIDL_ExportMipmap(AGIDL_MIPMAP* mipmap, AGIDL_IMG_TYPE img_type, AGIDL_Boo
 				sprintf(filename,"mipmap_%d.pvr",i+1);
 				AGIDL_PVR* pvr = AGIDL_CreatePVR(filename,w,h,mipmap->fmt);
 				if(AGIDL_GetBitCount(mipmap->fmt) == 16){
-					COLOR16* img = (COLOR16*)mipmap->mipmap[i].img_data;
+					const COLOR16* img = mipmap->mipmap[i].img_data;
 					AGIDL_PVRSyncPix16(pvr,img);
 				}
 				else{
-					COLOR* img = (COLOR*)mipmap->mipmap[i].img_data;
+					const COLOR* img = mipmap->mipmap[i].img_data;
 					AGIDL_PVRSyncPix(pvr,img);
 				}
 				if(flip == TRUE){
@@ -312,11 +308,11 @@ void AGIDL_ExportMipmap(AGIDL_MIPMAP* mipmap, AGIDL_IMG_TYPE img_type, AGIDL_Boo
 				sprintf(filename,"mipmap_%d.gxt",i+1);
 				AGIDL_GXT* gxt = AGIDL_CreateGXT(filename,w,h,mipmap->fmt);
 				if(AGIDL_GetBitCount(mipmap->fmt) == 16){
-					COLOR16* img = (COLOR16*)mipmap->mipmap[i].img_data;
+					const COLOR16* img = mipmap->mipmap[i].img_data;
 					AGIDL_GXTSyncPix16(gxt,img);
 				}
 				else{
-					COLOR* img = (COLOR*)mipmap->mipmap[i].img_data;
+					const COLOR* img = mipmap->mipmap[i].img_data;
 					AGIDL_GXTSyncPix(gxt,img);
 				}
 				if(flip == TRUE){
@@ -329,11 +325,11 @@ void AGIDL_ExportMipmap(AGIDL_MIPMAP* mipmap, AGIDL_IMG_TYPE img_type, AGIDL_Boo
 				sprintf(filename,"mipmap_%d.bti",i+1);
 				AGIDL_BTI* bti = AGIDL_CreateBTI(filename,w,h,mipmap->fmt);
 				if(AGIDL_GetBitCount(mipmap->fmt) == 16){
-					COLOR16* img = (COLOR16*)mipmap->mipmap[i].img_data;
+					const COLOR16* img = mipmap->mipmap[i].img_data;
 					AGIDL_BTISyncPix16(bti,img);
 				}
 				else{
-					COLOR* img = (COLOR*)mipmap->mipmap[i].img_data;
+					const COLOR* img = mipmap->mipmap[i].img_data;
 					AGIDL_BTISyncPix(bti,img);
 				}
 				if(flip == TRUE){
@@ -346,11 +342,11 @@ void AGIDL_ExportMipmap(AGIDL_MIPMAP* mipmap, AGIDL_IMG_TYPE img_type, AGIDL_Boo
 				sprintf(filename,"mipmap_%d.3df",i+1);
 				AGIDL_3DF* glide = AGIDL_Create3DF(filename,w,h,mipmap->fmt);
 				if(AGIDL_GetBitCount(mipmap->fmt) == 16){
-					COLOR16* img = (COLOR16*)mipmap->mipmap[i].img_data;
+					const COLOR16* img = mipmap->mipmap[i].img_data;
 					AGIDL_3DFSyncPix16(glide,img);
 				}
 				else{
-					COLOR* img = (COLOR*)mipmap->mipmap[i].img_data;
+					const COLOR* img = mipmap->mipmap[i].img_data;
 					AGIDL_3DFSyncPix(glide,img);
 				}
 				if(flip == TRUE){
@@ -363,11 +359,11 @@ void AGIDL_ExportMipmap(AGIDL_MIPMAP* mipmap, AGIDL_IMG_TYPE img_type, AGIDL_Boo
 				sprintf(filename,"mipmap_%d.3df",i+1);
 				AGIDL_PPM* ppm = AGIDL_CreatePPM(filename,w,h,mipmap->fmt);
 				if(AGIDL_GetBitCount(mipmap->fmt) == 16){
-					COLOR16* img = (COLOR16*)mipmap->mipmap[i].img_data;
+					const COLOR16* img = mipmap->mipmap[i].img_data;
 					AGIDL_PPMSyncPix16(ppm,img);
 				}
 				else{
-					COLOR* img = (COLOR*)mipmap->mipmap[i].img_data;
+					const COLOR* img = mipmap->mipmap[i].img_data;
 					AGIDL_PPMSyncPix(ppm,img);
 				}
 				if(flip == TRUE){
@@ -382,11 +378,11 @@ void AGIDL_ExportMipmap(AGIDL_MIPMAP* mipmap, AGIDL_IMG_TYPE img_type, AGIDL_Boo
 				AGIDL_LBMSetMaxDiff(lbm,19);
 				AGIDL_LBMSetICPEncoding(lbm,ICP_ENCODE_THRESHOLD);
 				if(AGIDL_GetBitCount(mipmap->fmt) == 16){
-					COLOR16* img = (COLOR16*)mipmap->mipmap[i].img_data;
+					const COLOR16* img = mipmap->mipmap[i].img_data;
 					AGIDL_LBMSyncPix16(lbm,img);
 				}
 				else{
-					COLOR* img = (COLOR*)mipmap->mipmap[i].img_data;
+					const COLOR* img = mipmap->mipmap[i].img_data;
 					AGIDL_LBMSyncPix(lbm,img);
 				}
 				if(flip == TRUE){
@@ -399,20 +395,19 @@ void AGIDL_ExportMipmap(AGIDL_MIPMAP* mipmap, AGIDL_IMG_TYPE img_type, AGIDL_Boo
 	}
 }
 
-void AGIDL_FilterBilerpMipmapLevel(AGIDL_MIPMAP* mipmap, u8 mip_lvl){
+void AGIDL_FilterBilerpMipmapLevel(const AGIDL_MIPMAP* mipmap, const u8 mip_lvl){
 	if(mip_lvl <= mipmap->mipcount){
 		AGIDL_FilterImgDataBilerp(mipmap->mipmap[mip_lvl].img_data,mipmap->mipmap[mip_lvl].width,mipmap->mipmap[mip_lvl].height,mipmap->mipmap[mip_lvl].fmt);
 	}
 }
 
-void AGIDL_FilterBilerpMipmap(AGIDL_MIPMAP* mipmap){
-	int i;
-	for(i = 0; i < mipmap->mipcount; i++){
+void AGIDL_FilterBilerpMipmap(const AGIDL_MIPMAP* mipmap){
+	for(int i = 0; i < mipmap->mipcount; i++){
 		AGIDL_FilterBilerpMipmapLevel(mipmap,i);
 	}
 }
 
-void AGIDL_ClearMipmapLevel(AGIDL_MIPMAP* mipmap, u8 mip_lvl){
+void AGIDL_ClearMipmapLevel(const AGIDL_MIPMAP* mipmap, const u8 mip_lvl){
 	if(mip_lvl <= mipmap->mipcount){
 		if(AGIDL_GetBitCount(mipmap->mipmap[mip_lvl].fmt) == 16){
 			AGIDL_ClrMemset16(mipmap->mipmap[mip_lvl].img_data,0,mipmap->mipmap[mip_lvl].width*mipmap->mipmap[mip_lvl].height);
@@ -423,21 +418,21 @@ void AGIDL_ClearMipmapLevel(AGIDL_MIPMAP* mipmap, u8 mip_lvl){
 	}
 }
 
-void AGIDL_RebuildMipmapLevel(AGIDL_MIPMAP* mipmap, u8 mip_lvl){
+void AGIDL_RebuildMipmapLevel(const AGIDL_MIPMAP* mipmap, const u8 mip_lvl){
 	if(mip_lvl <= mipmap->mipcount){
 		if(mip_lvl == 0){
 			if(AGIDL_GetBitCount(mipmap->fmt) == 16){
-				COLOR16* data = (COLOR16*)mipmap->mipmap[mip_lvl+1].img_data;
-				COLOR16* data_cpy = (COLOR16*)AGIDL_AllocImgDataMMU(mipmap->mipmap[mip_lvl+1].width,mipmap->mipmap[mip_lvl+1].height,mipmap->mipmap[mip_lvl+1].fmt);
+				const COLOR16* data = mipmap->mipmap[mip_lvl+1].img_data;
+				COLOR16* data_cpy = AGIDL_AllocImgDataMMU(mipmap->mipmap[mip_lvl+1].width,mipmap->mipmap[mip_lvl+1].height,mipmap->mipmap[mip_lvl+1].fmt);
 				
 				u16 w = mipmap->mipmap[mip_lvl+1].width;
 				u16 h = mipmap->mipmap[mip_lvl+1].height;
-				
-				AGIDL_CLR_FMT fmt = mipmap->mipmap[mip_lvl+1].fmt;
+
+				const AGIDL_CLR_FMT fmt = mipmap->mipmap[mip_lvl+1].fmt;
 				
 				AGIDL_ClrMemcpy16(data_cpy,data,w*h);
 				
-				COLOR16* rebuild = (COLOR16*)AGIDL_DoubleImgDataNearest(data_cpy,&w,&h,fmt);
+				COLOR16* rebuild = AGIDL_DoubleImgDataNearest(data_cpy,&w,&h,fmt);
 				
 				AGIDL_ClrMemcpy16(mipmap->mipmap[mip_lvl].img_data,rebuild,w*h);
 				
@@ -445,17 +440,17 @@ void AGIDL_RebuildMipmapLevel(AGIDL_MIPMAP* mipmap, u8 mip_lvl){
 				
 			}
 			else{
-				COLOR* data = (COLOR*)mipmap->mipmap[mip_lvl+1].img_data;
-				COLOR* data_cpy = (COLOR*)AGIDL_AllocImgDataMMU(mipmap->mipmap[mip_lvl+1].width,mipmap->mipmap[mip_lvl+1].height,mipmap->mipmap[mip_lvl+1].fmt);
+				const COLOR* data = mipmap->mipmap[mip_lvl+1].img_data;
+				COLOR* data_cpy = AGIDL_AllocImgDataMMU(mipmap->mipmap[mip_lvl+1].width,mipmap->mipmap[mip_lvl+1].height,mipmap->mipmap[mip_lvl+1].fmt);
 				
 				u16 w = mipmap->mipmap[mip_lvl+1].width;
 				u16 h = mipmap->mipmap[mip_lvl+1].height;
-				
-				AGIDL_CLR_FMT fmt = mipmap->mipmap[mip_lvl+1].fmt;
+
+				const AGIDL_CLR_FMT fmt = mipmap->mipmap[mip_lvl+1].fmt;
 				
 				AGIDL_ClrMemcpy(data_cpy,data,w*h);
 				
-				COLOR* rebuild = (COLOR*)AGIDL_DoubleImgDataNearest(data_cpy,&w,&h,fmt);
+				COLOR* rebuild = AGIDL_DoubleImgDataNearest(data_cpy,&w,&h,fmt);
 				
 				AGIDL_ClrMemcpy(mipmap->mipmap[mip_lvl].img_data,rebuild,w*h);
 				
@@ -464,17 +459,17 @@ void AGIDL_RebuildMipmapLevel(AGIDL_MIPMAP* mipmap, u8 mip_lvl){
 		}
 		else{
 			if(AGIDL_GetBitCount(mipmap->fmt) == 16){
-				COLOR16* data = (COLOR16*)mipmap->mipmap[mip_lvl-1].img_data;
-				COLOR16* data_cpy = (COLOR16*)AGIDL_AllocImgDataMMU(mipmap->mipmap[mip_lvl-1].width,mipmap->mipmap[mip_lvl-1].height,mipmap->mipmap[mip_lvl-1].fmt);
+				const COLOR16* data = mipmap->mipmap[mip_lvl-1].img_data;
+				COLOR16* data_cpy = AGIDL_AllocImgDataMMU(mipmap->mipmap[mip_lvl-1].width,mipmap->mipmap[mip_lvl-1].height,mipmap->mipmap[mip_lvl-1].fmt);
 				
 				u16 w = mipmap->mipmap[mip_lvl-1].width;
 				u16 h = mipmap->mipmap[mip_lvl-1].height;
-				
-				AGIDL_CLR_FMT fmt = mipmap->mipmap[mip_lvl-1].fmt;
+
+				const AGIDL_CLR_FMT fmt = mipmap->mipmap[mip_lvl-1].fmt;
 				
 				AGIDL_ClrMemcpy16(data_cpy,data,w*h);
 				
-				COLOR16* rebuild = (COLOR16*)AGIDL_HalfImgDataBilerp(data_cpy,&w,&h,fmt);
+				COLOR16* rebuild = AGIDL_HalfImgDataBilerp(data_cpy,&w,&h,fmt);
 				
 				AGIDL_ClrMemcpy16(mipmap->mipmap[mip_lvl].img_data,rebuild,w*h);
 				
@@ -482,17 +477,17 @@ void AGIDL_RebuildMipmapLevel(AGIDL_MIPMAP* mipmap, u8 mip_lvl){
 				
 			}
 			else{
-				COLOR* data = (COLOR*)mipmap->mipmap[mip_lvl-1].img_data;
-				COLOR* data_cpy = (COLOR*)AGIDL_AllocImgDataMMU(mipmap->mipmap[mip_lvl-1].width,mipmap->mipmap[mip_lvl-1].height,mipmap->mipmap[mip_lvl-1].fmt);
+				const COLOR* data = mipmap->mipmap[mip_lvl-1].img_data;
+				COLOR* data_cpy = AGIDL_AllocImgDataMMU(mipmap->mipmap[mip_lvl-1].width,mipmap->mipmap[mip_lvl-1].height,mipmap->mipmap[mip_lvl-1].fmt);
 				
 				u16 w = mipmap->mipmap[mip_lvl-1].width;
 				u16 h = mipmap->mipmap[mip_lvl-1].height;
-				
-				AGIDL_CLR_FMT fmt = mipmap->mipmap[mip_lvl-1].fmt;
+
+				const AGIDL_CLR_FMT fmt = mipmap->mipmap[mip_lvl-1].fmt;
 				
 				AGIDL_ClrMemcpy(data_cpy,data,w*h);
 				
-				COLOR* rebuild = (COLOR*)AGIDL_HalfImgDataBilerp(data_cpy,&w,&h,fmt);
+				COLOR* rebuild = AGIDL_HalfImgDataBilerp(data_cpy,&w,&h,fmt);
 				
 				AGIDL_ClrMemcpy(mipmap->mipmap[mip_lvl].img_data,rebuild,w*h);
 				
@@ -505,15 +500,15 @@ void AGIDL_RebuildMipmapLevel(AGIDL_MIPMAP* mipmap, u8 mip_lvl){
 void AGIDL_BlendMipmapLevel(AGIDL_MIPMAP* mipmap, u8 mip_lvl1, u8 mip_lvl2){
 	if(mip_lvl1 != mip_lvl2 && mip_lvl1 <= mipmap->mipcount && mip_lvl2 <= mipmap->mipcount){
 		if(AGIDL_GetBitCount(mipmap->fmt) == 16){
-			COLOR16* img1 = (COLOR16*)mipmap->mipmap[mip_lvl1].img_data;
+			COLOR16* img1 = mipmap->mipmap[mip_lvl1].img_data;
 			u16 w1 = mipmap->mipmap[mip_lvl1].width;
 			u16 h1 = mipmap->mipmap[mip_lvl1].height;
 			
-			COLOR16* img2 = (COLOR16*)mipmap->mipmap[mip_lvl2].img_data;
+			COLOR16* img2 = mipmap->mipmap[mip_lvl2].img_data;
 			u16 w2 = mipmap->mipmap[mip_lvl2].width;
 			u16 h2 = mipmap->mipmap[mip_lvl2].height;
 			
-			COLOR16* img1_cpy = (COLOR16*)AGIDL_AllocImgDataMMU(w1,h1,mipmap->fmt);
+			COLOR16* img1_cpy = AGIDL_AllocImgDataMMU(w1,h1,mipmap->fmt);
 			AGIDL_ClrMemcpy16(img1_cpy,img1,w1*h1);
 			
 			float xscale = (float)w2/w1;
@@ -604,15 +599,15 @@ void AGIDL_BlendMipmapLevel(AGIDL_MIPMAP* mipmap, u8 mip_lvl1, u8 mip_lvl2){
 			free(img1_cpy);
 		}
 		else{
-			COLOR* img1 = (COLOR*)mipmap->mipmap[mip_lvl1].img_data;
+			COLOR* img1 = mipmap->mipmap[mip_lvl1].img_data;
 			u16 w1 = mipmap->mipmap[mip_lvl1].width;
 			u16 h1 = mipmap->mipmap[mip_lvl1].height;
 			
-			COLOR* img2 = (COLOR*)mipmap->mipmap[mip_lvl2].img_data;
+			COLOR* img2 = mipmap->mipmap[mip_lvl2].img_data;
 			u16 w2 = mipmap->mipmap[mip_lvl2].width;
 			u16 h2 = mipmap->mipmap[mip_lvl2].height;
 			
-			COLOR* img1_cpy = (COLOR*)AGIDL_AllocImgDataMMU(w1,h1,mipmap->fmt);
+			COLOR* img1_cpy = AGIDL_AllocImgDataMMU(w1,h1,mipmap->fmt);
 			AGIDL_ClrMemcpy(img1_cpy,img1,w1*h1);
 			
 			float xscale = (float)w2/w1;
