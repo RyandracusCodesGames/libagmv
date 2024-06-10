@@ -56,7 +56,7 @@ char* AGIDL_StrCpy(const char *a, const char *b){
 }
 
 char* AGIDL_GetImgExtension(const AGIDL_IMG_TYPE img){
-	char* ext = malloc(sizeof(char)*4);
+	char* ext = malloc(sizeof(char)*5);
 	switch(img){
 		case AGIDL_IMG_BMP:{
 			strcpy(ext,".bmp");

@@ -77,7 +77,7 @@ int main(const int argc, char* argv[]){
 		return 1;
 	}
 	if(mode[0] == 'E' && mode[1] == 'N' && mode[2] == 'C'){
-		char filename[100], directory[30], basename[30], type[3], opt[11], qopt[6], compression[5], at[3], track[100];
+		char filename[100], directory[30], basename[30], type[4], opt[12], qopt[6], compression[5], at[3], track[100];
 		u32 start_frame, end_frame, width, height, fps;
 		fscanf(file,"%s %s %s %s %ld %ld %ld %ld %ld %s %s %s %s %s",filename,directory,basename,type,&start_frame,&end_frame,&width,&height,&fps,opt,qopt,compression,at,track);
 
