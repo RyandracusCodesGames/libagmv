@@ -290,7 +290,7 @@ int AGMV_DecodeFrameChunk(FILE* file, AGMV* agmv){
 	}
 	
 	if(agmv->frame_count % 4 == 0){
-		for(i = 0; i < width*height; i++){
+		for(i = 0; i < size; i++){
 			iframe_data[i] = img_data[i];
 		}
 	}

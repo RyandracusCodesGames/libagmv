@@ -381,18 +381,21 @@ void DestroyAGMV(AGMV* agmv){
 
 		free(agmv->bitstream);
 		free(agmv->frame_chunk);
-
-		if(agmv->audio_track->pcm != NULL){
-			free(agmv->audio_track->pcm);
-		}
 		
-		if(agmv->audio_chunk->atsample != NULL){
-			free(agmv->audio_chunk->atsample);
+		if(agmv->header.total_audio_duration != 0){
+			if(agmv->audio_track->pcm != NULL){
+				free(agmv->audio_track->pcm);
+			}
+			
+			if(agmv->audio_chunk->atsample != NULL){
+				free(agmv->audio_chunk->atsample);
+			}
 		}
 
 		free(agmv->audio_chunk);
 		free(agmv->audio_track);
-
+		free(agmv);
+		
 		agmv = NULL;
 	}
 }
