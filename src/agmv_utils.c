@@ -381,8 +381,7 @@ void DestroyAGMV(AGMV* agmv){
 
 		free(agmv->bitstream);
 		free(agmv->frame_chunk);
-		free(agmv->audio_chunk);
-		
+
 		if(agmv->audio_track->pcm != NULL){
 			free(agmv->audio_track->pcm);
 		}
@@ -391,6 +390,7 @@ void DestroyAGMV(AGMV* agmv){
 			free(agmv->audio_chunk->atsample);
 		}
 
+		free(agmv->audio_chunk);
 		free(agmv->audio_track);
 
 		agmv = NULL;
@@ -947,7 +947,7 @@ void QQSwap(u32* a, u32* b){
 int ppartition(u32* data, u32* gram, int low, int high)
 {
     // choose the pivot
-    int pivot = data[high];
+    u32 pivot = data[high];
 
     // Index of smaller element and Indicate
     // the right position of pivot found so far

@@ -1004,7 +1004,7 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 		}
 	}
 	
-	AGMV_QuickSort(histogram,colorgram,0,max_clr);
+	AGMV_QuickSort(histogram,colorgram,0,max_clr-1);
 	
 	for(n = max_clr; n > 0; n--){
 		Bool skip = FALSE;
@@ -2560,7 +2560,7 @@ void AGMV_EncodeAGMV(AGMV* agmv, const char* filename, const char* dir, const ch
 		}
 	}
 	
-	AGMV_QuickSort(histogram,colorgram,0,max_clr);
+	AGMV_QuickSort(histogram,colorgram,0,max_clr-1);
 	
 	for(n = max_clr; n > 0; n--){
 		Bool skip = FALSE;
@@ -3924,7 +3924,7 @@ void AGMV_EncodeFullAGMV(AGMV* agmv, const char* filename, const char* dir, cons
 		}
 	}
 	
-	AGMV_QuickSort(histogram,colorgram,0,max_clr);
+	AGMV_QuickSort(histogram,colorgram,0,max_clr-1);
 	
 	for(n = max_clr; n > 0; n--){
 		Bool skip = FALSE;
