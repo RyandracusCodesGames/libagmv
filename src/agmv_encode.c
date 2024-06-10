@@ -710,7 +710,7 @@ void AGMV_EncodeAudioChunk(FILE* file, AGMV* agmv){
 }
 
 void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basename, u8 img_type, u32 start_frame, u32 end_frame, u32 width, u32 height, u32 frames_per_second, AGMV_OPT opt, AGMV_QUALITY quality, AGMV_COMPRESSION compression){
-	u32 i, palette0[256], palette1[256], n, count = 0, num_of_frames_encoded = 0, w, h, num_of_pix, max_clr;
+	u32 i, palette0[256], palette1[256], n, count = 0, num_of_frames_encoded = 0, w, h, num_of_pix, max_clr, size = width*height;
 	u32 pal[512];
 	
 	AGMV* agmv = CreateAGMV(end_frame-start_frame,width,height,frames_per_second);
@@ -732,8 +732,8 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 		}break;
 	}
 	
-	u32* colorgram = (u32*)malloc(sizeof(u32)*max_clr);
-	u32* histogram = (u32*)malloc(sizeof(u32)*max_clr);
+	u32* colorgram = (u32*)malloc(sizeof(u32)*max_clr+1);
+	u32* histogram = (u32*)malloc(sizeof(u32)*max_clr+1);
 	
 	switch(opt){
 		case AGMV_OPT_I:{
@@ -824,7 +824,7 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 				pixels = bmp->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -841,7 +841,7 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 				pixels = tga->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -857,7 +857,7 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 				pixels = tim->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -874,7 +874,7 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 				pixels = pcx->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -891,7 +891,7 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 				pixels = lmp->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -908,7 +908,7 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 				pixels = pvr->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -925,7 +925,7 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 				pixels = gxt->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -942,7 +942,7 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 				pixels = bti->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -959,7 +959,7 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 				pixels = glide->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -976,7 +976,7 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 				pixels = ppm->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -993,7 +993,7 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 				pixels = lbm->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -2261,7 +2261,7 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 }
 
 void AGMV_EncodeAGMV(AGMV* agmv, const char* filename, const char* dir, const char* basename, u8 img_type, u32 start_frame, u32 end_frame, u32 width, u32 height, u32 frames_per_second, AGMV_OPT opt, AGMV_QUALITY quality, AGMV_COMPRESSION compression){
-	u32 i, palette0[256], palette1[256], n, count = 0, num_of_frames_encoded = 0, w, h, num_of_pix, max_clr;
+	u32 i, palette0[256], palette1[256], n, count = 0, num_of_frames_encoded = 0, w, h, num_of_pix, max_clr, size = width*height;
 	u32 sample_size, adjusted_num_of_frames = end_frame-start_frame;
 	u32 pal[512];
 
@@ -2283,8 +2283,8 @@ void AGMV_EncodeAGMV(AGMV* agmv, const char* filename, const char* dir, const ch
 		}break;
 	}
 	
-	u32* colorgram = (u32*)malloc(sizeof(u32)*max_clr);
-	u32* histogram = (u32*)malloc(sizeof(u32)*max_clr);
+	u32* colorgram = (u32*)malloc(sizeof(u32)*max_clr+1);
+	u32* histogram = (u32*)malloc(sizeof(u32)*max_clr+1);
 	
 	switch(opt){
 		case AGMV_OPT_I:{
@@ -2380,7 +2380,7 @@ void AGMV_EncodeAGMV(AGMV* agmv, const char* filename, const char* dir, const ch
 				pixels = bmp->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -2397,7 +2397,7 @@ void AGMV_EncodeAGMV(AGMV* agmv, const char* filename, const char* dir, const ch
 				pixels = tga->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -2413,7 +2413,7 @@ void AGMV_EncodeAGMV(AGMV* agmv, const char* filename, const char* dir, const ch
 				pixels = tim->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -2430,7 +2430,7 @@ void AGMV_EncodeAGMV(AGMV* agmv, const char* filename, const char* dir, const ch
 				pixels = pcx->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -2447,7 +2447,7 @@ void AGMV_EncodeAGMV(AGMV* agmv, const char* filename, const char* dir, const ch
 				pixels = lmp->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -2464,7 +2464,7 @@ void AGMV_EncodeAGMV(AGMV* agmv, const char* filename, const char* dir, const ch
 				pixels = pvr->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -2481,7 +2481,7 @@ void AGMV_EncodeAGMV(AGMV* agmv, const char* filename, const char* dir, const ch
 				pixels = gxt->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -2498,7 +2498,7 @@ void AGMV_EncodeAGMV(AGMV* agmv, const char* filename, const char* dir, const ch
 				pixels = bti->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -2515,7 +2515,7 @@ void AGMV_EncodeAGMV(AGMV* agmv, const char* filename, const char* dir, const ch
 				pixels = glide->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -2532,7 +2532,7 @@ void AGMV_EncodeAGMV(AGMV* agmv, const char* filename, const char* dir, const ch
 				pixels = ppm->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -2549,7 +2549,7 @@ void AGMV_EncodeAGMV(AGMV* agmv, const char* filename, const char* dir, const ch
 				pixels = lbm->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -3652,7 +3652,7 @@ void AGMV_EncodeAGMV(AGMV* agmv, const char* filename, const char* dir, const ch
 }
 
 void AGMV_EncodeFullAGMV(AGMV* agmv, const char* filename, const char* dir, const char* basename, u8 img_type, u32 start_frame, u32 end_frame, u32 width, u32 height, u32 frames_per_second, AGMV_OPT opt, AGMV_QUALITY quality, AGMV_COMPRESSION compression){
-	u32 i, palette0[256], palette1[256], n, count = 0, max_clr;
+	u32 i, palette0[256], palette1[256], n, count = 0, max_clr, size = width*height;
 	u32 sample_size;
 	u32 pal[512];
 
@@ -3674,8 +3674,8 @@ void AGMV_EncodeFullAGMV(AGMV* agmv, const char* filename, const char* dir, cons
 		}break;
 	}
 	
-	u32* colorgram = (u32*)malloc(sizeof(u32)*max_clr);
-	u32* histogram = (u32*)malloc(sizeof(u32)*max_clr);
+	u32* colorgram = (u32*)malloc(sizeof(u32)*max_clr+1);
+	u32* histogram = (u32*)malloc(sizeof(u32)*max_clr+1);
 	
 	switch(opt){
 		case AGMV_OPT_GBA_I:{
@@ -3744,7 +3744,7 @@ void AGMV_EncodeFullAGMV(AGMV* agmv, const char* filename, const char* dir, cons
 				pixels = bmp->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -3761,7 +3761,7 @@ void AGMV_EncodeFullAGMV(AGMV* agmv, const char* filename, const char* dir, cons
 				pixels = tga->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -3777,7 +3777,7 @@ void AGMV_EncodeFullAGMV(AGMV* agmv, const char* filename, const char* dir, cons
 				pixels = tim->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -3794,7 +3794,7 @@ void AGMV_EncodeFullAGMV(AGMV* agmv, const char* filename, const char* dir, cons
 				pixels = pcx->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -3811,7 +3811,7 @@ void AGMV_EncodeFullAGMV(AGMV* agmv, const char* filename, const char* dir, cons
 				pixels = lmp->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -3828,7 +3828,7 @@ void AGMV_EncodeFullAGMV(AGMV* agmv, const char* filename, const char* dir, cons
 				pixels = pvr->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -3845,7 +3845,7 @@ void AGMV_EncodeFullAGMV(AGMV* agmv, const char* filename, const char* dir, cons
 				pixels = gxt->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -3862,7 +3862,7 @@ void AGMV_EncodeFullAGMV(AGMV* agmv, const char* filename, const char* dir, cons
 				pixels = bti->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -3879,7 +3879,7 @@ void AGMV_EncodeFullAGMV(AGMV* agmv, const char* filename, const char* dir, cons
 				pixels = glide->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -3896,7 +3896,7 @@ void AGMV_EncodeFullAGMV(AGMV* agmv, const char* filename, const char* dir, cons
 				pixels = ppm->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
@@ -3913,7 +3913,7 @@ void AGMV_EncodeFullAGMV(AGMV* agmv, const char* filename, const char* dir, cons
 				pixels = lbm->pixels.pix32;
 				
 				int n;
-				for(n = 0; n < width*height; n++){
+				for(n = 0; n < size; n++){
 					u32 color = pixels[n];
 					u32 hcolor = AGMV_QuantizeColor(color,quality);
 					histogram[hcolor] = histogram[hcolor] + 1;
