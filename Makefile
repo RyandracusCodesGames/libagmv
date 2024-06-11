@@ -52,7 +52,7 @@ OBJFILES = src/agmv_utils.o \
 		extern/agidl/src/agidl_vid_str.o \
 		extern/agidl/src/agidl_img_export.o
 		
-OBJS = src/agmv_utils.o \
+OBJS =  src/agmv_utils.o \
 		src/agmv_encode.o \
 		src/agmv_decode.o \
 		src/agmv_playback.o \
@@ -60,9 +60,6 @@ OBJS = src/agmv_utils.o \
 
 TARGET = main
 ARCHIVE = libs/libagmv.a
-
-%.o: %.c $(DEPS)
-	$(CC) -c -o $@ $< $(CFLAGS)
 
 all: $(TARGET)
 

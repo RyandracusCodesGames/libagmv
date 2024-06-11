@@ -10,11 +10,13 @@
 *   File: agmv_gba.h
 *   Date: 5/20/2024
 *   Version: 1.0
-*   Updated: 6/7/2024
+*   Updated: 6/10/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 #include <gba.h>
+#include <stdlib.h>
+#include <string.h>
 
 typedef unsigned char   u8;
 typedef unsigned short u16;
@@ -98,7 +100,7 @@ static inline u32 IWRAM tell(File* file){
 	return file->pos;
 }
 
-static inline u32 IWRAM seek(File* file, u32 offset, u8 mode){
+static inline void IWRAM seek(File* file, u32 offset, u8 mode){
 	if(mode == SEEK_SET){
 		file->pos = offset;
 	}
@@ -160,15 +162,11 @@ volatile unsigned short* timer0_control = (volatile unsigned short*) 0x4000102;
 #define CYCLES_PER_BLANK 280806
 
 /* turn DMA on for different sizes */
-#define DMA_ENABLE 0x80000000
 #define DMA_16 0x00000000
 #define DMA_32 0x04000000
 
 /* this causes the DMA destination to be the same each time rather than increment */
 #define DMA_DEST_FIXED 0x400000
-
-/* this causes the DMA to repeat the transfer automatically on some interval */
-#define DMA_REPEAT 0x2000000
 
 /* this causes the DMA repeat interval to be synced with timer 0 */
 #define DMA_SYNC_TO_TIMER 0x30000000
@@ -854,7 +852,7 @@ int IWRAM AGMV_DecodeFrameChunk(File* file, AGMV* agmv){
 	}
 	
 	if(agmv->frame_count % 4 == 0){
-		for(i = 0; i < width*height; i++){
+		for(i = 0; i < size; i++){
 			iframe_data[i] = img_data[i];
 		}
 	}

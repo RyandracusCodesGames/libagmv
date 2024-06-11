@@ -1,8 +1,9 @@
-#include "basics.h"
+#include "agmv_gba.h"
 #include "GBA_GEN_AGMV.h"  
 #include "sound.h"  
-#include <stdlib.h>
-#include <gba.h>
+
+#define VRAM_F  0x6000000 
+#define VRAM_B	0x600A000
 
 int IWRAM main(){
 	
@@ -39,7 +40,7 @@ int IWRAM main(){
 
 	while(1){
 		
-		if((REG_TM2D/6100)!=lastFr){
+		if((REG_TM2CNT/6100)!=lastFr){
 
 			if(button_pressed(BUTTON_RIGHT)){
 				AGMV_SkipForwards(file,agmv,10);
@@ -69,8 +70,8 @@ int IWRAM main(){
 			   AGMV_ResetVideo(file,agmv);
 		   }
 		   
-		   FPS+=1; if(lastFr>(REG_TM2D/6100)){ FPS=0;}
-		   lastFr=(REG_TM2D/6100);  
+		   FPS+=1; if(lastFr>(REG_TM2CNT/6100)){ FPS=0;}
+		   lastFr=(REG_TM2CNT/6100);  
 
 			VBlankIntrWait();		   
 		}		
