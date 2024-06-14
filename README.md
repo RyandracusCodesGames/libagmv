@@ -47,10 +47,11 @@ int main(){
 
 int main(){
 	u32 total_num_frames = 210;
- 	/*GENERATES A C HEADER FILE CALLED SOUND.H -> USE RAW SIGNED 8-BIT PCM WHEN CALLING THIS FUNCTION*/
-	AGMV_ExportRaw8PCM("example.raw",total_num_frames/2.0f); /*IF AGMV_OPT_GBA_I OR AGMV_OPT_GBA_II DIVIDE BY 2, IF AGMV_OPT_GBA_III MULTIPLY BY 0.75*/
+ 	
  	/* GENERATES A C HEADER FILE CONTAINING AGMV VIDEO*/
-	AGMV_EncodeVideo("example.agmv","example_directory","agmv_base_name",AGMV_IMG_BMP,1,total_num_frames,320,240,24,AGMV_OPT_GBA_I,AGMV_LOW_QUALITY,AGMV_LZSS_COMPRESSION);
+	AGMV* agmv = CreateAGMV(total_num_frames-1,320,240,24);
+	AGMV_RawSignedPCMToAudioTrack("example.raw",agmv,1,16000);
+	AGMV_EncodeVideo(agmv,"example.agmv","example_directory","agmv_base_name",AGMV_IMG_BMP,1,total_num_frames,320,240,24,AGMV_OPT_GBA_I,AGMV_LOW_QUALITY,AGMV_LZSS_COMPRESSION);
 	
 	return 0;
 }
@@ -83,7 +84,12 @@ int main(){
 }
 
 ```
-## Commands in FFMPEG to Extract Frames
+## Commands in FFMPEG to Extract Frames for GBA(v1.1)
+1. Convert frame rate of video to 24 frames per second(use 16 if size is really important) ```ffmpeg -i example.mp4 -filter:v fps=fps=24 new_example.mp4```
+2. Extract audio from new video and convert to GBA compatible format ```ffmpeg -i new_example.mp4 -ac 1 -ar 16000 -c:a pcm_u8 example.wav```
+3. Extract image frames from video ```ffmpeg -i new_example.mp4 agmv_frame_%d.bmp```
+
+## Commands in FFMPEG to Extract Frames for GBA(v1.0)
 1. Convert frame rate of video to 24 frames per second(use 16 if size is really important) ```ffmpeg -i example.mp4 -filter:v fps=fps=24 new_example.mp4```
 2. Extract audio from new video ```ffmpeg -i new_example.mp4 example.wav```
 3. Extract image frames from video ```ffmpeg -i new_example.mp4 agmv_frame_%d.bmp```

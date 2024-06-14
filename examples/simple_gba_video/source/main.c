@@ -1,13 +1,12 @@
 #include "agmv_gba.h"
 #include "GBA_GEN_AGMV.h"  
-#include "sound.h"  
 
 #define VRAM_F  0x6000000 
 #define VRAM_B	0x600A000
 
 int IWRAM main(){
 	
-	SetVideoMode(MODE_3);
+	SetVideoMode(AGMV_MODE_3);
 	EnableTimer2();  	
 	
 	int lastFr=0,FPS=0;  
@@ -19,12 +18,10 @@ int IWRAM main(){
 	
 	File* file = (File*)malloc(sizeof(File));
 	
-	Open(file,GBA_AGMV_FILE,260390);
+	Open(file,GBA_AGMV_FILE,10676238);
 	
-	AGMV* agmv = AGMV_AllocResources(file,agmv_sound,139947,1358);
+	AGMV* agmv = AGMV_AllocResources(file);
 	
-	//IF NO AUDIO DO THIS INSTEAD
-	//AGMV* agmv = AGMV_AllocResources(file,NULL,0,0);
 	//AGMV_DisableAllAudio(agmv);
 	
 	*interrupt_enable = 0;
@@ -40,7 +37,9 @@ int IWRAM main(){
 
 	while(1){
 		
-		if((REG_TM2CNT/6100)!=lastFr){
+		scanKeys();
+		
+		if((REG_TM2CNT/6600)!=lastFr){
 
 			if(button_pressed(BUTTON_RIGHT)){
 				AGMV_SkipForwards(file,agmv,10);
@@ -70,8 +69,8 @@ int IWRAM main(){
 			   AGMV_ResetVideo(file,agmv);
 		   }
 		   
-		   FPS+=1; if(lastFr>(REG_TM2CNT/6100)){ FPS=0;}
-		   lastFr=(REG_TM2CNT/6100);  
+		   FPS+=1; if(lastFr>(REG_TM2CNT/6600)){ FPS=0;}
+		   lastFr=(REG_TM2CNT/6600);  
 
 			VBlankIntrWait();		   
 		}		

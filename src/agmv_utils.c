@@ -6,8 +6,8 @@
 *   Library: libagmv
 *   File: agmv_utils.c
 *   Date: 5/17/2024
-*   Version: 1.0
-*   Updated: 6/9/2024
+*   Version: 1.1
+*   Updated: 6/13/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
@@ -37,22 +37,21 @@ u32 matchlength = 0,
 
 u32 AGMV_ReadBits(FILE* file, u32 num_of_bits){
 	
-	u32 i;
+	register u32 i;
 
 	i = bitbuf >> (8 - bitsin);
 
 	while (num_of_bits > bitsin)
 	{
-			bitbuf = AGMV_ReadByte(file);
-			i |= (bitbuf << bitsin);
-			bitsin += 8;
+		bitbuf = AGMV_ReadByte(file);
+		i |= (bitbuf << bitsin);
+		bitsin += 8;
 	}
 
 	bitsin -= num_of_bits;
 
 	return (i & masks[num_of_bits]);
 }
-
 
 void AGMV_FlushReadBits() {
     bitbuf = 0;
@@ -91,21 +90,25 @@ void AGMV_WriteBits(FILE* file, u32 num, u16 num_of_bits){
 
 	if (bitsin > 16) 
 	{
-			AGMV_WriteByte(file,bitbuf & 0xFF);
-			bitbuf = num >> (8 - (bitsin - num_of_bits));
-			bitsin -= 8;
+		AGMV_WriteByte(file,bitbuf & 0xFF);
+		bitbuf = num >> (8 - (bitsin - num_of_bits));
+		bitsin -= 8;
 	}
 
 	while (bitsin >= 8)
 	{
-			AGMV_WriteByte(file,bitbuf & 0xFF);
-			bitbuf >>= 8;
-			bitsin -= 8;
+		AGMV_WriteByte(file,bitbuf & 0xFF);
+		bitbuf >>= 8;
+		bitsin -= 8;
 	}
 }
 
-void AGMV_FlushWriteBits(){
-	AGMV_FlushReadBits();
+void AGMV_FlushWriteBits(FILE* file){
+	if (bitsin > 0) {
+        AGMV_WriteByte(file, bitbuf & 0xFF);
+        bitbuf = 0;
+        bitsin = 0;
+    }
 }
 
 void AGMV_WriteByte(FILE* file, u8 byte){
@@ -235,6 +238,8 @@ void AGMV_ParseAGMV(FILE* file, AGMV* agmv){
 			AGMV_SkipFrameChunk(file);
 		}
 	}
+	
+	agmv->frame_count = 0;
 }
 
 /*------PRIMARY FUNCTIONS TO INITIALIZE AGMV ATTRIBUTES----------*/
@@ -320,6 +325,10 @@ void AGMV_SetVolume(AGMV* agmv, f32 volume){
 	agmv->volume = volume;
 }
 
+void AGMV_SetBitsPerSample(AGMV* agmv, u16 bits_per_sample){
+	agmv->header.bits_per_sample = bits_per_sample;
+}
+
 AGMV* CreateAGMV(u32 num_of_frames, u32 width, u32 height, u32 frames_per_second){
 	AGMV* agmv = (AGMV*)malloc(sizeof(AGMV));
 
@@ -335,6 +344,9 @@ AGMV* CreateAGMV(u32 num_of_frames, u32 width, u32 height, u32 frames_per_second
 	agmv->iframe->img_data = (u32*)malloc(sizeof(u32)*width*height);
 	agmv->audio_track = (AGMV_AUDIO_TRACK*)malloc(sizeof(AGMV_AUDIO_TRACK));
 	agmv->iframe_entries = (AGMV_ENTRY*)malloc(sizeof(AGMV_ENTRY)*width*height);
+	agmv->audio_track->pcm = NULL;
+	agmv->audio_track->pcm8 = NULL;
+	agmv->audio_chunk->atsample = NULL;
 
 	agmv->frame_count = 0;
 	agmv->audio_track->start_point = 0;
@@ -351,6 +363,7 @@ AGMV* CreateAGMV(u32 num_of_frames, u32 width, u32 height, u32 frames_per_second
 	AGMV_SetOPT(agmv,AGMV_OPT_I);
 	AGMV_SetCompression(agmv,AGMV_LZSS_COMPRESSION);
 	AGMV_SetVolume(agmv,1.0f);
+	AGMV_SetBitsPerSample(agmv,16);
 
 	return agmv;
 }
@@ -383,8 +396,15 @@ void DestroyAGMV(AGMV* agmv){
 		free(agmv->frame_chunk);
 		
 		if(agmv->header.total_audio_duration != 0){
-			if(agmv->audio_track->pcm != NULL){
-				free(agmv->audio_track->pcm);
+			if(agmv->header.bits_per_sample == 16){
+				if(agmv->audio_track->pcm != NULL){
+					free(agmv->audio_track->pcm);
+				}
+			}
+			else{
+				if(agmv->audio_track->pcm8 != NULL){
+					free(agmv->audio_track->pcm8);
+				}
 			}
 			
 			if(agmv->audio_chunk->atsample != NULL){
@@ -456,6 +476,10 @@ Bool AGMV_GetAudioState(AGMV* agmv){
 
 f32 AGMV_GetVolume(AGMV* agmv){
 	return agmv->volume;
+}
+
+u16 AGMV_GetBitsPerSample(AGMV* agmv){
+	return agmv->header.bits_per_sample;
 }
 
 /*-----------------VARIOUS UTILITY FUNCTIONS-----------------*/
@@ -557,10 +581,37 @@ void AGMV_SyncFrameAndImage(AGMV* agmv, u32* img_data){
 	AGMV_CopyImageData(agmv->frame->img_data,img_data,AGMV_GetWidth(agmv)*AGMV_GetHeight(agmv));
 }
 
-void AGMV_SyncAudioTrack(AGMV* agmv, u16* pcm){
+void AGMV_SyncAudioTrack(AGMV* agmv, const void* pcm){
+	u32 audio_size = AGMV_GetAudioSize(agmv), i;
+	u16 bps = AGMV_GetBitsPerSample(agmv);
+	
+	if(bps == 16){
+		u16* pcm16 = (u16*)pcm;
+		
+		for(i = 0; i < audio_size; i++){
+			agmv->audio_track->pcm[i] = pcm16[i];
+		}
+	}
+	else{
+		u8* pcm8 = (u8*)pcm;
+		
+		for(i = 0; i < audio_size; i++){
+			agmv->audio_track->pcm8[i] = pcm8[i];
+		}
+	}
+}
+
+void AGMV_SignedToUnsignedPCM(u8* pcm, u32 size){
 	int i;
-	for(i = 0; i < AGMV_GetAudioSize(agmv); i++){
-		agmv->audio_track->pcm[i] = pcm[i];
+	for(i = 0; i < size; i++){
+		pcm[i] = pcm[i] + 128;
+	}
+}
+
+void AGMV_UnsigendToSignedPCM(u8* pcm, u32 size){
+	int i;
+	for(i = 0; i < size; i++){
+		pcm[i] = pcm[i] - 128;
 	}
 }
 
@@ -880,7 +931,7 @@ f32 AGMV_CompareFrameSimilarity(u32* frame1, u32* frame2, u32 width, u32 height)
 	u32 total_num_of_pixels = width*height, count = 0;
 	
 	int i;
-	for(i = 0; i < width*height; i++){
+	for(i = 0; i < total_num_of_pixels; i++){
 		u32 color1 = frame1[i];
 		u32 color2 = frame2[i];
 		
@@ -896,8 +947,8 @@ f32 AGMV_CompareFrameSimilarity(u32* frame1, u32* frame2, u32 width, u32 height)
 }
 
 void AGMV_InterpFrame(u32* interp, u32* frame1, u32* frame2, u32 width, u32 height){
-	int i;
-	for(i = 0; i < width*height; i++){
+	int i, size = width*height;
+	for(i = 0; i < size; i++){
 		u32 color1 = frame1[i];
 		u32 color2 = frame2[i];
 		
@@ -941,50 +992,23 @@ int AGMV_SkipToNearestIFrame(int n){
 	return nexti;
 }
 
-void QQSwap(u32* a, u32* b){
-	u32 temp = *a;
-	*a = *b;
-	*b = temp;
+void AGMV_BubbleSort(u32* data, u32* gram, u32 num_of_colors){
+	int i,j;
+	for(j = 0; j < num_of_colors - 1; j++){
+		for(i = 0; i < num_of_colors - 1; i++){
+			if (data[i] > data[i + 1]) {
+				u32 temp = data[i];
+				data[i] = data[i + 1];
+				data[i + 1] = temp;
+
+				u32 tempc = gram[i];
+				gram[i] = gram[i + 1];
+				gram[i + 1] = tempc;
+			}
+		}
+	}
 }
 
-int ppartition(u32* data, u32* gram, int low, int high)
-{
-    // choose the pivot
-    u32 pivot = data[high];
-
-    // Index of smaller element and Indicate
-    // the right position of pivot found so far
-    int i = (low - 1);
-	int j;
-    for (j = low; j <= high; j++) {
-        // If current element is smaller than the pivot
-        if (data[j] < pivot) {
-            // Increment index of smaller element
-            i++;
-            QQSwap(&data[i], &data[j]);
-			QQSwap(&gram[i], &gram[j]);
-        }
-    }
-    QQSwap(&data[i + 1], &data[high]);
-	QQSwap(&gram[i + 1], &gram[high]);
-    return (i + 1);
-}
-
-void AGMV_QuickSort(u32* data, u32* gram, int low, int high)
-{
-    // when low is less than high
-    if (low < high) {
-        // pi is the partition return index of pivot
-
-        int pi = ppartition(data, gram, low, high);
-
-        // Recursion Call
-        // smaller element than pivot goes left and
-        // higher element goes right
-        AGMV_QuickSort(data, gram, low, pi - 1);
-        AGMV_QuickSort(data, gram, pi + 1, high);
-    }
-}
 
 char* AGMV_Error2Str(Error error){
 	switch(error){
@@ -1010,7 +1034,8 @@ u32 AGMV_GetNumberOfBytesRead(u32 bits){
 
 void AGMV_WavToAudioTrack(const char* filename, AGMV* agmv){
 	u32 riff, chunk_size, wave, fmt, sub_chunk_size, audio_fmt, num_of_channels, sample_rate, byte_rate, block_align, bits_per_sample, data_chunk, sub_chunk_size2, i;
-	u16* pcm, *pcm8;
+	u16* pcm;
+	u8* pcm8;
 	FILE* wav;
 	
 	wav = fopen(filename,"rb");
@@ -1032,10 +1057,12 @@ void AGMV_WavToAudioTrack(const char* filename, AGMV* agmv){
 	if(bits_per_sample == 16){
 		pcm = (u16*)malloc(sizeof(u16)*(chunk_size/2));
 		fread(pcm,2,chunk_size/2,wav);
+		AGMV_SetBitsPerSample(agmv,16);
 	}
 	else{
 		pcm8 = (u8*)malloc(sizeof(u8)*(chunk_size));
 		fread(pcm8,1,chunk_size,wav);
+		AGMV_SetBitsPerSample(agmv,8);
 	}
 	
 	fclose(wav);
@@ -1052,15 +1079,37 @@ void AGMV_WavToAudioTrack(const char* filename, AGMV* agmv){
 	}
 	else{
 		AGMV_SetAudioSize(agmv,chunk_size);
-		agmv->audio_chunk->atsample = (u8*)malloc(sizeof(u8)*agmv->header.audio_size);
-		
-		for(i = 0; i < agmv->header.audio_size; i++){
-			agmv->audio_chunk->atsample[i] = pcm8[i];
-		}
-		
+		agmv->audio_track->pcm8 = (u8*)malloc(sizeof(u8)*agmv->header.audio_size);
+		AGMV_SyncAudioTrack(agmv,pcm8);
 		free(pcm8);
 	}
 	
+}
+
+void AGMV_RawSignedPCMToAudioTrack(const char* filename, AGMV* agmv, u8 num_of_channels, u32 sample_rate){
+	FILE* file;
+	u32 file_size, i;
+	u8* pcm8;
+	
+	file = fopen(filename,"rb");
+	
+	fseek(file,0,SEEK_END);
+	file_size = ftell(file);
+	fseek(file,0,SEEK_SET);
+	
+	agmv->audio_track->pcm8 = (u8*)malloc(sizeof(u8)*file_size);
+	pcm8 = agmv->audio_track->pcm8;
+	
+	AGMV_SetAudioSize(agmv,file_size);
+	AGMV_SetSampleRate(agmv,sample_rate);
+	AGMV_SetNumberOfChannels(agmv,num_of_channels);
+	AGMV_SetBitsPerSample(agmv,8);
+	AGMV_SetTotalAudioDuration(agmv,file_size/(sample_rate*num_of_channels));
+	
+	for(i = 0; i < file_size; i++){
+		pcm8[i] = AGMV_ReadByte(file) + 128;
+	}
+
 }
 
 u32 AGMV_80BitFloat(FILE* file){
@@ -1087,7 +1136,7 @@ u32 AGMV_80BitFloat(FILE* file){
 		return 37800;
 	}
 	
-	u32 freq = 0;
+	int freq = 0;
 
     int sign = (buf[0] >> 7) & 1;
 	int exp = ((buf[0] & 127) << 8) + buf[1] - 16383;
@@ -1146,6 +1195,7 @@ void AGMV_AIFCToAudioTrack(const char* filename, AGMV* agmv){
 			AGMV_SetNumberOfChannels(agmv,num_of_channels);
 			
 			if(sample_size == 16){
+				AGMV_SetBitsPerSample(agmv,16);
 				pcm = (u16*)malloc(sizeof(u16)*(size/2));
 				for(i = 0; i < size/2; i++){
 					pcm[i] = AGMV_SwapShort(AGMV_ReadShort(file));
@@ -1156,13 +1206,14 @@ void AGMV_AIFCToAudioTrack(const char* filename, AGMV* agmv){
 				free(pcm);
 			}
 			else{
+				AGMV_SetBitsPerSample(agmv,8);
 				pcm8 = (u8*)malloc(sizeof(u8)*size);
+				agmv->audio_track->pcm8 = (u8*)malloc(sizeof(u8)*agmv->header.audio_size);
 				fread(pcm8,1,size,file);
 				AGMV_SetAudioSize(agmv,size);
-				agmv->audio_chunk->atsample = (u8*)malloc(sizeof(u8)*agmv->header.audio_size);
 				
 				for(i = 0; i < agmv->header.audio_size; i++){
-					agmv->audio_chunk->atsample[i] = pcm8[i];
+					agmv->audio_track->pcm8[i] = pcm8[i] + 128;
 				}
 				
 				free(pcm8);
@@ -1183,6 +1234,7 @@ void AGMV_AIFCToAudioTrack(const char* filename, AGMV* agmv){
 			AGMV_SetNumberOfChannels(agmv,num_of_channels);
 			
 			if(sample_size == 16){
+				AGMV_SetBitsPerSample(agmv,16);
 				pcm = (u16*)malloc(sizeof(u16)*(size/2));
 				for(i = 0; i < size/2; i++){
 					pcm[i] = AGMV_ReadShort(file);
@@ -1193,13 +1245,14 @@ void AGMV_AIFCToAudioTrack(const char* filename, AGMV* agmv){
 				free(pcm);
 			}
 			else{
+				AGMV_SetBitsPerSample(agmv,8);
 				pcm8 = (u8*)malloc(sizeof(u8)*size);
+				agmv->audio_track->pcm8 = (u8*)malloc(sizeof(u8)*agmv->header.audio_size);
 				fread(pcm8,1,size,file);
 				AGMV_SetAudioSize(agmv,size);
-				agmv->audio_chunk->atsample = (u8*)malloc(sizeof(u8)*agmv->header.audio_size);
 				
 				for(i = 0; i < agmv->header.audio_size; i++){
-					agmv->audio_chunk->atsample[i] = pcm8[i];
+					agmv->audio_track->pcm8[i] = pcm8[i] + 128;
 				}
 				
 				free(pcm8);
@@ -1290,93 +1343,6 @@ void AGMV_Raw8PCMToAudioTrack(const char* filename, AGMV* agmv){
 	fclose(file);
 }
 
-void AGMV_Export8PCMWav(const char* filename){
-	u32 riff, chunk_size, wave, fmt, sub_chunk_size, audio_fmt, num_of_channels, sample_rate, byte_rate, block_align, bits_per_sample, data_chunk, sub_chunk_size2;
-	u8* pcm; int i;
-	FILE* wav, *out;
-	
-	wav = fopen(filename,"rb");
-			
-	riff = AGMV_ReadLong(wav);
-	chunk_size = AGMV_ReadLong(wav);
-	wave = AGMV_ReadLong(wav);
-	fmt = AGMV_ReadLong(wav);
-	sub_chunk_size = AGMV_ReadLong(wav);
-	audio_fmt = AGMV_ReadShort(wav);
-	num_of_channels = AGMV_ReadShort(wav);
-	sample_rate = AGMV_ReadLong(wav);
-	byte_rate = AGMV_ReadLong(wav);
-	block_align = AGMV_ReadShort(wav);
-	bits_per_sample = AGMV_ReadShort(wav);
-	data_chunk = AGMV_ReadLong(wav);
-	sub_chunk_size2 = AGMV_ReadLong(wav);
-	
-	pcm = (u8*)malloc(sizeof(u8)*(sub_chunk_size2));
-	fread(pcm,1,sub_chunk_size2,wav);
-	
-	fclose(wav);
-	
-	out = fopen("sound.h","w");
-	
-	fprintf(out,"#ifndef SOUND_H\n");
-	fprintf(out,"#define SOUND_H\n\n");
-	fprintf(out,"#define AGMV_SAMPLE_RATE %ld\n",sample_rate);
-	fprintf(out,"#define AGMV_AUDIO_SIZE %ld\n\n",sub_chunk_size2);
-	fprintf(out,"unsigned char agmv_sound[AGMV_AUDIO_SIZE] = {\n");
-	
-	for(i = 0; i < sub_chunk_size2; i++){
-		if(i % 100 == 0){
-			fprintf(out,"\n");
-		}
-		fprintf(out,"%d,",pcm[i]);
-	}
-	
-	fprintf(out,"\n};\n");
-	fprintf(out,"#endif");
-	
-	fclose(out);
-	free(pcm);
-}
-
-void AGMV_ExportRaw8PCM(const char* filename, u32 total_num_frames){
-	int i, file_size;
-	s8* data;
-	FILE* file, *out;
-	
-	file = fopen(filename,"rb");
-	fseek(file,0,SEEK_END);
-	file_size = ftell(file);
-	fseek(file,0,SEEK_SET);
-	
-	data = (s8*)malloc(sizeof(s8)*file_size);
-	fread(data,1,file_size,file);
-	
-	fclose(file);
-	
-	out = fopen("sound.h","w");
-	
-	fprintf(out,"#ifndef SOUND_H\n");
-	fprintf(out,"#define SOUND_H\n\n");
-	fprintf(out,"#define SIZE %ld\n",file_size);
-	fprintf(out,"#define SAMPLE_SIZE %ld\n\n",(u32)(file_size/(f32)(total_num_frames)));
-	fprintf(out,"const signed char agmv_sound[SIZE] = {\n");
-	
-	for(i = 0; i < file_size; i++){
-		if(i % 500 == 0){
-			fprintf(out,"\n");
-		}
-		fprintf(out,"%d,",data[i]);
-	}
-	
-	fprintf(out,"};\n");
-	fprintf(out,"#endif");
-	
-	fclose(out);
-	
-	free(data);
-	
-}
-
 AGMV_INFO AGMV_GetVideoInfo(AGMV* agmv){
 	AGMV_INFO info;
 	
@@ -1388,6 +1354,7 @@ AGMV_INFO AGMV_GetVideoInfo(AGMV* agmv){
 	info.sample_rate = AGMV_GetSampleRate(agmv);
 	info.audio_size = AGMV_GetAudioSize(agmv);
 	info.number_of_channels = AGMV_GetNumberOfChannels(agmv);
+	info.bits_per_sample = AGMV_GetBitsPerSample(agmv);
 	
 	return info;
 }
@@ -1439,7 +1406,14 @@ void AGMV_ExportAudioType(FILE* audio, AGMV* agmv, AGMV_AUDIO_TYPE audio_type){
 	switch(audio_type){
 		case AGMV_AUDIO_WAV:{
 			AGMV_WriteFourCC(audio,'R','I','F','F');
-			AGMV_WriteLong(audio,agmv->header.audio_size*2);
+			
+			if(agmv->header.bits_per_sample == 16){
+				AGMV_WriteLong(audio,agmv->header.audio_size*2);
+			}
+			else{
+				AGMV_WriteLong(audio,agmv->header.audio_size);
+			}
+			
 			AGMV_WriteFourCC(audio,'W','A','V','E');
 			AGMV_WriteFourCC(audio,'f','m','t',0x20);
 			AGMV_WriteLong(audio,16);
@@ -1447,15 +1421,29 @@ void AGMV_ExportAudioType(FILE* audio, AGMV* agmv, AGMV_AUDIO_TYPE audio_type){
 			AGMV_WriteShort(audio,agmv->header.num_of_channels);
 			AGMV_WriteLong(audio,agmv->header.sample_rate);
 			AGMV_WriteLong(audio,75600);
-			AGMV_WriteShort(audio,4);
-			AGMV_WriteShort(audio,16);
+			AGMV_WriteShort(audio,(agmv->header.num_of_channels * agmv->header.bits_per_sample) / 8);
+			AGMV_WriteShort(audio,agmv->header.bits_per_sample);
 			AGMV_WriteFourCC(audio,'d','a','t','a');
-			AGMV_WriteLong(audio,agmv->header.audio_size*2);
-			fwrite(agmv->audio_track->pcm,2,agmv->header.audio_size,audio);
+			
+			if(agmv->header.bits_per_sample == 16){
+				AGMV_WriteLong(audio,agmv->header.audio_size*2);
+				fwrite(agmv->audio_track->pcm,2,agmv->header.audio_size,audio);
+			}
+			else{
+				AGMV_WriteLong(audio,agmv->header.audio_size);
+				fwrite(agmv->audio_track->pcm8,1,agmv->header.audio_size,audio);
+			}
 		}break;
 		case AGMV_AUDIO_AIFF:{
 			AGMV_WriteFourCC(audio,'F','O','R','M');
-			AGMV_WriteLong(audio,AGMV_SwapLong((agmv->header.audio_size*2)+32));
+			
+			if(AGMV_GetBitsPerSample(agmv) == 16){
+				AGMV_WriteLong(audio,AGMV_SwapLong((agmv->header.audio_size*2)+32));
+			}
+			else{
+				AGMV_WriteLong(audio,AGMV_SwapLong((agmv->header.audio_size)+32));
+			}
+			
 			AGMV_WriteFourCC(audio,'A','I','F','C');
 			AGMV_WriteFourCC(audio,'F','V','E','R');
 			AGMV_WriteLong(audio,AGMV_SwapLong(4));
@@ -1464,7 +1452,7 @@ void AGMV_ExportAudioType(FILE* audio, AGMV* agmv, AGMV_AUDIO_TYPE audio_type){
 			AGMV_WriteLong(audio,AGMV_SwapLong(26));
 			AGMV_WriteShort(audio,AGMV_SwapShort(AGMV_GetNumberOfChannels(agmv)));
 			AGMV_WriteLong(audio,AGMV_SwapLong((AGMV_GetAudioSize(agmv))/AGMV_GetNumberOfChannels(agmv)));
-			AGMV_WriteShort(audio,AGMV_SwapShort(16));
+			AGMV_WriteShort(audio,AGMV_SwapShort(AGMV_GetBitsPerSample(agmv)));
 			
 			to_80bitfloat(AGMV_GetSampleRate(agmv),bytes);
 			
@@ -1480,23 +1468,44 @@ void AGMV_ExportAudioType(FILE* audio, AGMV* agmv, AGMV_AUDIO_TYPE audio_type){
 			AGMV_WriteFourCC(audio,'N','O','N','E');
 			AGMV_WriteFourCC(audio,'N','O','N','E');
 			AGMV_WriteFourCC(audio,'S','S','N','D');
-			AGMV_WriteLong(audio,AGMV_SwapLong(AGMV_GetAudioSize(agmv)*2));
+			
+			if(AGMV_GetBitsPerSample(agmv) == 16){
+				AGMV_WriteLong(audio,AGMV_SwapLong(AGMV_GetAudioSize(agmv)*2));
+			}
+			else{
+				AGMV_WriteLong(audio,AGMV_SwapLong(AGMV_GetAudioSize(agmv)));
+			}
+			
 			AGMV_WriteLong(audio,0);
 			AGMV_WriteLong(audio,0);
 			
-			for(i = 0; i < AGMV_GetAudioSize(agmv); i++){
-				AGMV_WriteShort(audio,AGMV_SwapShort(agmv->audio_track->pcm[i]));
+			if(AGMV_GetBitsPerSample(agmv) == 16){
+				for(i = 0; i < AGMV_GetAudioSize(agmv); i++){
+					AGMV_WriteShort(audio,AGMV_SwapShort(agmv->audio_track->pcm[i]));
+				}
+			}
+			else{
+				for(i = 0; i < AGMV_GetAudioSize(agmv); i++){
+					AGMV_WriteByte(audio,agmv->audio_track->pcm8[i]-128);
+				}
 			}
 		}break;
 		case AGMV_AUDIO_AIFC:{
 			AGMV_WriteFourCC(audio,'F','O','R','M');
-			AGMV_WriteLong(audio,AGMV_SwapLong((agmv->header.audio_size*2)+32));
+			
+			if(AGMV_GetBitsPerSample(agmv) == 16){
+				AGMV_WriteLong(audio,AGMV_SwapLong((agmv->header.audio_size*2)+32));
+			}
+			else{
+				AGMV_WriteLong(audio,AGMV_SwapLong((agmv->header.audio_size)+32));
+			}
+			
 			AGMV_WriteFourCC(audio,'A','I','F','F');
 			AGMV_WriteFourCC(audio,'C','O','M','M');
 			AGMV_WriteLong(audio,AGMV_SwapLong(18));
 			AGMV_WriteShort(audio,AGMV_SwapShort(AGMV_GetNumberOfChannels(agmv)));
 			AGMV_WriteLong(audio,AGMV_SwapLong((AGMV_GetAudioSize(agmv))/AGMV_GetNumberOfChannels(agmv)));
-			AGMV_WriteShort(audio,AGMV_SwapShort(16));
+			AGMV_WriteShort(audio,AGMV_SwapShort(AGMV_GetBitsPerSample(agmv)));
 			
 			to_80bitfloat(AGMV_GetSampleRate(agmv),bytes);
 			
@@ -1510,17 +1519,38 @@ void AGMV_ExportAudioType(FILE* audio, AGMV* agmv, AGMV_AUDIO_TYPE audio_type){
 			}
 
 			AGMV_WriteFourCC(audio,'S','S','N','D');
-			AGMV_WriteLong(audio,AGMV_SwapLong(AGMV_GetAudioSize(agmv)*2));
+			
+			if(AGMV_GetBitsPerSample(agmv) == 16){
+				AGMV_WriteLong(audio,AGMV_SwapLong(AGMV_GetAudioSize(agmv)*2));
+			}
+			else{
+				AGMV_WriteLong(audio,AGMV_SwapLong(AGMV_GetAudioSize(agmv)));
+			}
+			
 			AGMV_WriteLong(audio,0);
 			AGMV_WriteLong(audio,0);
 			
-			for(i = 0; i < AGMV_GetAudioSize(agmv); i++){
-				AGMV_WriteShort(audio,AGMV_SwapShort(agmv->audio_track->pcm[i]));
+			if(AGMV_GetBitsPerSample(agmv) == 16){
+				for(i = 0; i < AGMV_GetAudioSize(agmv); i++){
+					AGMV_WriteShort(audio,AGMV_SwapShort(agmv->audio_track->pcm[i]));
+				}
+			}
+			else{
+				for(i = 0; i < AGMV_GetAudioSize(agmv); i++){
+					AGMV_WriteByte(audio,agmv->audio_track->pcm8[i]-128);
+				}
 			}
 		}break;
 		default:{
 			AGMV_WriteFourCC(audio,'R','I','F','F');
-			AGMV_WriteLong(audio,agmv->header.audio_size*2);
+			
+			if(agmv->header.bits_per_sample == 16){
+				AGMV_WriteLong(audio,agmv->header.audio_size*2);
+			}
+			else{
+				AGMV_WriteLong(audio,agmv->header.audio_size);
+			}
+			
 			AGMV_WriteFourCC(audio,'W','A','V','E');
 			AGMV_WriteFourCC(audio,'f','m','t',0x20);
 			AGMV_WriteLong(audio,16);
@@ -1528,11 +1558,18 @@ void AGMV_ExportAudioType(FILE* audio, AGMV* agmv, AGMV_AUDIO_TYPE audio_type){
 			AGMV_WriteShort(audio,agmv->header.num_of_channels);
 			AGMV_WriteLong(audio,agmv->header.sample_rate);
 			AGMV_WriteLong(audio,75600);
-			AGMV_WriteShort(audio,4);
-			AGMV_WriteShort(audio,16);
+			AGMV_WriteShort(audio,(agmv->header.num_of_channels * agmv->header.bits_per_sample) / 8);
+			AGMV_WriteShort(audio,agmv->header.bits_per_sample);
 			AGMV_WriteFourCC(audio,'d','a','t','a');
-			AGMV_WriteLong(audio,agmv->header.audio_size*2);
-			fwrite(agmv->audio_track->pcm,2,agmv->header.audio_size,audio);
+			
+			if(agmv->header.bits_per_sample == 16){
+				AGMV_WriteLong(audio,agmv->header.audio_size*2);
+				fwrite(agmv->audio_track->pcm,2,agmv->header.audio_size,audio);
+			}
+			else{
+				AGMV_WriteLong(audio,agmv->header.audio_size);
+				fwrite(agmv->audio_track->pcm8,1,agmv->header.audio_size,audio);
+			}
 		}break;
 	}
 }

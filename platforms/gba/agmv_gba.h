@@ -9,8 +9,8 @@
 *   Library: libagmv
 *   File: agmv_gba.h
 *   Date: 5/20/2024
-*   Version: 1.0
-*   Updated: 6/10/2024
+*   Version: 1.1
+*   Updated: 6/13/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
@@ -402,7 +402,7 @@ typedef enum Error{
 
 #define AGMV_MAX_CLR     65535
 #define MAX_OFFSET_TABLE 40000
-#define AGMV_FILL_FLAG    0x1f
+#define AGMV_FILL_FLAG    0x4E
 #define AGMV_NORMAL_FLAG  0x2f
 #define AGMV_COPY_FLAG    0x5E
 
@@ -418,6 +418,7 @@ typedef struct AGMV_MAIN_HEADER{
 	u32 sample_rate;
 	u32 audio_size;
 	u16 num_of_channels;
+	u16 bits_per_sample;
 	u16 palette0[256];
 	u16 palette1[256];
 }AGMV_MAIN_HEADER;
@@ -508,63 +509,6 @@ int AGMV_SkipToNearestIFrame(int n){
 	return nexti;
 }
 
-AGMV* AGMV_AllocResources(File* file, const s8* agmv_sound, u32 total_audio_size, u32 sample_audio_size){
-	int i;
-	
-	AGMV* agmv = (AGMV*)malloc(sizeof(AGMV));
-	agmv->frame_chunk = (AGMV_FRAME_CHUNK*)malloc(sizeof(AGMV_FRAME_CHUNK));
-	agmv->frame = (AGMV_FRAME*)malloc(sizeof(AGMV_FRAME));
-	agmv->iframe = (AGMV_FRAME*)malloc(sizeof(AGMV_FRAME));
-	agmv->audio_chunk = (AGMV_AUDIO_CHUNK*)malloc(sizeof(AGMV_AUDIO_CHUNK));
-	agmv->bitstream = (AGMV_BITSTREAM*)malloc(sizeof(AGMV_BITSTREAM));
-	
-	AGMV_DecodeHeader(file,agmv);
-	
-	agmv->frame_count = 0;
-	agmv->frame->width = agmv->header.width;
-	agmv->frame->height = agmv->header.height;
-	agmv->frame->dwidth = agmv->header.width << 1;
-	agmv->frame->dheight = agmv->header.height << 1;
-	agmv->frame->img_data = (u16*)malloc(sizeof(u16)*agmv->frame->width*agmv->frame->height);
-	agmv->iframe->width = agmv->header.width;
-	agmv->iframe->height = agmv->header.height;
-	agmv->iframe->dwidth = agmv->header.width << 1;
-	agmv->iframe->dheight = agmv->header.height << 1;
-	agmv->iframe->img_data = (u16*)malloc(sizeof(u16)*agmv->frame->width*agmv->frame->height);
-	agmv->bitstream->pos = 0;
-	agmv->bitstream->len = agmv->frame->width*agmv->frame->height*2;
-	agmv->bitstream->data = (u8*)malloc(sizeof(u8)*agmv->bitstream->len);
-	agmv->audio_chunk->size = sample_audio_size*2;
-	agmv->audio_chunk->total_size = total_audio_size;
-	agmv->audio_chunk->pcm = agmv_sound;
-	agmv->audio_chunk->sample = (s8*)malloc(sizeof(s8)*sample_audio_size*2);
-	agmv->audio_chunk->empty = (s8*)malloc(sizeof(s8)*sample_audio_size*2);
-	memset(agmv->audio_chunk->empty,0,sample_audio_size*2);
-	agmv->audio_chunk->enable_audio = TRUE;
-	agmv->audio_chunk->point = 0;
-	
-	AGMV_EnableAllAudio(agmv);
-	
-	return agmv;
-}
-
-void DestroyAGMV(AGMV* agmv){
-	int i;
-	if(agmv != NULL){
-		free(agmv->audio_chunk->sample);
-		free(agmv->audio_chunk->empty);
-		free(agmv->frame->img_data);
-		free(agmv->frame);
-		free(agmv->iframe->img_data);
-		free(agmv->iframe);
-		free(agmv->frame_chunk);	
-		free(agmv->bitstream->data);
-		free(agmv->bitstream);
-		free(agmv->audio_chunk); 
-		free(agmv);
-	}
-}
-
 int AGMV_DecodeHeader(File* file, AGMV* agmv){
 	
 	int i;
@@ -582,6 +526,7 @@ int AGMV_DecodeHeader(File* file, AGMV* agmv){
 	agmv->header.sample_rate = AGMV_ReadLong(file);
 	agmv->header.audio_size = AGMV_ReadLong(file);
 	agmv->header.num_of_channels = AGMV_ReadShort(file);
+	agmv->header.bits_per_sample = AGMV_ReadShort(file);
 	
 	if(!AGMV_IsCorrectFourCC(agmv->header.fourcc,'A','G','M','V') || !(agmv->header.version == 1 || agmv->header.version == 2 || agmv->header.version == 3 || agmv->header.version == 4) || agmv->header.frames_per_second >= 200){
 		return INVALID_HEADER_FORMATTING_ERR;
@@ -629,12 +574,68 @@ int AGMV_DecodeHeader(File* file, AGMV* agmv){
 	return NO_ERR;
 }
 
+AGMV* AGMV_AllocResources(File* file){
+	int sample_audio_size;
+	
+	AGMV* agmv = (AGMV*)malloc(sizeof(AGMV));
+	agmv->frame_chunk = (AGMV_FRAME_CHUNK*)malloc(sizeof(AGMV_FRAME_CHUNK));
+	agmv->frame = (AGMV_FRAME*)malloc(sizeof(AGMV_FRAME));
+	agmv->iframe = (AGMV_FRAME*)malloc(sizeof(AGMV_FRAME));
+	agmv->audio_chunk = (AGMV_AUDIO_CHUNK*)malloc(sizeof(AGMV_AUDIO_CHUNK));
+	agmv->bitstream = (AGMV_BITSTREAM*)malloc(sizeof(AGMV_BITSTREAM));
+	
+	AGMV_DecodeHeader(file,agmv);
+	
+	sample_audio_size = agmv->header.audio_size /(float) agmv->header.num_of_frames;
+	
+	agmv->frame_count = 0;
+	agmv->frame->width = agmv->header.width;
+	agmv->frame->height = agmv->header.height;
+	agmv->frame->dwidth = agmv->header.width << 1;
+	agmv->frame->dheight = agmv->header.height << 1;
+	agmv->frame->img_data = (u16*)malloc(sizeof(u16)*agmv->frame->width*agmv->frame->height);
+	agmv->iframe->width = agmv->header.width;
+	agmv->iframe->height = agmv->header.height;
+	agmv->iframe->dwidth = agmv->header.width << 1;
+	agmv->iframe->dheight = agmv->header.height << 1;
+	agmv->iframe->img_data = (u16*)malloc(sizeof(u16)*agmv->frame->width*agmv->frame->height);
+	agmv->bitstream->pos = 0;
+	agmv->bitstream->len = agmv->frame->width*agmv->frame->height*2;
+	agmv->bitstream->data = (u8*)malloc(sizeof(u8)*agmv->bitstream->len);
+	agmv->audio_chunk->size = sample_audio_size*2;
+	agmv->audio_chunk->total_size = agmv->header.audio_size;
+	agmv->audio_chunk->sample = (s8*)malloc(sizeof(s8)*sample_audio_size*2);
+	agmv->audio_chunk->empty = (s8*)malloc(sizeof(s8)*sample_audio_size*2);
+	memset(agmv->audio_chunk->empty,0,sample_audio_size*2);
+	agmv->audio_chunk->enable_audio = TRUE;
+	
+	AGMV_EnableAllAudio(agmv);
+	
+	return agmv;
+}
+
+void DestroyAGMV(AGMV* agmv){
+	if(agmv != NULL){
+		free(agmv->audio_chunk->sample);
+		free(agmv->audio_chunk->empty);
+		free(agmv->frame->img_data);
+		free(agmv->frame);
+		free(agmv->iframe->img_data);
+		free(agmv->iframe);
+		free(agmv->frame_chunk);	
+		free(agmv->bitstream->data);
+		free(agmv->bitstream);
+		free(agmv->audio_chunk); 
+		free(agmv);
+	}
+}
+
 int IWRAM AGMV_DecodeFrameChunk(File* file, AGMV* agmv){
 	u32 i, pos, bitpos = 0, bpos = 0, size = agmv->header.width * agmv->header.height, usize, csize, width, height, bits, num_of_bits;
 	u16 offset, palette0[256], palette1[256], color;
 	u16* img_data, *iframe_data, *palette;
-	u8 byte, len, org, index, fbit, bot, *bitstream_data, *dest, *src;
-	Bool escape = FALSE;
+	u8 byte, len, index, fbit, bot, *bitstream_data;
+	Bool escape = FALSE, invalid_flag = FALSE;
 	
 	agmv->bitstream->pos = 0;
 	
@@ -679,11 +680,14 @@ int IWRAM AGMV_DecodeFrameChunk(File* file, AGMV* agmv){
 		}
 	}
 	else{
-		for(bits = 0; bits <= num_of_bits;){
+		for(bits = 0; bits < num_of_bits && bpos < usize;){
 
 			byte = AGMV_ReadBits(file,1); bits++;
 			
 			if(byte & 1){
+				if(bpos >= usize) {
+					break;
+				}
 				bitstream_data[bpos++] = AGMV_ReadBits(file,8);
 				bits += 8;
 			}
@@ -691,18 +695,16 @@ int IWRAM AGMV_DecodeFrameChunk(File* file, AGMV* agmv){
 				offset = AGMV_ReadBits(file,16);
 				len = AGMV_ReadBits(file,4);
 				
-				org = len;
-				
 				bits += 20;
 				
-				dest = &bitstream_data[bpos];
-				src = dest - offset;
-
-				do {
-					*dest++ = *src++;
-				}while(len--);
-				
-				bpos += org;
+				pos = bpos;
+			
+				int i;
+				for (i = 0; i < len; i++) {
+					if (pos - offset + i >= 0 && pos - offset + i < bpos) {
+						bitstream_data[bpos++] = bitstream_data[pos - offset + i];
+					}
+				}
 			}
 		}
 	}
@@ -715,22 +717,31 @@ int IWRAM AGMV_DecodeFrameChunk(File* file, AGMV* agmv){
 		int x,y;
 		for(y = 0; y < height && escape != TRUE; y += 4){
 			for(x = 0; x < width && escape != TRUE; x += 4){
-				u8 byte = bitstream_data[bitpos++];
-				
+
 				if(bitpos > bpos){
 					escape = TRUE;
 					break;
+				}
+				
+				byte = bitstream_data[bitpos++];
+				
+				while(byte != AGMV_FILL_FLAG && byte != AGMV_NORMAL_FLAG && byte != AGMV_COPY_FLAG){
+					byte = bitstream_data[bitpos++];
+					
+					if(bitpos > bpos){
+						escape = TRUE;
+						break;
+					}
+				}
+				
+				if(byte != AGMV_FILL_FLAG && byte != AGMV_NORMAL_FLAG && byte != AGMV_COPY_FLAG){
+					invalid_flag = TRUE;
 				}
 				
 				if(byte == AGMV_FILL_FLAG){
 					index = bitstream_data[bitpos++];
 					fbit = (index >> 7) & 1;
 					bot = (index & 0x7f);
-					
-					if(bitpos > bpos){
-						escape = TRUE;
-						break;
-					}
 
 					palette = fbit ? palette1 : palette0;
 			
@@ -740,6 +751,15 @@ int IWRAM AGMV_DecodeFrameChunk(File* file, AGMV* agmv){
 					else{
 						index = bitstream_data[bitpos++];
 						color = palette[index];
+					}
+					
+					if(x == width-4 && y == height-4){
+						color = img_data[(x-1)+(y+1)*width];
+					}
+					
+					if(bitpos > bpos){
+						escape = TRUE;
+						break;
 					}
 					
 					int i,j;
@@ -772,11 +792,7 @@ int IWRAM AGMV_DecodeFrameChunk(File* file, AGMV* agmv){
 							index = bitstream_data[bitpos++];
 							fbit = (index >> 7) & 1;
 							bot = (index & 0x7f);
-							
-							if(bitpos > bpos){
-								escape = TRUE;
-								break;
-							}
+
 							palette = fbit ? palette1 : palette0;
 							
 							if(bot < 127){
@@ -785,6 +801,12 @@ int IWRAM AGMV_DecodeFrameChunk(File* file, AGMV* agmv){
 							else{
 								index = bitstream_data[bitpos++];
 								color = palette[index];
+							}
+							
+							if(bitpos > bpos || invalid_flag == TRUE){
+								escape = TRUE;
+								invalid_flag = FALSE;
+								break;
 							}
 							
 							img_data[(x+i)+offset] = color;
@@ -798,16 +820,34 @@ int IWRAM AGMV_DecodeFrameChunk(File* file, AGMV* agmv){
 		int x,y;
 		for(y = 0; y < height && escape != TRUE; y += 4){
 			for(x = 0; x < width && escape != TRUE; x += 4){
-				u8 byte = bitstream_data[bitpos++];
-				
+		
 				if(bitpos > bpos){
 					escape = TRUE;
 					break;
 				}
 				
+				byte = bitstream_data[bitpos++];
+				
+				while(byte != AGMV_FILL_FLAG && byte != AGMV_NORMAL_FLAG && byte != AGMV_COPY_FLAG){
+					byte = bitstream_data[bitpos++];
+					
+					if(bitpos > bpos){
+						escape = TRUE;
+						break;
+					}
+				}
+				
+				if(byte != AGMV_FILL_FLAG && byte != AGMV_NORMAL_FLAG && byte != AGMV_COPY_FLAG){
+					invalid_flag = TRUE;
+				}
+				
 				if(byte == AGMV_FILL_FLAG){
 					index = bitstream_data[bitpos++];
 					color = palette0[index];
+					
+					if(x == width-4 && y == height-4){
+						color = img_data[(x-1)+(y+1)*width];
+					}
 					
 					if(bitpos > bpos){
 						escape = TRUE;
@@ -838,8 +878,9 @@ int IWRAM AGMV_DecodeFrameChunk(File* file, AGMV* agmv){
 						u32 offset = (y+j)*width;
 						for(i = 0; i < 4; i++){
 							u8 index = bitstream_data[bitpos++];
-							if(bitpos > bpos){
+							if(bitpos > bpos || invalid_flag == TRUE){
 								escape = TRUE;
+								invalid_flag = FALSE;
 								break;
 							}
 							u16 color = palette0[index];
@@ -862,27 +903,27 @@ int IWRAM AGMV_DecodeFrameChunk(File* file, AGMV* agmv){
 	return NO_ERR;
 }
 
-int IWRAM AGMV_DecodeGBAAudioChunk(File* file, AGMV* agmv){
-	int i;
+int IWRAM AGMV_DecodeAudioChunk(File* file, AGMV* agmv){
+	u32 i, size;
 	u8 sample;
 	
 	AGMV_ReadFourCC(file,agmv->audio_chunk->fourcc);
-	agmv->audio_chunk->size = AGMV_ReadLong(file);
+	size = AGMV_ReadLong(file);
 	
 	if(!AGMV_IsCorrectFourCC(agmv->audio_chunk->fourcc,'A','G','A','C')){
 		return INVALID_HEADER_FORMATTING_ERR;
 	}
 
-	for(i = 0; i < agmv->audio_chunk->size; i++){
+	for(i = 0; i < size; i++){
 		sample = AGMV_ReadByte(file);
-		agmv->audio_chunk->sample[i] = sample; 
+		agmv->audio_chunk->sample[i] = sample - 128; 
 	}
 	
 	return NO_ERR;
 }
 
-#define MODE_3   0x3
-#define MODE_5   0x5
+#define AGMV_MODE_3   0x3
+#define AGMV_MODE_5   0x5
 
 void SetVideoMode(u8 mode){
 	*(u16*)0x4000000 = 0x400 | mode; 
@@ -895,13 +936,12 @@ void EnableTimer2(){
 
 void AGMV_ResetVideo(File* file, AGMV* agmv){
 	if(agmv->header.version == 1){
-		seek(file,1572,SEEK_SET);
+		seek(file,1574,SEEK_SET);
 	}
 	else{
-		seek(file,804,SEEK_SET);
+		seek(file,806,SEEK_SET);
 	}
 	agmv->frame_count = 0;
-	agmv->audio_chunk->point = 0;
 }
 
 Bool IWRAM AGMV_IsVideoDone(AGMV* agmv){
@@ -914,14 +954,24 @@ Bool IWRAM AGMV_IsVideoDone(AGMV* agmv){
 void AGMV_SkipForwards(File* file, AGMV* agmv, int n){
 	n = AGMV_NextIFrame(n,agmv->frame_count);
 	
-	int i;
-	for(i = 0; i < n; i++){
-		AGMV_FindNextFrameChunk(file);
-		agmv->offset_table[agmv->frame_count++] = tell(file);
-		AGMV_SkipFrameChunk(file);
-	}	
-	
-	agmv->audio_chunk->point += n * agmv->audio_chunk->size/2;
+	if(agmv->header.total_audio_duration != 0){
+		int i;
+		for(i = 0; i < n; i++){
+			AGMV_FindNextFrameChunk(file);
+			agmv->offset_table[agmv->frame_count++] = tell(file);
+			AGMV_SkipFrameChunk(file);
+			AGMV_FindNextAudioChunk(file);
+			AGMV_SkipAudioChunk(file);
+		}	
+	}
+	else{
+		int i;
+		for(i = 0; i < n; i++){
+			AGMV_FindNextFrameChunk(file);
+			agmv->offset_table[agmv->frame_count++] = tell(file);
+			AGMV_SkipFrameChunk(file);
+		}
+	}
 	
 	if(AGMV_IsVideoDone(agmv)){
 		AGMV_ResetVideo(file,agmv);
@@ -942,17 +992,6 @@ void AGMV_SkipBackwards(File* file, AGMV* agmv, int n){
 	}
 	
 	seek(file,agmv->offset_table[agmv->frame_count],SEEK_SET);
-	
-	if(agmv->disable_all_audio != TRUE){
-		int point = agmv->audio_chunk->point;
-		point -= n * agmv->audio_chunk->size/2;
-		if(point <= 0 || point >= agmv->audio_chunk->total_size/2){
-			agmv->audio_chunk->point = 0;
-		}
-		else{
-			agmv->audio_chunk->point = point;
-		}
-	}
 }
 
 /* ONLY CALL SKIP TO FUNCTION AFTER ALL FRAMES HAVE BEEN READ */
@@ -969,28 +1008,28 @@ void AGMV_SkipTo(File* file, AGMV* agmv, int n){
 }
 
 static inline void IWRAM AGMV_PlayAGMV(File* file, AGMV* agmv){
-	AGMV_FindNextFrameChunk(file);
-	agmv->offset_table[agmv->frame_count] = tell(file);
-	AGMV_DecodeFrameChunk(file,agmv);
-	
-	if(agmv->disable_all_audio != TRUE){
+	if(agmv->header.total_audio_duration != 0){
+		AGMV_FindNextFrameChunk(file);
+		agmv->offset_table[agmv->frame_count] = tell(file);
+		AGMV_DecodeFrameChunk(file,agmv);
+		AGMV_FindNextAudioChunk(file);
+		AGMV_DecodeAudioChunk(file,agmv);
+	}
+	else{
+		AGMV_FindNextFrameChunk(file);
+		agmv->offset_table[agmv->frame_count] = tell(file);
+		AGMV_DecodeFrameChunk(file,agmv);
+	}
+	if(agmv->header.total_audio_duration != 0 && agmv->disable_all_audio == FALSE){
 		if(agmv->audio_chunk->enable_audio == TRUE){	
 			s8* sample = agmv->audio_chunk->sample;
-			s8* pcm = agmv->audio_chunk->pcm;
-			u32 point = agmv->audio_chunk->point;
 			u32 size = agmv->audio_chunk->size;
-			int i;
-			for(i = 0; i < size/2; i++){
-				sample[i] = pcm[point++];
-			}
-			agmv->audio_chunk->point = point;
-			play_sound(sample, size/2, 16000, 'A');	
+			play_sound(sample, size/2, agmv->header.sample_rate, 'A');	
 		}
 		else{
 			s8* empty = agmv->audio_chunk->empty;
 			u32 size = agmv->audio_chunk->size;
-			play_sound(empty, size/2, 16000, 'A');
-			agmv->audio_chunk->point += size/2;
+			play_sound(empty, size/2, agmv->header.sample_rate, 'A');
 		}
 	}
 }
@@ -1009,67 +1048,6 @@ void IWRAM AGMV_DisplayFrame(u16* vram, u16 width, u16 height, AGMV* agmv){
 		y2w = y * frame_width;
 		for(x = 0; x < frame_width; x++){
 			vrm[x+yoffset] = img_data[x+y2w];
-		}
-	}
-}
-
-const u8 X2_TABLE[240] = {
-	0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,
-	11,12,12,13,13,14,14,15,15,16,16,17,17,18,18,19,19,
-	20,20,21,21,22,22,23,23,24,24,25,25,26,26,27,27,28,
-	28,29,29,30,30,31,31,32,32,33,33,34,34,35,35,36,36,
-	37,37,38,38,39,39,40,40,41,41,42,42,43,43,44,44,45,
-	45,46,46,47,47,48,48,49,49,50,50,51,51,52,52,53,53,
-	54,54,55,55,56,56,57,57,58,58,59,59,60,60,61,61,62,
-	62,63,63,64,64,65,65,66,66,67,67,68,68,69,69,70,70,
-	71,71,72,72,73,73,74,74,75,75,76,76,77,77,78,78,79,
-	79,80,80,81,81,82,82,83,83,84,84,85,85,86,86,87,87,
-	88,88,89,89,90,90,91,91,92,92,93,93,94,94,95,95,96,
-	96,97,97,98,98,99,99,100,100,101,101,102,102,103,103,
-	104,104,105,105,106,106,107,107,108,108,109,109,110,
-	110,111,111,112,112,113,113,114,114,115,115,116,116,
-	117,117,118,118,119,119,
-};
-
-const u8 Y2_TABLE[160] = {
-	0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13,14,14,15,15,16,16,17,17,18,18,
-	19,19,20,20,21,21,22,22,23,23,24,24,25,25,26,26,27,27,28,28,29,29,30,30,31,31,32,32,33,33,34,
-	34,35,35,36,36,37,37,38,38,39,39,40,40,41,41,42,42,43,43,44,44,45,45,46,46,47,47,48,48,49,49,
-	50,50,51,51,52,52,53,53,54,54,55,55,56,56,57,57,58,58,59,59,60,60,61,61,62,62,63,63,64,64,65,
-	65,66,66,67,67,68,68,69,69,70,70,71,71,72,72,73,73,74,74,75,75,76,76,77,77,78,78,79,
-};
-
-void IWRAM AGMV_DisplayScaledFrame(u16* vram, u16 width, u16 height, AGMV* agmv){
-	u16 frame_width = agmv->frame->width;
-	u16 frame_height = agmv->frame->height;
-	u16 dwidth = agmv->frame->dwidth;
-	u16 dheight = agmv->frame->dheight - 1;
-	u16 x2, y2, yoffset, x2_0, x2_1,x2_2,x2_3, w = width, y2tw;
-	
-	u16* img_data = agmv->frame->img_data;
-	u16* vrm = vram;
-	
-	u16 x,y;
-	for(y = 0; y < dheight; y++){
-		y2 = Y2_TABLE[y];
-		yoffset = (dheight - y) * w;
-		y2tw = y2 * frame_width;
-		x = 0;
-		for (; x < dwidth - 3; x += 4) {
-			x2_0 = X2_TABLE[x];
-			x2_1 = X2_TABLE[x + 1];
-			x2_2 = X2_TABLE[x + 2];
-			x2_3 = X2_TABLE[x + 3];
-			
-			vrm[x + yoffset] = img_data[x2_0 + y2tw];
-			vrm[x + 1 + yoffset] = img_data[x2_1 + y2tw];
-			vrm[x + 2 + yoffset] = img_data[x2_2 + y2tw];
-			vrm[x + 3 + yoffset] = img_data[x2_3 + y2tw];
-		}
-		
-		for (; x < dwidth; x++) {
-			x2 = X2_TABLE[x];
-			vrm[x + yoffset] = img_data[x2 + y2tw];
 		}
 	}
 }

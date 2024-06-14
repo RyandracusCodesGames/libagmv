@@ -9,14 +9,14 @@
 *   Library: libagmv
 *   File: agmv_encode.h
 *   Date: 5/17/2024
-*   Version: 1.0
-*   Updated: 6/2/2024
+*   Version: 1.1
+*   Updated: 6/12/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 
 #include <stdio.h>
-#include "agmv_defines.h"
+#include <agmv_defines.h>
 
 #define AGMV_GBA_W   120
 #define AGMV_GBA_H    80

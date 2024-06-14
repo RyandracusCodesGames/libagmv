@@ -17,7 +17,7 @@
 *   File: agidl_cc_manager.c
 *   Date: 9/8/2023
 *   Version: 0.4b
-*   Updated: 6/10/2024
+*   Updated: 6/12/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
@@ -1310,8 +1310,8 @@ void AGIDL_EncodeHistogramICP(AGIDL_ICP* palette, const void* data, u32 width, u
 	if(AGIDL_GetBitCount(fmt) == 16){
 		u16* clr_data = (u16*)data;
 		
-		u32 histogram[MAX_HIGH_CLR];
-		u32 colorgram[MAX_HIGH_CLR];
+		u32 histogram[MAX_HIGH_CLR+1];
+		u32 colorgram[MAX_HIGH_CLR+1];
 		
 		int i;
 		for(i = 0; i < MAX_HIGH_CLR; i++){
@@ -1386,8 +1386,8 @@ void AGIDL_EncodeHistogramICP(AGIDL_ICP* palette, const void* data, u32 width, u
 	else{
 		u32* clr_data = (u32*)data;
 		
-		u32 histogram[32767];
-		u32 colorgram[32767];
+		u32 histogram[32768];
+		u32 colorgram[32768];
 		
 		int i;
 		for(i = 0; i < 32767; i++){

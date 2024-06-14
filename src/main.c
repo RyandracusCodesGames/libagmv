@@ -5,9 +5,9 @@
 
 int main(){
 	float startTimeInterval = (float)clock() / CLOCKS_PER_SEC;
-
-	AGMV_DecodeAGMV("agmv_splash.agmv",AGMV_IMG_PCX,AGMV_AUDIO_WAV);
-
+	
+	AGMV_DecodeAGMV("agmv_splash.agmv",AGMV_IMG_BMP,AGMV_AUDIO_WAV);
+	
 	float endTimeInterval = (float)clock() / CLOCKS_PER_SEC;
 	
 	printf("deltaTime = %.4f\n",endTimeInterval-startTimeInterval);

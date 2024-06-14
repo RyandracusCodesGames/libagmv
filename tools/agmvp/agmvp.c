@@ -7,8 +7,8 @@
 *   Program: agmvp.exe
 *   File: agmvp.h
 *   Date: 3/29/2024
-*   Version: 1.0
-*   Updated: 6/4/2024
+*   Version: 1.1
+*   Updated: 6/12/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
@@ -42,6 +42,34 @@ AGIDL_ATTR hplay, hpause, hstop, hskipf, hskipb, hopen, hinc_dec, hvolume_on, hv
 WAVEFORMATEX wfx;
 HWAVEOUT hWaveOut;
 WAVEHDR waveHdr;
+
+void AGMV_PlaySound(){
+	f32 start = agmv->frame_count / fps;
+					
+	if(agmv->header.bits_per_sample == 16){
+		int startbyteaddr = (start * agmv->header.sample_rate) * 2;
+		int endbyteaddr = (agmv->header.total_audio_duration * agmv->header.sample_rate) * 2;
+
+		waveHdr.lpData = agmv->audio_track->pcm + startbyteaddr;
+		waveHdr.dwBufferLength = (endbyteaddr-startbyteaddr)*2;
+		waveHdr.dwFlags = 0;
+	}
+	else{
+		int startbyteaddr = (start * agmv->header.sample_rate);
+		int endbyteaddr = (agmv->header.total_audio_duration * agmv->header.sample_rate);
+
+		waveHdr.lpData = agmv->audio_track->pcm8 + startbyteaddr;
+		waveHdr.dwBufferLength = (endbyteaddr-startbyteaddr);
+		waveHdr.dwFlags = 0;
+	}
+
+	// Prepare and play audio
+	waveOutPrepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
+	waveOutWrite(hWaveOut, &waveHdr, sizeof(WAVEHDR));
+
+	// Wait for audio playback to finish
+	waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
+}
 
 void Init(){
 	screen = AGMV_CreateScreen(200,200,640,480,AGIDL_RGB_888);
@@ -231,7 +259,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 				   AGMV_SetVolume(agmv,1.0f);
 				   
 				   agmv->audio_track->start_point = 0;
-				   agmv->audio_track->pcm = (u16*)malloc(sizeof(u16)*agmv->header.audio_size);
+				   
+				   if(agmv->header.bits_per_sample == 16){
+						agmv->audio_track->pcm = (u16*)malloc(sizeof(u16)*agmv->header.audio_size);
+				   }
+				   else{
+					   agmv->audio_track->pcm8 = (u8*)malloc(sizeof(u8)*agmv->header.audio_size);
+				   }
 				
 				   agmv->audio_chunk->size = agmv->header.audio_size / (f32)agmv->header.num_of_frames;
 				   
@@ -242,7 +276,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 				    wfx.wFormatTag = WAVE_FORMAT_PCM;
 					wfx.nChannels = agmv->header.num_of_channels;
 					wfx.nSamplesPerSec = agmv->header.sample_rate;
-					wfx.wBitsPerSample = 16;  // Adjust as per your audio data
+					wfx.wBitsPerSample = agmv->header.bits_per_sample;  // Adjust as per your audio data
 					wfx.nBlockAlign = (wfx.nChannels * wfx.wBitsPerSample) / 8;
 					wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
 					wfx.cbSize = 0;
@@ -251,8 +285,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 					waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
 					
 					// Prepare headers for audio playback
-					waveHdr.lpData = agmv->audio_track->pcm;
-					waveHdr.dwBufferLength = agmv->header.audio_size*2;
+					if(agmv->header.bits_per_sample == 16){
+						waveHdr.lpData = agmv->audio_track->pcm;
+					}
+					else{
+						waveHdr.lpData = agmv->audio_track->pcm8;
+					}
+					
+					if(agmv->header.bits_per_sample == 16){
+						waveHdr.dwBufferLength = agmv->header.audio_size*2;
+					}
+					else{
+						waveHdr.dwBufferLength = agmv->header.audio_size;
+					}
+					
 					waveHdr.dwFlags = 0;
 
 					// Prepare and play audio
@@ -369,8 +415,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 					
 					waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
 				// Prepare headers for audio playback
-					waveHdr.lpData = agmv->audio_track->pcm;
-					waveHdr.dwBufferLength = agmv->header.audio_size*2;
+					if(agmv->header.bits_per_sample == 16){
+						waveHdr.lpData = agmv->audio_track->pcm;
+						waveHdr.dwBufferLength = agmv->header.audio_size*2;
+					}
+					else{
+						waveHdr.lpData = agmv->audio_track->pcm8;
+						waveHdr.dwBufferLength = agmv->header.audio_size;
+					}
+					
 					waveHdr.dwFlags = 0;
 					
 					if(AGMV_GetAudioState(agmv) == TRUE){
@@ -467,11 +520,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 							    AGMV_SetAudioState(agmv,TRUE);
 								AGMV_SetVolume(agmv,1.0f);
 								
-							   if(agmv->audio_track->pcm != NULL){
-								   free(agmv->audio_track->pcm);
-							   }
+								if(agmv->header.bits_per_sample == 16){
+								   if(agmv->audio_track->pcm != NULL){
+									   free(agmv->audio_track->pcm);
+								   }
+								}
+								else{
+									if(agmv->audio_track->pcm8 != NULL){
+									   free(agmv->audio_track->pcm8);
+								   }
+								}
+								
 								agmv->audio_track->start_point = 0;
-								agmv->audio_track->pcm = (u16*)malloc(sizeof(u16)*AGMV_GetAudioSize(agmv));
+								
+								if(agmv->header.bits_per_sample == 16){
+									agmv->audio_track->pcm = (u16*)malloc(sizeof(u16)*AGMV_GetAudioSize(agmv));
+								}
+								else{
+									agmv->audio_track->pcm8 = (u8*)malloc(sizeof(u8)*AGMV_GetAudioSize(agmv));
+								}
 
 								agmv->audio_chunk->size = agmv->header.audio_size / (f32)AGMV_GetNumberOfFrames(agmv);
 
@@ -482,7 +549,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 								wfx.wFormatTag = WAVE_FORMAT_PCM;
 								wfx.nChannels = agmv->header.num_of_channels;
 								wfx.nSamplesPerSec = agmv->header.sample_rate;
-								wfx.wBitsPerSample = 16;  // Adjust as per your audio data
+								wfx.wBitsPerSample = agmv->header.bits_per_sample;  // Adjust as per your audio data
 								wfx.nBlockAlign = (wfx.nChannels * wfx.wBitsPerSample) / 8;
 								wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
 								wfx.cbSize = 0;
@@ -495,8 +562,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 								waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
 								
 								// Prepare headers for audio playback
-								waveHdr.lpData = agmv->audio_track->pcm;
-								waveHdr.dwBufferLength = agmv->header.audio_size*2;
+								if(agmv->header.bits_per_sample == 16){
+									waveHdr.lpData = agmv->audio_track->pcm;
+									waveHdr.dwBufferLength = agmv->header.audio_size*2;
+								}
+								else{
+									waveHdr.lpData = agmv->audio_track->pcm8;
+									waveHdr.dwBufferLength = agmv->header.audio_size;
+								}
+								
 								waveHdr.dwFlags = 0;
 
 								if(AGMV_GetAudioState(agmv) == TRUE){
@@ -594,21 +668,7 @@ LRESULT CALLBACK WindowProcessMessage(HWND window_handle, UINT message, WPARAM w
 					waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
 				// Prepare headers for audio playback
 					
-					f32 start = agmv->frame_count / fps;
-					
-					int startbyteaddr = (start * agmv->header.sample_rate) * 2;
-					int endbyteaddr = (agmv->header.total_audio_duration * agmv->header.sample_rate) * 2;
-
-					waveHdr.lpData = agmv->audio_track->pcm + startbyteaddr;
-					waveHdr.dwBufferLength = (endbyteaddr-startbyteaddr)*2;
-					waveHdr.dwFlags = 0;
-
-					// Prepare and play audio
-					waveOutPrepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-					waveOutWrite(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-
-					// Wait for audio playback to finish
-					waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
+					AGMV_PlaySound();
 				}
 			}
 			
@@ -623,23 +683,7 @@ LRESULT CALLBACK WindowProcessMessage(HWND window_handle, UINT message, WPARAM w
 						waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
 					// Prepare headers for audio playback
 						
-						f32 start = agmv->frame_count / fps;
-						
-						int startbyteaddr = (start * agmv->header.sample_rate) * 2;
-						int endbyteaddr = (agmv->header.total_audio_duration * agmv->header.sample_rate) * 2;
-
-						waveHdr.lpData = agmv->audio_track->pcm + startbyteaddr;
-						waveHdr.dwBufferLength = (endbyteaddr-startbyteaddr)*2;
-						waveHdr.dwFlags = 0;
-
-						if(AGMV_GetAudioState(agmv) == TRUE){
-							// Prepare and play audio
-							waveOutPrepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-							waveOutWrite(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-
-							// Wait for audio playback to finish
-							waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-						}
+						AGMV_PlaySound();
 					}
 					else{
 						AGMV_SkipForwards(file,agmv,30);
@@ -658,23 +702,7 @@ LRESULT CALLBACK WindowProcessMessage(HWND window_handle, UINT message, WPARAM w
 						waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
 					// Prepare headers for audio playback
 						
-						f32 start = agmv->frame_count / fps;
-						
-						int startbyteaddr = (start * agmv->header.sample_rate) * 2;
-						int endbyteaddr = (agmv->header.total_audio_duration * agmv->header.sample_rate) * 2;
-
-						waveHdr.lpData = agmv->audio_track->pcm + startbyteaddr;
-						waveHdr.dwBufferLength = (endbyteaddr-startbyteaddr)*2;
-						waveHdr.dwFlags = 0;
-
-						if(AGMV_GetAudioState(agmv) == TRUE){
-							// Prepare and play audio
-							waveOutPrepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-							waveOutWrite(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-
-							// Wait for audio playback to finish
-							waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-						}
+						AGMV_PlaySound();
 					}
 				}
 			}
@@ -759,22 +787,7 @@ LRESULT CALLBACK WindowProcessMessage(HWND window_handle, UINT message, WPARAM w
 							waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
 						// Prepare headers for audio playback
 							
-							f32 start = agmv->frame_count / fps;
-							
-							int startbyteaddr = (start * agmv->header.sample_rate) * 2;
-							int endbyteaddr = (agmv->header.total_audio_duration * agmv->header.sample_rate) * 2;
-
-							waveHdr.lpData = agmv->audio_track->pcm + startbyteaddr;
-							waveHdr.dwBufferLength = (endbyteaddr-startbyteaddr)*2;
-							waveHdr.dwFlags = 0;
-							if(AGMV_GetAudioState(agmv) == TRUE){
-								// Prepare and play audio
-								waveOutPrepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-								waveOutWrite(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-
-								// Wait for audio playback to finish
-								waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-							}
+							AGMV_PlaySound();
 						}
 					}
 				}
@@ -793,23 +806,7 @@ LRESULT CALLBACK WindowProcessMessage(HWND window_handle, UINT message, WPARAM w
 							waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
 						// Prepare headers for audio playback
 							
-							f32 start = agmv->frame_count / fps;
-							
-							int startbyteaddr = (start * agmv->header.sample_rate) * 2;
-							int endbyteaddr = (agmv->header.total_audio_duration * agmv->header.sample_rate) * 2;
-
-							waveHdr.lpData = agmv->audio_track->pcm + startbyteaddr;
-							waveHdr.dwBufferLength = (endbyteaddr-startbyteaddr)*2;
-							waveHdr.dwFlags = 0;
-
-							if(AGMV_GetAudioState(agmv) == TRUE){
-								// Prepare and play audio
-								waveOutPrepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-								waveOutWrite(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-
-								// Wait for audio playback to finish
-								waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-							}
+							AGMV_PlaySound();
 						}
 					}
 				}
@@ -858,8 +855,14 @@ LRESULT CALLBACK WindowProcessMessage(HWND window_handle, UINT message, WPARAM w
 							
 							waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
 						// Prepare headers for audio playback
-							waveHdr.lpData = agmv->audio_track->pcm;
-							waveHdr.dwBufferLength = agmv->header.audio_size*2;
+							if(agmv->header.bits_per_sample == 16){
+								waveHdr.lpData = agmv->audio_track->pcm;
+								waveHdr.dwBufferLength = agmv->header.audio_size*2;
+							}
+							else{
+								waveHdr.lpData = agmv->audio_track->pcm8;
+								waveHdr.dwBufferLength = agmv->header.audio_size;
+							}
 							waveHdr.dwFlags = 0;
 
 							if(AGMV_GetAudioState(agmv) == TRUE){
@@ -885,8 +888,15 @@ LRESULT CALLBACK WindowProcessMessage(HWND window_handle, UINT message, WPARAM w
 							
 							waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
 						// Prepare headers for audio playback
-							waveHdr.lpData = agmv->audio_track->pcm;
-							waveHdr.dwBufferLength = agmv->header.audio_size*2;
+							if(agmv->header.bits_per_sample == 16){
+								waveHdr.lpData = agmv->audio_track->pcm;
+								waveHdr.dwBufferLength = agmv->header.audio_size*2;
+							}
+							else{
+								waveHdr.lpData = agmv->audio_track->pcm8;
+								waveHdr.dwBufferLength = agmv->header.audio_size;
+							}
+							
 							waveHdr.dwFlags = 0;
 
 							if(AGMV_GetAudioState(agmv) == TRUE){
@@ -916,23 +926,7 @@ LRESULT CALLBACK WindowProcessMessage(HWND window_handle, UINT message, WPARAM w
 							waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
 						// Prepare headers for audio playback
 							
-							f32 start = agmv->frame_count / fps;
-							
-							int startbyteaddr = (start * agmv->header.sample_rate) * 2;
-							int endbyteaddr = (agmv->header.total_audio_duration * agmv->header.sample_rate) * 2;
-
-							waveHdr.lpData = agmv->audio_track->pcm + startbyteaddr;
-							waveHdr.dwBufferLength = (endbyteaddr-startbyteaddr)*2;
-							waveHdr.dwFlags = 0;
-
-							if(AGMV_GetAudioState(agmv) == TRUE){
-								// Prepare and play audio
-								waveOutPrepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-								waveOutWrite(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-
-								// Wait for audio playback to finish
-								waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-							}
+							AGMV_PlaySound();
 						}
 					}
 				}
@@ -951,23 +945,7 @@ LRESULT CALLBACK WindowProcessMessage(HWND window_handle, UINT message, WPARAM w
 							waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
 						// Prepare headers for audio playback
 							
-							f32 start = agmv->frame_count / fps;
-							
-							int startbyteaddr = (start * agmv->header.sample_rate) * 2;
-							int endbyteaddr = (agmv->header.total_audio_duration * agmv->header.sample_rate) * 2;
-
-							waveHdr.lpData = agmv->audio_track->pcm + startbyteaddr;
-							waveHdr.dwBufferLength = (endbyteaddr-startbyteaddr)*2;
-							waveHdr.dwFlags = 0;
-
-							if(AGMV_GetAudioState(agmv) == TRUE){
-								// Prepare and play audio
-								waveOutPrepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-								waveOutWrite(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-
-								// Wait for audio playback to finish
-								waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-							}
+							AGMV_PlaySound();
 						}
 					}
 				}
@@ -987,23 +965,7 @@ LRESULT CALLBACK WindowProcessMessage(HWND window_handle, UINT message, WPARAM w
 							waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
 						// Prepare headers for audio playback
 							
-							f32 start = agmv->frame_count / fps;
-							
-							int startbyteaddr = (start * agmv->header.sample_rate) * 2;
-							int endbyteaddr = (agmv->header.total_audio_duration * agmv->header.sample_rate) * 2;
-
-							waveHdr.lpData = agmv->audio_track->pcm + startbyteaddr;
-							waveHdr.dwBufferLength = (endbyteaddr-startbyteaddr)*2;
-							waveHdr.dwFlags = 0;
-
-							if(AGMV_GetAudioState(agmv) == TRUE){
-								// Prepare and play audio
-								waveOutPrepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-								waveOutWrite(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-
-								// Wait for audio playback to finish
-								waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-							}
+							AGMV_PlaySound();
 						}
 					}
 					else{
@@ -1023,23 +985,7 @@ LRESULT CALLBACK WindowProcessMessage(HWND window_handle, UINT message, WPARAM w
 							waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
 						// Prepare headers for audio playback
 							
-							f32 start = agmv->frame_count / fps;
-							
-							int startbyteaddr = (start * agmv->header.sample_rate) * 2;
-							int endbyteaddr = (agmv->header.total_audio_duration * agmv->header.sample_rate) * 2;
-
-							waveHdr.lpData = agmv->audio_track->pcm + startbyteaddr;
-							waveHdr.dwBufferLength = (endbyteaddr-startbyteaddr)*2;
-							waveHdr.dwFlags = 0;
-
-							if(AGMV_GetAudioState(agmv) == TRUE){
-								// Prepare and play audio
-								waveOutPrepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-								waveOutWrite(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-
-								// Wait for audio playback to finish
-								waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-							}
+							AGMV_PlaySound();
 						}
 						else{
 							AGMV_SkipForwards(file,agmv,10);
@@ -1063,22 +1009,7 @@ LRESULT CALLBACK WindowProcessMessage(HWND window_handle, UINT message, WPARAM w
 							
 							waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
 						// Prepare headers for audio playback
-							
-							f32 start = agmv->frame_count / fps;
-							
-							int startbyteaddr = (start * agmv->header.sample_rate) * 2;
-							int endbyteaddr = (agmv->header.total_audio_duration * agmv->header.sample_rate) * 2;
-
-							waveHdr.lpData = agmv->audio_track->pcm + startbyteaddr;
-							waveHdr.dwBufferLength = (endbyteaddr-startbyteaddr)*2;
-							waveHdr.dwFlags = 0;
-
-							// Prepare and play audio
-							waveOutPrepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-							waveOutWrite(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-
-							// Wait for audio playback to finish
-							waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
+							AGMV_PlaySound();
 						}
 					}
 				}
@@ -1097,21 +1028,7 @@ LRESULT CALLBACK WindowProcessMessage(HWND window_handle, UINT message, WPARAM w
 							waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
 						// Prepare headers for audio playback
 							
-							f32 start = agmv->frame_count / fps;
-							
-							int startbyteaddr = (start * agmv->header.sample_rate) * 2;
-							int endbyteaddr = (agmv->header.total_audio_duration * agmv->header.sample_rate) * 2;
-
-							waveHdr.lpData = agmv->audio_track->pcm + startbyteaddr;
-							waveHdr.dwBufferLength = (endbyteaddr-startbyteaddr)*2;
-							waveHdr.dwFlags = 0;
-
-							// Prepare and play audio
-							waveOutPrepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-							waveOutWrite(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-
-							// Wait for audio playback to finish
-							waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
+							AGMV_PlaySound();
 						}
 					}
 				}

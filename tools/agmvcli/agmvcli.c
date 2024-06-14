@@ -10,8 +10,8 @@
 *   Library: libagmv
 *   File: agmvcli.c
 *   Date: 4/13/2024
-*   Version: 1.0
-*   Updated: 6/9/2024
+*   Version: 1.1
+*   Updated: 6/13/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
@@ -51,6 +51,8 @@ int main(int argc, char* argv[]){
 	"\n"
 	"AGMVCLI can parse the contents of a .WAV, .AIFF, or .AIFC audio files to apply unique AGMV audio compression and sync it to the video via an extension as such:\n\n"
 	"AUDIO ENC: $video ENC INTRO.AGMV movies/input frame_ BMP 1 247 320 240 30 OPT_II LOW_Q LZ77 -v intro.wav\n"
+	"AUDIO GBA 1: $video ENC INTRO.AGMV movies/input frame_ BMP 1 247 320 240 30 OPT_GBA_I LOW_Q LZ77 -v intro.wav\n"
+	"AUDIO GBA 2: $video ENC INTRO.AGMV movies/input frame_ BMP 1 247 320 240 30 OPT_GBA_I LOW_Q LZ77 -v intro.raw 16000\n"
 	"DEC FMT: $video DEC $(DIRECTORY) $(FILENAME) $(IMG_TYPE) $(AUDIO_TYPE)\n\n"
 	"DEC EXAMPLE: $video DEC input/shinobi SHINOBI.agmv BMP WAV\n"
 	"DEC EXAMPLE 2: $video DEC cur SHINOBI.agmv BMP AIFF";
@@ -79,8 +81,8 @@ int main(int argc, char* argv[]){
 	else{	
 		if(mode[0] == 'E' && mode[1] == 'N' && mode[2] == 'C'){
 			char filename[100], directory[100], basename[100], type[10], opt[11], qopt[11], compression[11], at[11], track[100];
-			u32 start_frame, end_frame, width, height, fps;
-			fscanf(file,"%s %s %s %s %ld %ld %ld %ld %ld %s %s %s %s %s",filename,directory,basename,type,&start_frame,&end_frame,&width,&height,&fps,opt,qopt,compression,at,track);
+			u32 start_frame, end_frame, width, height, fps, sample_rate;
+			fscanf(file,"%s %s %s %s %ld %ld %ld %ld %ld %s %s %s %s %s %ld",filename,directory,basename,type,&start_frame,&end_frame,&width,&height,&fps,opt,qopt,compression,at,track,&sample_rate);
 
 			if(!IsAGIDLImage(type)){
 				printf("Image type must be AGIDL compliant!\n");
@@ -128,13 +130,38 @@ int main(int argc, char* argv[]){
 					AGMV_EncodeAGMV(agmv,filename,directory,basename,GetImageType(type),start_frame,end_frame,width,height,fps,GetAGMVOpt(opt),GetQuality(qopt),GetCompression(compression));
 				}
 				else{
-					if(aopt == AGMV_OPT_GBA_I || aopt == AGMV_OPT_GBA_II){
-						AGMV_ExportRaw8PCM(track,(end_frame-start_frame)/2.0f);
+					if(audio_type == AGMV_AUDIO_WAV){
+						AGMV_WavToAudioTrack(track,agmv);
+					}
+					else if(audio_type == AGMV_AUDIO_AIFF){
+						AGMV_AIFFToAudioTrack(track,agmv);
 					}
 					else{
-						AGMV_ExportRaw8PCM(track,(end_frame-start_frame)*0.75f);
+						if(sample_rate < 8000 || sample_rate > 22050){
+							printf("Error: Sample rate must be between 8000 and 22050 for the GBA!\n");
+							DestroyAGMV(agmv);
+							fclose(file);
+							return 1;
+						}
+						
+						AGMV_RawSignedPCMToAudioTrack(track,agmv,1,sample_rate);
 					}
-					AGMV_EncodeVideo(filename,directory,basename,GetImageType(type),start_frame,end_frame,width,height,fps,GetAGMVOpt(opt),GetQuality(qopt),GetCompression(compression));
+					
+					if(AGMV_GetBitsPerSample(agmv) != 8){
+						printf("Error: Bits per sample must be 8 for the GBA!\n");
+						DestroyAGMV(agmv);
+						fclose(file);
+						return 1;
+					}
+					
+					if(AGMV_GetNumberOfChannels(agmv) != 1){
+						printf("Error: Number of channels must be 1 for the GBA!\n");
+						DestroyAGMV(agmv);
+						fclose(file);
+						return 1;
+					}
+					
+					AGMV_EncodeAGMV(agmv,filename,directory,basename,GetImageType(type),start_frame,end_frame,width,height,fps,GetAGMVOpt(opt),GetQuality(qopt),GetCompression(compression));
 				}
 			}
 			else{
@@ -314,6 +341,9 @@ AGMV_AUDIO_TYPE GetAudioType(char* ext){
 			}
 			if(ext[i+1] == 'a' && ext[i+2] == 'i' && ext[i+3] == 'f' && ext[i+4] == 'c'){
 				return AGMV_AUDIO_AIFC;
+			}
+			if(ext[i+1] == 'r' && ext[i+2] == 'a' && ext[i+3] == 'w'){
+				return AGMV_AUDIO_RAW;
 			}
 		}
 	}

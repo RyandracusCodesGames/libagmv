@@ -9,8 +9,8 @@
 *   Library: libagmv
 *   File: agmv_defines.h
 *   Date: 5/17/2024
-*   Version: 1.0
-*   Updated: 6/2/2024
+*   Version: 1.1
+*   Updated: 6/13/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
@@ -46,7 +46,7 @@ typedef enum Error{
 #define AGMV_MAX_CLR     524287
 #define MAX_OFFSET_TABLE 40000
 
-#define AGMV_FILL_FLAG    0x1f
+#define AGMV_FILL_FLAG    0x4E
 #define AGMV_NORMAL_FLAG  0x2f
 #define AGMV_COPY_FLAG    0x5E
 #define AGMV_FILL_COUNT     14
@@ -87,6 +87,7 @@ typedef struct AGMV_MAIN_HEADER{
 	u32 sample_rate;
 	u32 audio_size;
 	u16 num_of_channels;
+	u16 bits_per_sample;
 	u32 palette0[256];
 	u32 palette1[256];
 }AGMV_MAIN_HEADER;
@@ -115,6 +116,7 @@ typedef struct AGMV_AUDIO_TRACK{
 	u32 total_audio_duration;
 	u32 start_point;
 	u16* pcm;
+	u8* pcm8;
 }AGMV_AUDIO_TRACK;
 
 typedef struct AGMV_ENTRY{
@@ -132,6 +134,7 @@ typedef struct AGMV_INFO{
 	u32 sample_rate;
 	u32 audio_size;
 	u16 number_of_channels;
+	u16 bits_per_sample;
 }AGMV_INFO;
 
 typedef struct AGMV_BITSTREAM{
@@ -176,6 +179,7 @@ typedef enum AGMV_AUDIO_TYPE{
 	AGMV_AUDIO_WAV  = 0x1,
 	AGMV_AUDIO_AIFF = 0x2,
 	AGMV_AUDIO_AIFC = 0x3,
+	AGMV_AUDIO_RAW  = 0x4,
 }AGMV_AUDIO_TYPE;
 
 #endif

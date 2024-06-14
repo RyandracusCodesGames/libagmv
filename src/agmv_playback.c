@@ -6,21 +6,21 @@
 *   Library: libagmv
 *   File: agmv_playback.c
 *   Date: 5/19/2024
-*   Version: 1.0
-*   Updated: 6/2/2024
+*   Version: 1.1
+*   Updated: 6/12/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
-#include "agmv_playback.h"
-#include "agmv_utils.h"
-#include "agmv_decode.h"
+#include <agmv_playback.h>
+#include <agmv_utils.h>
+#include <agmv_decode.h>
 
 void AGMV_ResetVideo(FILE* file, AGMV* agmv){
 	if(AGMV_GetVersion(agmv) == 1){
-		fseek(file,1572,SEEK_SET);
+		fseek(file,1574,SEEK_SET);
 	}
 	else{
-		fseek(file,804,SEEK_SET);
+		fseek(file,806,SEEK_SET);
 	}
 	agmv->frame_count = 0;
 }
