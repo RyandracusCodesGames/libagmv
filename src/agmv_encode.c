@@ -739,8 +739,8 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 		}break;
 	}
 	
-	u32* colorgram = (u32*)malloc(sizeof(u32)*max_clr+1);
-	u32* histogram = (u32*)malloc(sizeof(u32)*max_clr+1);
+	u32* colorgram = (u32*)malloc(sizeof(u32)*max_clr+5);
+	u32* histogram = (u32*)malloc(sizeof(u32)*max_clr+5);
 	
 	switch(opt){
 		case AGMV_OPT_I:{
@@ -1080,12 +1080,12 @@ void AGMV_EncodeVideo(const char* filename, const char* dir, const char* basenam
 				palette1[n-126] = invclr;
 			}
 			
-			if(n > 252 && n <= 378){
+			if(n > 252 && n <= 381){
 				palette0[n-126] = invclr;
 			}
 			
-			if(n > 378){
-				palette1[n-252] = invclr;
+			if(n > 381 && (n-255) < 256){
+				palette1[n-255] = invclr;
 			}
 		}
 	}
@@ -2290,8 +2290,8 @@ void AGMV_EncodeAGMV(AGMV* agmv, const char* filename, const char* dir, const ch
 		}break;
 	}
 	
-	u32* colorgram = (u32*)malloc(sizeof(u32)*max_clr+1);
-	u32* histogram = (u32*)malloc(sizeof(u32)*max_clr+1);
+	u32* colorgram = (u32*)malloc(sizeof(u32)*max_clr+5);
+	u32* histogram = (u32*)malloc(sizeof(u32)*max_clr+5);
 	
 	switch(opt){
 		case AGMV_OPT_I:{
@@ -2636,12 +2636,12 @@ void AGMV_EncodeAGMV(AGMV* agmv, const char* filename, const char* dir, const ch
 				palette1[n-126] = invclr;
 			}
 			
-			if(n > 252 && n <= 378){
+			if(n > 252 && n <= 381){
 				palette0[n-126] = invclr;
 			}
 			
-			if(n > 378){
-				palette1[n-252] = invclr;
+			if(n > 381 && (n-255) < 256){
+				palette1[n-255] = invclr;
 			}
 		}
 	}
@@ -3679,8 +3679,8 @@ void AGMV_EncodeFullAGMV(AGMV* agmv, const char* filename, const char* dir, cons
 		}break;
 	}
 	
-	u32* colorgram = (u32*)malloc(sizeof(u32)*max_clr+1);
-	u32* histogram = (u32*)malloc(sizeof(u32)*max_clr+1);
+	u32* colorgram = (u32*)malloc(sizeof(u32)*max_clr+5);
+	u32* histogram = (u32*)malloc(sizeof(u32)*max_clr+5);
 	
 	switch(opt){
 		case AGMV_OPT_GBA_I:{
@@ -3998,12 +3998,12 @@ void AGMV_EncodeFullAGMV(AGMV* agmv, const char* filename, const char* dir, cons
 				palette1[n-126] = invclr;
 			}
 			
-			if(n > 252 && n <= 378){
+			if(n > 252 && n <= 381){
 				palette0[n-126] = invclr;
 			}
 			
-			if(n > 378){
-				palette1[n-252] = invclr;
+			if(n > 381 && (n-255) < 256){
+				palette1[n-255] = invclr;
 			}
 		}
 	}
