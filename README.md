@@ -12,14 +12,18 @@ such as the 16.78MHz clock speed of the Nintendo Game Boy Advance.
 
 Why use AGMV? AGMV serves four purposes:
 
-* It maintains a unqiue blend of high-quality video and fast decoding for real-time playback on low-end graphical devices.
+* It maintains a unique blend of high-quality video and fast decoding for real-time playback on low-end graphical devices.
 * It's open-source and has been ported to other platforms such as the Nintendo Game Boy Advance, DS, and Sony PlayStation.
-* Its' compression and container formats are flexible and able to be extended while maintaining compatability with older versions.
+* Its' compression and container formats are flexible and can be extended while maintaining compatibility with older versions.
 * It utilizes the RGB color space, the native color space of most graphical devices, to avoid any intermediary color conversion step so that a decoded frame can be immediately blitted to the screen.
 	
 ## GBA Video Demo
 
-https://github.com/RyandracusCodesGames/libagmv/assets/108719757/9c914d0a-4635-4dac-82ff-a18c1e7b5215
+https://github.com/user-attachments/assets/f62adc24-0322-4a99-823c-a3d1e6242d36
+
+## PSX Video Demo
+
+https://github.com/user-attachments/assets/ec8ed678-616b-4bea-9782-fc743a00036e
 
 ## Video Player Demo
 
