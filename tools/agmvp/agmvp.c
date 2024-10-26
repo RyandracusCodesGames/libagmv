@@ -7,14 +7,15 @@
 *   Program: agmvp.exe
 *   File: agmvp.h
 *   Date: 3/29/2024
-*   Version: 1.1
-*   Updated: 6/12/2024
+*   Version: 2.0
+*   Updated: 10/26/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 #include <windows.h>
 #include <mmsystem.h>
 #include <Shlwapi.h>
+#include <dsound.h>
 #include <agidl.h>
 #include <agmv.h>
 #include "screen.h"
@@ -32,56 +33,158 @@ LRESULT CALLBACK WindowProcessMessage(HWND, UINT, WPARAM, LPARAM);
 Screen* screen; f32 dist = 550.0f;
 
 /* PRIMARY CONTAINER FOR AN AGMV VIDEO FILE */
-AGMV* agmv; FILE* file; float fps; float drawInterval;
-AGIDL_Bool once = TRUE; 
+AGMV* agmv; float fps; float drawInterval;
+AGIDL_Bool once = TRUE, flip = FALSE; 
 
 /* HUD MENU BUTTONS AND ATTRIBUTES*/
 AGIDL_BMP* play, *pause, *stop, *skip, *open, *inc_dec, *volume_on, *volume_off;
 AGIDL_ATTR hplay, hpause, hstop, hskipf, hskipb, hopen, hinc_dec, hvolume_on, hvolume_off;
 
+LPDIRECTSOUND g_pDirectSound = NULL;
+LPDIRECTSOUNDBUFFER g_pPrimaryBuffer = NULL;
+LPDIRECTSOUNDBUFFER g_pSecondaryBuffer = NULL;
+
 WAVEFORMATEX wfx;
 HWAVEOUT hWaveOut;
 WAVEHDR waveHdr;
 
-void AGMV_PlaySound(){
-	f32 start = agmv->frame_count / fps;
-					
-	if(agmv->header.bits_per_sample == 16){
-		int startbyteaddr = (start * agmv->header.sample_rate) * 2;
-		int endbyteaddr = (agmv->header.total_audio_duration * agmv->header.sample_rate) * 2;
+Bool InitializeDirectSound(AGMV* agmv, HWND hWnd){
+    HRESULT hr;
+    DSBUFFERDESC bufferDesc;
+    WAVEFORMATEX waveFormat;
 
-		waveHdr.lpData = agmv->audio_track->pcm + startbyteaddr;
-		waveHdr.dwBufferLength = (endbyteaddr-startbyteaddr)*2;
-		waveHdr.dwFlags = 0;
+    // Initialize DirectSound
+    hr = DirectSoundCreate(NULL, &g_pDirectSound, NULL);
+    if(FAILED(hr)){
+        return FALSE;
+    }
+
+    // Set cooperative level
+    hr = IDirectSound_SetCooperativeLevel(g_pDirectSound, hWnd, DSSCL_PRIORITY);
+    if(FAILED(hr)){
+        return FALSE;
+    }
+
+    // Create primary sound buffer
+    ZeroMemory(&bufferDesc, sizeof(DSBUFFERDESC));
+    bufferDesc.dwSize = sizeof(DSBUFFERDESC);
+    bufferDesc.dwFlags = DSBCAPS_PRIMARYBUFFER;
+
+    hr = IDirectSound_CreateSoundBuffer(g_pDirectSound, &bufferDesc, &g_pPrimaryBuffer, NULL);
+    if(FAILED(hr)){
+        return FALSE;
+    }
+
+    // Set primary buffer format
+    ZeroMemory(&waveFormat, sizeof(WAVEFORMATEX));
+
+    waveFormat.wFormatTag = WAVE_FORMAT_PCM;
+    waveFormat.nChannels = AGMV_GetNumberOfChannels(agmv);
+    waveFormat.nSamplesPerSec = AGMV_GetSampleRate(agmv);
+    waveFormat.wBitsPerSample = AGMV_GetBitsPerSample(agmv);
+    waveFormat.nBlockAlign = (waveFormat.wBitsPerSample / 8) * waveFormat.nChannels;
+    waveFormat.nAvgBytesPerSec = waveFormat.nSamplesPerSec * waveFormat.nBlockAlign;
+
+    hr = IDirectSoundBuffer_SetFormat(g_pPrimaryBuffer, &waveFormat);
+	
+    if(FAILED(hr)){
+        return FALSE;
+    }
+	
+	u32 audio_size = ceil(agmv->header.audio_size /(float)agmv->header.num_of_frames);
+	
+    hr = IDirectSoundBuffer_SetFormat(g_pPrimaryBuffer, &waveFormat);
+	
+    if(FAILED(hr)){
+        return FALSE;
+    }
+
+    // Create secondary sound buffer
+    ZeroMemory(&bufferDesc, sizeof(DSBUFFERDESC));
+    bufferDesc.dwSize = sizeof(DSBUFFERDESC);
+    bufferDesc.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_GLOBALFOCUS;
+	
+    if(agmv->header.bits_per_sample == 16){
+		bufferDesc.dwBufferBytes = audio_size*2;
 	}
 	else{
-		int startbyteaddr = (start * agmv->header.sample_rate);
-		int endbyteaddr = (agmv->header.total_audio_duration * agmv->header.sample_rate);
-
-		waveHdr.lpData = agmv->audio_track->pcm8 + startbyteaddr;
-		waveHdr.dwBufferLength = (endbyteaddr-startbyteaddr);
-		waveHdr.dwFlags = 0;
+		bufferDesc.dwBufferBytes = audio_size;
 	}
+	
+    bufferDesc.lpwfxFormat = &waveFormat;
 
-	// Prepare and play audio
-	waveOutPrepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-	waveOutWrite(hWaveOut, &waveHdr, sizeof(WAVEHDR));
+    hr = IDirectSound_CreateSoundBuffer(g_pDirectSound, &bufferDesc, &g_pSecondaryBuffer, NULL);
+	
+    if(FAILED(hr)){
+        return FALSE;
+    }
 
-	// Wait for audio playback to finish
-	waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
+    return TRUE;
+}
+
+Bool FillSecondaryBuffer(u8* pData, u32 dataSize) {
+    void* pBuffer = NULL;
+    u32 bufferSize = 0;
+
+    HRESULT hr = IDirectSoundBuffer_Lock(g_pSecondaryBuffer, 0, dataSize, &pBuffer, &bufferSize, NULL, NULL, 0);
+    if(FAILED(hr)){
+        return FALSE;
+    }
+
+    memcpy(pBuffer, pData, dataSize);
+
+    hr = IDirectSoundBuffer_Unlock(g_pSecondaryBuffer, pBuffer, bufferSize, NULL, 0);
+    if(FAILED(hr)){
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+void PlayBuffer(AGMV* agmv){
+	if(agmv->audio_state == AGMV_AUDIO_PLAY){
+		IDirectSoundBuffer_SetCurrentPosition(g_pSecondaryBuffer, 0);
+		IDirectSoundBuffer_Play(g_pSecondaryBuffer, 0, 0, 0);
+	}
+}
+
+void ShutdownDirectSound(){
+    if(g_pSecondaryBuffer){
+        IDirectSoundBuffer_Release(g_pSecondaryBuffer);
+        g_pSecondaryBuffer = NULL;
+    }
+    if(g_pPrimaryBuffer){
+        IDirectSoundBuffer_Release(g_pPrimaryBuffer);
+        g_pPrimaryBuffer = NULL;
+    }
+    if(g_pDirectSound){
+        IDirectSound_Release(g_pDirectSound);
+        g_pDirectSound = NULL;
+    }
 }
 
 void Init(){
 	screen = AGMV_CreateScreen(200,200,640,480,AGIDL_RGB_888);
 	
 	agmv = (AGMV*)malloc(sizeof(AGMV));
-
+	
+	agmv->file = NULL;
 	agmv->frame_chunk = (AGMV_FRAME_CHUNK*)malloc(sizeof(AGMV_FRAME_CHUNK));
 	agmv->audio_chunk = (AGMV_AUDIO_CHUNK*)malloc(sizeof(AGMV_AUDIO_CHUNK));
 	agmv->bitstream = (AGMV_BITSTREAM*)malloc(sizeof(AGMV_BITSTREAM));
+	agmv->bitstream->len = 1*1*2;
+	agmv->bitstream->pos = 1;
+	agmv->bitstream->data = (u8*)malloc(sizeof(u8)*agmv->bitstream->len);
 	agmv->frame = (AGMV_FRAME*)malloc(sizeof(AGMV_FRAME));
+	agmv->frame->img_data = (u32*)malloc(sizeof(u32)*1*1);
 	agmv->iframe = (AGMV_FRAME*)malloc(sizeof(AGMV_FRAME));
+	agmv->iframe->img_data = (u32*)malloc(sizeof(u32)*1*1);
+	agmv->prev_frame = (AGMV_FRAME*)malloc(sizeof(AGMV_FRAME));
+	agmv->prev_frame->img_data = (u32*)malloc(sizeof(u32)*1*1);
 	agmv->audio_track = (AGMV_AUDIO_TRACK*)malloc(sizeof(AGMV_AUDIO_TRACK));
+	agmv->audio_track->pcm = NULL;
+	agmv->audio_track->pcm8 = NULL;
+	agmv->audio_chunk->atsample = NULL;
 	
 	play = AGIDL_LoadBMP("res/play.bmp");
 	AGIDL_BMPBGR2RGB(play);
@@ -124,7 +227,7 @@ void Cleanup(){
 	AGIDL_FreeBMP(inc_dec);
 	AGIDL_FreeBMP(volume_on);
 	AGIDL_FreeBMP(volume_off);
-	DestroyAGMV(agmv);
+	AGMV_Close(agmv);
 }
 
 /*Varibles to hold current system time in miliseconds*/
@@ -154,11 +257,34 @@ void BlitToScreen(HWND window_handle){
 	ReleaseDC(window_handle,device_context);
 }
 
+const char* convertLPCWSTRToConstChar(LPCWSTR wideString) {
+    // Calculate the size of the buffer needed for the conversion
+    int bufferSize = WideCharToMultiByte(CP_UTF8, 0, wideString, -1, NULL, 0, NULL, NULL);
+    if (bufferSize == 0) {
+        return NULL; // Conversion failed
+    }
+
+    // Allocate memory for the converted string
+    char* multiByteString = (char*)malloc(bufferSize * sizeof(char));
+    if (multiByteString == NULL) {
+        return NULL; // Memory allocation failed
+    }
+
+    // Perform the conversion
+    int result = WideCharToMultiByte(CP_UTF8, 0, wideString, -1, multiByteString, bufferSize, NULL, NULL);
+    if (result == 0) {
+        free(multiByteString); // Conversion failed, free allocated memory
+        return NULL;
+    }
+
+    return multiByteString;
+}
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nCmdShow){
 	
 	TCHAR szPath[MAX_PATH];
 	GetModuleFileName(NULL, szPath, MAX_PATH);
-	PathRemoveFileSpec(szPath); // Remove the executable filename, leaving the directory
+	PathRemoveFileSpec(szPath); // Remove the executable agmv->filename, leaving the directory
 	SetCurrentDirectory(szPath);
 	
 	LPWSTR lpCmdLineW = GetCommandLineW(); // Get command line as wide string
@@ -203,7 +329,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	
 	frame_bitmap_info.bmiHeader.biWidth  = screen->width;
     frame_bitmap_info.bmiHeader.biHeight = screen->height;
-
     if(frame_bitmap) DeleteObject(frame_bitmap);
     frame_bitmap = CreateDIBSection(NULL, &frame_bitmap_info, DIB_RGB_COLORS, (void**)&screen->bitmap->vram, 0, 0);
     SelectObject(frame_device_context, frame_bitmap);
@@ -218,104 +343,42 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
     int drawCount = 0;
 
 	if(argc > 1){
-
-		file = _wfopen(argv[1],L"rb");
-						
-		if(file == NULL){
+		AGMV_Close(agmv);
+		
+		const char* filename = convertLPCWSTRToConstChar(argv[1]);
+		
+		agmv = AGMV_Open(filename);
+		
+		free(filename);
+		
+		if(agmv->error != NO_ERR){
 			printf("%s\n",AGMV_Error2Str(FILE_NOT_FOUND_ERR));
 			screen->HasVideo = FALSE;
 		}
 		else{
-			int error = AGMV_DecodeHeader(file,agmv);
-			
 			printf("version = %d\n",AGMV_GetVersion(agmv));
-	   
-			printf("%s\n",AGMV_Error2Str(error));
-		   
-			if(error != NO_IMG_ERROR){
-			   fclose(file);
-			   screen->HasVideo = FALSE;
-			}
-			else{
-			   screen->HasVideo = TRUE;
-			   fps = AGMV_GetFramesPerSecond(agmv);
-			   drawInterval = 1000.0f / fps;
-			   agmv->frame_count = 0;
-			   
-			    agmv->frame->width = agmv->header.width;
-			    agmv->frame->height = agmv->header.height;
-				agmv->frame->img_data = (u32*)AGIDL_AllocImgDataMMU(agmv->frame->width,agmv->frame->height,AGIDL_RGB_888);
-				
-				agmv->iframe->width = agmv->header.width;
-			    agmv->iframe->height = agmv->header.height;
-				agmv->iframe->img_data = (u32*)AGIDL_AllocImgDataMMU(agmv->frame->width,agmv->frame->height,AGIDL_RGB_888);
-				
-				agmv->bitstream->len = agmv->frame->width*agmv->frame->height*2;
-				agmv->bitstream->pos = 0;
-				agmv->bitstream->data = (u8*)malloc(sizeof(u8)*agmv->bitstream->len);
-			   
-			   if(agmv->header.total_audio_duration != 0){	   
-				   AGMV_SetAudioState(agmv,TRUE);
-				   AGMV_SetVolume(agmv,1.0f);
-				   
-				   agmv->audio_track->start_point = 0;
-				   
-				   if(agmv->header.bits_per_sample == 16){
-						agmv->audio_track->pcm = (u16*)malloc(sizeof(u16)*agmv->header.audio_size);
-				   }
-				   else{
-					   agmv->audio_track->pcm8 = (u8*)malloc(sizeof(u8)*agmv->header.audio_size);
-				   }
-				
-				   agmv->audio_chunk->size = agmv->header.audio_size / (f32)agmv->header.num_of_frames;
-				   
-				   AGMV_ParseAGMV(file,agmv);
-				   
-				   agmv->frame_count = 0;
-				   
-				    wfx.wFormatTag = WAVE_FORMAT_PCM;
-					wfx.nChannels = agmv->header.num_of_channels;
-					wfx.nSamplesPerSec = agmv->header.sample_rate;
-					wfx.wBitsPerSample = agmv->header.bits_per_sample;  // Adjust as per your audio data
-					wfx.nBlockAlign = (wfx.nChannels * wfx.wBitsPerSample) / 8;
-					wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
-					wfx.cbSize = 0;
-					
-					// Open the audio device
-					waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
-					
-					// Prepare headers for audio playback
-					if(agmv->header.bits_per_sample == 16){
-						waveHdr.lpData = agmv->audio_track->pcm;
-					}
-					else{
-						waveHdr.lpData = agmv->audio_track->pcm8;
-					}
-					
-					if(agmv->header.bits_per_sample == 16){
-						waveHdr.dwBufferLength = agmv->header.audio_size*2;
-					}
-					else{
-						waveHdr.dwBufferLength = agmv->header.audio_size;
-					}
-					
-					waveHdr.dwFlags = 0;
-
-					// Prepare and play audio
-					waveOutPrepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-					waveOutWrite(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-
-					// Wait for audio playback to finish
-					waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-			   }
-			   else{	   
-				   AGMV_ParseAGMV(file,agmv);
-				   agmv->frame_count = 0;
+			printf("%s\n",AGMV_Error2Str(AGMV_GetError(agmv)));
+			
+			if(AGMV_GetTotalAudioDuration(agmv) != 0){
+				if(InitializeDirectSound(agmv,window_handle)){
+					printf("DirectSound Initialization Sucessesful!\n");
 				}
-			    
-			   AGMV_ResetVideo(file,agmv);
+				else{
+					printf("DirectSound Initialization Error!\n");
+				}
 			}
+		   
+			screen->HasVideo = TRUE;
+			fps = AGMV_GetFramesPerSecond(agmv);
+			drawInterval = 1000.0f / fps;
+			agmv->frame_count = 0;
+  
+			AGMV_ParseAGMV(agmv->file,agmv);
+		   
+		    agmv->frame_count = 0;
 		}
+			
+		AGMV_ResetVideo(agmv->file,agmv);
 	}
 	
 	while(!quit){
@@ -338,29 +401,32 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 			AGMV_FillScreen(screen,0);
 
 			if(screen->HasVideo == TRUE && screen->IsPlay == TRUE){
-				if(AGMV_GetAudioState(agmv) == TRUE){
-					waveOutRestart(hWaveOut);
-				}
-				
 				AGIDL_ATTR table = {
 					0,0,
 					screen->width/(f32)agmv->header.width,screen->height/(f32)agmv->header.height,
 					TRUE,
 					FALSE,
 					0,
-					FALSE,
+					flip,
 					FALSE
 				};
-				AGMV_PlayAGMV(file,agmv);
+				AGMV_StreamMovie(agmv);
+				if(agmv->header.total_audio_duration != 0){
+					if(AGMV_GetBitsPerSample(agmv) == 8){
+						FillSecondaryBuffer(agmv->audio_track->pcm8,agmv->audio_chunk->size);
+					}
+					else{
+						FillSecondaryBuffer(agmv->audio_track->pcm,agmv->audio_chunk->size<<1);
+					}
+					PlayBuffer(agmv);
+				}
 				AGIDL_DispImgData(screen->bitmap->vram,screen->width,screen->height,table,agmv->frame->img_data,agmv->header.width,agmv->header.height,
 				agmv->header.fmt);
 			}
-			else if(screen->HasVideo == TRUE && screen->IsPlay == FALSE){
-				waveOutPause(hWaveOut);
-				
+			else if(screen->HasVideo == TRUE && screen->IsPlay == FALSE){				
 				if(once == TRUE){
 					once = FALSE;
-					AGMV_PlayAGMV(file,agmv);
+					AGMV_StreamMovie(agmv);
 				}
 				
 				AGIDL_ATTR table = {
@@ -369,7 +435,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 					TRUE,
 					FALSE,
 					0,
-					FALSE,
+					flip,
 					FALSE
 				};
 				AGIDL_DispImgData(screen->bitmap->vram,screen->width,screen->height,table,agmv->frame->img_data,agmv->header.width,agmv->header.height,
@@ -383,14 +449,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 				else{
 					AGIDL_DispBMP(screen->bitmap->vram,screen->width,screen->height,hpause,pause);
 				}
+	
 				AGIDL_DispBMP(screen->bitmap->vram,screen->width,screen->height,hstop,stop);
+		
 				AGIDL_DispBMP(screen->bitmap->vram,screen->width,screen->height,hskipf,skip);
 				AGIDL_DispBMP(screen->bitmap->vram,screen->width,screen->height,hskipb,skip);
 				AGIDL_DispBMP(screen->bitmap->vram,screen->width,screen->height,hopen,open);
 				AGIDL_DispBMP(screen->bitmap->vram,screen->width,screen->height,hinc_dec,inc_dec);
 				
-				if(AGMV_GetAudioState(agmv) == TRUE){
-					AGIDL_DispBMP(screen->bitmap->vram,screen->width,screen->height,hvolume_on,volume_on);
+				if(screen->HasVideo){
+					if(AGMV_GetAudioState(agmv) == AGMV_AUDIO_PLAY){
+						AGIDL_DispBMP(screen->bitmap->vram,screen->width,screen->height,hvolume_on,volume_on);
+					}
+					else{
+						AGIDL_DispBMP(screen->bitmap->vram,screen->width,screen->height,hvolume_off,volume_off);
+					}
 				}
 				else{
 					AGIDL_DispBMP(screen->bitmap->vram,screen->width,screen->height,hvolume_off,volume_off);
@@ -403,41 +476,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 				AGMV_FillRect(screen,25,160,575,10,AGIDL_Color3f(0.87f,0.87f,0.87f,AGIDL_RGB_888));
 				AGMV_FillRect(screen,25,162,w,6,BLUE_RGB_888);
 			}
-			
-			if(agmv->frame_count >= agmv->header.num_of_frames || agmv->frame_count < 0){
+		
+			if((AGMV_IsVideoDone(agmv) || agmv->frame_count < 0) && screen->HasVideo == TRUE){
         		agmv->frame_count = 0;
-				
-				if(agmv->header.total_audio_duration != 0){
-				
-					waveOutReset(hWaveOut);
-					waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-					waveOutClose(hWaveOut);
-					
-					waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
-				// Prepare headers for audio playback
-					if(agmv->header.bits_per_sample == 16){
-						waveHdr.lpData = agmv->audio_track->pcm;
-						waveHdr.dwBufferLength = agmv->header.audio_size*2;
-					}
-					else{
-						waveHdr.lpData = agmv->audio_track->pcm8;
-						waveHdr.dwBufferLength = agmv->header.audio_size;
-					}
-					
-					waveHdr.dwFlags = 0;
-					
-					if(AGMV_GetAudioState(agmv) == TRUE){
-						// Prepare and play audio
-						waveOutPrepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-						waveOutWrite(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-
-						// Wait for audio playback to finish
-						waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-					}
-				
-				}
-				
-				AGMV_ResetVideo(file,agmv);
+				AGMV_ResetVideo(agmv->file,agmv);
         	}
 			
 			if(screen->OpenFile == TRUE){
@@ -459,136 +501,42 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 				ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
 				// Display the Open dialog box
-				if (GetOpenFileName(&ofn) == TRUE) {
-					// User selected a file
-					printf("Selected file: %s\n", szFile);
-					
-					if(file != NULL){
+				if (GetOpenFileName(&ofn) == TRUE){
+					// User selected a agmv->file
+					printf("Selected agmv->file: %s\n", szFile);
+
+					if(agmv != NULL || agmv->file != NULL){
 						once = TRUE;
-						fclose(file);
+						AGMV_Close(agmv);
+						if(g_pSecondaryBuffer != NULL || g_pPrimaryBuffer != NULL || g_pDirectSound != NULL){
+							ShutdownDirectSound();
+						}
 					}
 					
-					file = fopen(ofn.lpstrFile,"rb");
+					agmv = AGMV_Open(szFile);
 					
-					if(file == NULL){
-						printf("%s\n",AGMV_Error2Str(FILE_NOT_FOUND_ERR));
+					if(agmv->error != NO_ERR){
+						printf("%s\n",AGMV_Error2Str(AGMV_GetError(agmv)));
 						screen->HasVideo = FALSE;
 					}
 					else{
-						waveOutPause(hWaveOut);
-						
-						if(agmv->frame->img_data != NULL){
-							free(agmv->frame->img_data);
-							free(agmv->iframe->img_data);
-							agmv->frame->img_data = NULL;
-							agmv->iframe->img_data = NULL;
-						}
-					    int error = AGMV_DecodeHeader(file,agmv);
-				   
-					    printf("%s\n",AGMV_Error2Str(error));
-					   
-					    if(error != NO_IMG_ERROR){
-						   fclose(file);
-						   screen->HasVideo = FALSE;
-					    }
-					    else{
-						   screen->HasVideo = TRUE;
-						   fps = AGMV_GetFramesPerSecond(agmv);
-						   drawInterval = 1000.0f / fps;
-						   agmv->frame_count = 0;
-						   
-						   agmv->frame->width = agmv->header.width;
-						   agmv->frame->height = agmv->header.height;
-						   
-						   agmv->frame->img_data = (u32*)malloc(sizeof(u32)*agmv->frame->width*agmv->frame->height);
-						   
-						   agmv->iframe->width = agmv->header.width;
-						   agmv->iframe->height = agmv->header.height;
-						   
-						   agmv->iframe->img_data = (u32*)malloc(sizeof(u32)*agmv->frame->width*agmv->frame->height);
-						   
-						   if(agmv->bitstream->data != NULL){
-							   free(agmv->bitstream->data);
-							   agmv->bitstream->data = NULL;
-						   }
-						   
-						   agmv->bitstream->len = agmv->frame->width*agmv->frame->height*2;
-						   agmv->bitstream->pos = 0;
-						   agmv->bitstream->data = (u8*)malloc(sizeof(u8)*agmv->bitstream->len);
-						   
-						   if(agmv->header.total_audio_duration != 0){
-							    AGMV_SetAudioState(agmv,TRUE);
-								AGMV_SetVolume(agmv,1.0f);
-								
-								if(agmv->header.bits_per_sample == 16){
-								   if(agmv->audio_track->pcm != NULL){
-									   free(agmv->audio_track->pcm);
-								   }
-								}
-								else{
-									if(agmv->audio_track->pcm8 != NULL){
-									   free(agmv->audio_track->pcm8);
-								   }
-								}
-								
-								agmv->audio_track->start_point = 0;
-								
-								if(agmv->header.bits_per_sample == 16){
-									agmv->audio_track->pcm = (u16*)malloc(sizeof(u16)*AGMV_GetAudioSize(agmv));
-								}
-								else{
-									agmv->audio_track->pcm8 = (u8*)malloc(sizeof(u8)*AGMV_GetAudioSize(agmv));
-								}
-
-								agmv->audio_chunk->size = agmv->header.audio_size / (f32)AGMV_GetNumberOfFrames(agmv);
-
-							    AGMV_ParseAGMV(file,agmv);
-						   
-								agmv->frame_count = 0;
-							   
-								wfx.wFormatTag = WAVE_FORMAT_PCM;
-								wfx.nChannels = agmv->header.num_of_channels;
-								wfx.nSamplesPerSec = agmv->header.sample_rate;
-								wfx.wBitsPerSample = agmv->header.bits_per_sample;  // Adjust as per your audio data
-								wfx.nBlockAlign = (wfx.nChannels * wfx.wBitsPerSample) / 8;
-								wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
-								wfx.cbSize = 0;
-								
-								waveOutReset(hWaveOut);
-								waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-								waveOutClose(hWaveOut);
-								
-								// Open the audio device
-								waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
-								
-								// Prepare headers for audio playback
-								if(agmv->header.bits_per_sample == 16){
-									waveHdr.lpData = agmv->audio_track->pcm;
-									waveHdr.dwBufferLength = agmv->header.audio_size*2;
-								}
-								else{
-									waveHdr.lpData = agmv->audio_track->pcm8;
-									waveHdr.dwBufferLength = agmv->header.audio_size;
-								}
-								
-								waveHdr.dwFlags = 0;
-
-								if(AGMV_GetAudioState(agmv) == TRUE){
-									// Prepare and play audio
-									waveOutPrepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-									waveOutWrite(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-
-									// Wait for audio playback to finish
-									waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-								}
-						   }
-						   else{
-							   AGMV_ParseAGMV(file,agmv);
-							   agmv->frame_count = 0;
+						if(AGMV_GetTotalAudioDuration(agmv) != 0){
+							if(InitializeDirectSound(agmv,window_handle)){
+								printf("DirectSound Initialization Sucessesful!\n");
 							}
-						   
-						   AGMV_ResetVideo(file,agmv);
-					    }
+							else{
+								printf("DirectSound Initialization Error!\n");
+							}
+						}
+						
+						screen->HasVideo = TRUE;
+						fps = AGMV_GetFramesPerSecond(agmv);
+						drawInterval = 1000.0f / fps;
+						agmv->frame_count = 0;
+
+						AGMV_ParseAGMV(agmv->file,agmv);
+						agmv->frame_count = 0;  
+						AGMV_ResetVideo(agmv->file,agmv);
 					}
 					
 				} else {
@@ -620,9 +568,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	}
 
 	Cleanup();
-	
-	fclose(file);
-	
+		
 	return 0;
 }
 
@@ -645,6 +591,10 @@ LRESULT CALLBACK WindowProcessMessage(HWND window_handle, UINT message, WPARAM w
 				}
 			}
 			
+			if(wParam == 0x46){
+				flip = !flip;
+			}
+			
 			if(wParam == SPACE_PRESSED){
 				if(screen->IsPlay == TRUE){
 					screen->IsPlay = FALSE;
@@ -655,55 +605,28 @@ LRESULT CALLBACK WindowProcessMessage(HWND window_handle, UINT message, WPARAM w
 			}
 			
 			if(wParam == M_PRESSED){
-				if(AGMV_GetAudioState(agmv) == TRUE){
-					AGMV_SetAudioState(agmv,FALSE);
-					waveOutPause(hWaveOut);
+				if(AGMV_GetAudioState(agmv) == AGMV_AUDIO_PLAY){
+					AGMV_SetAudioState(agmv,AGMV_AUDIO_PAUSE);
 				}
 				else{
-					AGMV_SetAudioState(agmv,TRUE);
-					waveOutReset(hWaveOut);
-					waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-					waveOutClose(hWaveOut);
-					
-					waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
-				// Prepare headers for audio playback
-					
-					AGMV_PlaySound();
+					AGMV_SetAudioState(agmv,AGMV_AUDIO_PLAY);
 				}
 			}
 			
 			if(wParam == D_PRESSED){
 				if(screen->HasVideo == TRUE){
 					if(agmv->header.total_audio_duration != 0){
-						AGMV_SkipForwards(file,agmv,30);
-						waveOutReset(hWaveOut);
-						waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-						waveOutClose(hWaveOut);
-						
-						waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
-					// Prepare headers for audio playback
-						
-						AGMV_PlaySound();
+						AGMV_SkipForwards(agmv->file,agmv,30);
 					}
 					else{
-						AGMV_SkipForwards(file,agmv,30);
+						AGMV_SkipForwards(agmv->file,agmv,30);
 					}
 				}
 			}
 			
 			if(wParam == A_PRESSED){
 				if(screen->HasVideo == TRUE){
-					AGMV_SkipBackwards(file,agmv,30);
-					if(agmv->header.total_audio_duration != 0){
-						waveOutReset(hWaveOut);
-						waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-						waveOutClose(hWaveOut);
-						
-						waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
-					// Prepare headers for audio playback
-						
-						AGMV_PlaySound();
-					}
+					AGMV_SkipBackwards(agmv->file,agmv,30);
 				}
 			}
 			
@@ -778,17 +701,7 @@ LRESULT CALLBACK WindowProcessMessage(HWND window_handle, UINT message, WPARAM w
 					if(x >= 25 && y >= 160 && x <= 600 && y <= 170){
 						f32 ratio = x/(f32)600;
 						u32 skip = agmv->header.num_of_frames * ratio;
-						AGMV_SkipTo(file,agmv,skip);
-						if(agmv->header.total_audio_duration != 0){
-							waveOutReset(hWaveOut);
-							waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-							waveOutClose(hWaveOut);
-							
-							waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
-						// Prepare headers for audio playback
-							
-							AGMV_PlaySound();
-						}
+						AGMV_SkipTo(agmv->file,agmv,skip);
 					}
 				}
 			}
@@ -797,17 +710,7 @@ LRESULT CALLBACK WindowProcessMessage(HWND window_handle, UINT message, WPARAM w
 					if(x >= 54 && y >= -175 && x <= 1316 && y <= -58){
 						f32 ratio = x/(f32)1316;
 						u32 skip = agmv->header.num_of_frames * ratio;
-						AGMV_SkipTo(file,agmv,skip);
-						if(agmv->header.total_audio_duration != 0){
-							waveOutReset(hWaveOut);
-							waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-							waveOutClose(hWaveOut);
-							
-							waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
-						// Prepare headers for audio playback
-							
-							AGMV_PlaySound();
-						}
+						AGMV_SkipTo(agmv->file,agmv,skip);
 					}
 				}
 			}
@@ -847,67 +750,14 @@ LRESULT CALLBACK WindowProcessMessage(HWND window_handle, UINT message, WPARAM w
 			if(screen->IsFullscreen == FALSE){
 				if(x >= 97 && y >= 109 && x <= 126 && y <= 135){
 					if(screen->HasVideo == TRUE){
-						AGMV_ResetVideo(file,agmv);
-						if(agmv->header.total_audio_duration != 0){
-							waveOutReset(hWaveOut);
-							waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-							waveOutClose(hWaveOut);
-							
-							waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
-						// Prepare headers for audio playback
-							if(agmv->header.bits_per_sample == 16){
-								waveHdr.lpData = agmv->audio_track->pcm;
-								waveHdr.dwBufferLength = agmv->header.audio_size*2;
-							}
-							else{
-								waveHdr.lpData = agmv->audio_track->pcm8;
-								waveHdr.dwBufferLength = agmv->header.audio_size;
-							}
-							waveHdr.dwFlags = 0;
-
-							if(AGMV_GetAudioState(agmv) == TRUE){
-								// Prepare and play audio
-								waveOutPrepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-								waveOutWrite(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-
-								// Wait for audio playback to finish
-								waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-							}
-						}
+						AGMV_ResetVideo(agmv->file,agmv);
 					}
 				}
 			}
 			else{
 				if(x >= 211 && y >= -170 && x <= 277 && y <= -118){
 					if(screen->HasVideo == TRUE){
-						AGMV_ResetVideo(file,agmv);
-						if(agmv->header.total_audio_duration != 0){
-							waveOutReset(hWaveOut);
-							waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-							waveOutClose(hWaveOut);
-							
-							waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
-						// Prepare headers for audio playback
-							if(agmv->header.bits_per_sample == 16){
-								waveHdr.lpData = agmv->audio_track->pcm;
-								waveHdr.dwBufferLength = agmv->header.audio_size*2;
-							}
-							else{
-								waveHdr.lpData = agmv->audio_track->pcm8;
-								waveHdr.dwBufferLength = agmv->header.audio_size;
-							}
-							
-							waveHdr.dwFlags = 0;
-
-							if(AGMV_GetAudioState(agmv) == TRUE){
-								// Prepare and play audio
-								waveOutPrepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-								waveOutWrite(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-
-								// Wait for audio playback to finish
-								waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-							}
-						}
+						AGMV_ResetVideo(agmv->file,agmv);
 					}
 				}
 			}
@@ -915,38 +765,14 @@ LRESULT CALLBACK WindowProcessMessage(HWND window_handle, UINT message, WPARAM w
 			if(screen->IsFullscreen == FALSE){		
 				if(x >= 164 && y >= 108 && x <= 215 && y <= 137){
 					if(screen->HasVideo == TRUE){
-
-						AGMV_SkipBackwards(file,agmv,5 * AGMV_GetFramesPerSecond(agmv));
-						
-						if(agmv->header.total_audio_duration != 0){
-							waveOutReset(hWaveOut);
-							waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-							waveOutClose(hWaveOut);
-							
-							waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
-						// Prepare headers for audio playback
-							
-							AGMV_PlaySound();
-						}
+						AGMV_SkipBackwards(agmv->file,agmv,5 * AGMV_GetFramesPerSecond(agmv));
 					}
 				}
 			}
 			else{
 				if(x >= 360 && y >= -170 && x <= 462 && y <= -112){
 					if(screen->HasVideo == TRUE){
-						
-						AGMV_SkipBackwards(file,agmv,5 * AGMV_GetFramesPerSecond(agmv));
-						
-						if(agmv->header.total_audio_duration != 0){
-							waveOutReset(hWaveOut);
-							waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-							waveOutClose(hWaveOut);
-							
-							waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
-						// Prepare headers for audio playback
-							
-							AGMV_PlaySound();
-						}
+						AGMV_SkipBackwards(agmv->file,agmv,5 * AGMV_GetFramesPerSecond(agmv));
 					}
 				}
 			}
@@ -954,42 +780,14 @@ LRESULT CALLBACK WindowProcessMessage(HWND window_handle, UINT message, WPARAM w
 			if(screen->IsFullscreen == FALSE){
 				if(x >= 418 && y >= 108 && x <= 471 && y <= 142){
 					if(screen->HasVideo == TRUE){
-						if(agmv->header.total_audio_duration != 0){
-							
-							AGMV_SkipForwards(file,agmv,10);
-							
-							waveOutReset(hWaveOut);
-							waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-							waveOutClose(hWaveOut);
-							
-							waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
-						// Prepare headers for audio playback
-							
-							AGMV_PlaySound();
-						}
-					}
-					else{
-						AGMV_SkipForwards(file,agmv,10);
+						AGMV_SkipForwards(agmv->file,agmv,10);
 					}
 				}
 			}
 			else{
 				if(x >= 919 && y >= -163 && x <= 1017 && y <= -107){
 					if(screen->HasVideo == TRUE){
-						if(agmv->header.total_audio_duration != 0){
-							AGMV_SkipForwards(file,agmv,10);
-							waveOutReset(hWaveOut);
-							waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-							waveOutClose(hWaveOut);
-							
-							waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
-						// Prepare headers for audio playback
-							
-							AGMV_PlaySound();
-						}
-						else{
-							AGMV_SkipForwards(file,agmv,10);
-						}
+						AGMV_SkipForwards(agmv->file,agmv,10);
 					}
 				}
 			}
@@ -997,38 +795,21 @@ LRESULT CALLBACK WindowProcessMessage(HWND window_handle, UINT message, WPARAM w
 			if(screen->HasVideo == TRUE){
 				if(screen->IsFullscreen == FALSE){
 					if(x >= 30 && y >= 107 && x <= 65 && y <= 138){
-						if(AGMV_GetAudioState(agmv) == TRUE){
-							AGMV_SetAudioState(agmv,FALSE);
-							waveOutPause(hWaveOut);
+						if(AGMV_GetAudioState(agmv) == AGMV_AUDIO_PLAY){
+							AGMV_SetAudioState(agmv,AGMV_AUDIO_PAUSE);
 						}
 						else{
-							AGMV_SetAudioState(agmv,TRUE);
-							waveOutReset(hWaveOut);
-							waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-							waveOutClose(hWaveOut);
-							
-							waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
-						// Prepare headers for audio playback
-							AGMV_PlaySound();
+							AGMV_SetAudioState(agmv,AGMV_AUDIO_PLAY);
 						}
 					}
 				}
 				else{
 					if(x >= 65 && y >= -176 && x <= 140 && y <= -113){
-						if(AGMV_GetAudioState(agmv) == TRUE){
-							AGMV_SetAudioState(agmv,FALSE);
-							waveOutPause(hWaveOut);
+						if(AGMV_GetAudioState(agmv) == AGMV_AUDIO_PLAY){
+							AGMV_SetAudioState(agmv,AGMV_AUDIO_PAUSE);
 						}
 						else{
-							AGMV_SetAudioState(agmv,TRUE);
-							waveOutReset(hWaveOut);
-							waveOutUnprepareHeader(hWaveOut, &waveHdr, sizeof(WAVEHDR));
-							waveOutClose(hWaveOut);
-							
-							waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
-						// Prepare headers for audio playback
-							
-							AGMV_PlaySound();
+							AGMV_SetAudioState(agmv,AGMV_AUDIO_PLAY);
 						}
 					}
 				}
@@ -1036,21 +817,21 @@ LRESULT CALLBACK WindowProcessMessage(HWND window_handle, UINT message, WPARAM w
 			else{
 				if(screen->IsFullscreen == FALSE){
 					if(x >= 30 && y >= 107 && x <= 65 && y <= 138){
-						if(AGMV_GetAudioState(agmv) == TRUE){
-							AGMV_SetAudioState(agmv,FALSE);
+						if(AGMV_GetAudioState(agmv) == AGMV_AUDIO_PLAY){
+							AGMV_SetAudioState(agmv,AGMV_AUDIO_PAUSE);
 						}
 						else{
-							AGMV_SetAudioState(agmv,TRUE);
+							AGMV_SetAudioState(agmv,AGMV_AUDIO_PLAY);
 						}
 					}
 				}
 				else{
 					if(x >= 65 && y >= -176 && x <= 140 && y <= -113){
-						if(AGMV_GetAudioState(agmv) == TRUE){
-							AGMV_SetAudioState(agmv,FALSE);
+						if(AGMV_GetAudioState(agmv) == AGMV_AUDIO_PLAY){
+							AGMV_SetAudioState(agmv,AGMV_AUDIO_PAUSE);
 						}
 						else{
-							AGMV_SetAudioState(agmv,TRUE);
+							AGMV_SetAudioState(agmv,AGMV_AUDIO_PLAY);
 						}
 					}
 				}

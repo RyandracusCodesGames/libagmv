@@ -1,0 +1,14 @@
+src/main.o: src/main.c C:/nolibgs_hello_worlds/psyq/include/stdio.h \
+ C:/Users/ryand/OneDrive/Desktop/AGMV/platforms/psx/include/agmv_psx_lib.h \
+ C:/Users/ryand/OneDrive/Desktop/AGMV/platforms/psx/include/agmv_psx_defines.h \
+ C:/nolibgs_hello_worlds/psyq/include/sys/types.h \
+ C:/nolibgs_hello_worlds/psyq/include/libetc.h \
+ C:/nolibgs_hello_worlds/psyq/include/libgte.h \
+ C:/nolibgs_hello_worlds/psyq/include/libgpu.h \
+ C:/nolibgs_hello_worlds/psyq/include/libcd.h \
+ C:/nolibgs_hello_worlds/psyq/include/libspu.h \
+ C:/Users/ryand/OneDrive/Desktop/AGMV/platforms/psx/include/agmv_psx_mem_utils.h \
+ C:/nolibgs_hello_worlds/psyq/include/malloc.h \
+ C:/Users/ryand/OneDrive/Desktop/AGMV/platforms/psx/include/agmv_psx_file_utils.h \
+ C:/Users/ryand/OneDrive/Desktop/AGMV/platforms/psx/include/agmv_psx_decode.h \
+ C:/Users/ryand/OneDrive/Desktop/AGMV/platforms/psx/include/agmv_psx_playback.h

@@ -1,7 +1,7 @@
 CC = gcc
-INCLUDES = -I"C:/Users/ryand/OneDrive/Desktop/AGIDL/AGIDL_Proj/include" -I"C:/MinGW/include" -I"C:/Users/ryand/OneDrive/Desktop/AGMV/include" -I"$(CURDIR)/include"
+INCLUDES = -I"C:/Users/ryand/OneDrive/Desktop/AGMV/extern/agidl/include" -I"C:/MinGW/include" -I"C:/Users/ryand/OneDrive/Desktop/AGMV/include" -I"$(CURDIR)/include"
 CFLAGS = -Wall -O2 $(INCLUDES)
-LDFLAGS = -L"C:/Users/ryand/OneDrive/Desktop/AGIDL/AGIDL_Proj/lib" -L"C:/Users/ryand/OneDrive/Desktop/AGMV/libs" -L"C:/MinGW/lib" -static-libgcc -lagidl -lagmv -lgdi32 -lwinmm -lcomdlg32 -lshlwapi
+LDFLAGS = -L"C:/Users/ryand/OneDrive/Desktop/AGMV/extern/agidl/lib" -L"C:/Users/ryand/OneDrive/Desktop/AGMV/libs" -L"C:/MinGW/lib" -static-libgcc -lagidl -lagmv -lgdi32 -lwinmm -lcomdlg32 -lshlwapi -ldsound
 OBJS = agmvp.o src/screen.o agmvp_res.res
 DEPS = include/screen.h
 TARGET = agmvp

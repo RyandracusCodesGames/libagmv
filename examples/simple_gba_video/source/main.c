@@ -1,5 +1,6 @@
+#include <gba.h>
 #include "agmv_gba.h"
-#include "GBA_GEN_AGMV.h"  
+#include "open06_agmv.h"
 
 #define VRAM_F  0x6000000 
 #define VRAM_B	0x600A000
@@ -7,75 +8,90 @@
 int IWRAM main(){
 	
 	SetVideoMode(AGMV_MODE_3);
-	EnableTimer2();  	
+	EnableTimer2();
+	
+	u32 frame_rate = 2400;
 	
 	int lastFr=0,FPS=0;  
 	
-	REG_BG2PA = 128;
-	REG_BG2PD = 128;
+	REG_BG2PA = 1 << 7 | 76;
+	REG_BG2PD = 1 << 7 | 76;
+	
+	//REG_BG2PA = 128;
+	//REG_BG2PD = 128;
 	 
 	u16* vram = (u16*)VRAM_F;
 	
-	File* file = (File*)malloc(sizeof(File));
+	AGMV* agmv = AGMV_Open(open06_agmv,open06_agmv_size);
+	AGMV_InitSound(agmv);
 	
-	Open(file,GBA_AGMV_FILE,10676238);
-	
-	AGMV* agmv = AGMV_AllocResources(file);
-	
-	//AGMV_DisableAllAudio(agmv);
-	
-	*interrupt_enable = 0;
-    *interrupt_selection |= INTERRUPT_VBLANK;
-    *display_interrupts |= 0x08;
-    *interrupt_enable = 1;
-
-    /* clear the sound control initially */
-    *sound_control = 0;
+	//AGMV_DisableAudio(agmv);
 	
 	irqInit();
 	irqEnable(IRQ_VBLANK);
 
 	while(1){
-		
-		scanKeys();
-		
-		if((REG_TM2CNT/6600)!=lastFr){
 
+		//VBlankIntrWait();
+		
+		if((REG_TM2CNT/frame_rate)!=lastFr){
+		
 			if(button_pressed(BUTTON_RIGHT)){
-				AGMV_SkipForwards(file,agmv,10);
+				AGMV_SkipForwards(agmv->file,agmv,10);
 			}
 			
 			if(button_pressed(BUTTON_LEFT)){
-				AGMV_SkipBackwards(file,agmv,10);
+				AGMV_SkipBackwards(agmv->file,agmv,4);
 			}
 			
 			if(button_pressed(BUTTON_A)){
-				AGMV_ResetVideo(file,agmv);
+				AGMV_ResetVideo(agmv->file,agmv);
 			}
-			
+			 
 			if(button_pressed(BUTTON_B)){
-				if(agmv->audio_chunk->enable_audio == TRUE){
-					agmv->audio_chunk->enable_audio = FALSE;
+				if(agmv->audio_state == AGMV_AUDIO_PLAY){
+					agmv->audio_state = AGMV_AUDIO_PAUSE;
+					AGMV_DisableMasterSound();
 				}
 				else{
-					agmv->audio_chunk->enable_audio = TRUE;
+					agmv->audio_state = AGMV_AUDIO_PLAY;
+					AGMV_EnableMasterSound();
 				}
 			}
-
-			AGMV_PlayAGMV(file,agmv); 	
+			
+			if(button_pressed(BUTTON_UP)){
+				AGMV_SetVolume(agmv,1);
+			}
+			
+			if(button_pressed(BUTTON_DOWN)){
+				AGMV_SetVolume(agmv,0);
+			}
+			
+			if(button_pressed(BUTTON_START)){
+				if(agmv->video_state == AGMV_VIDEO_PLAY){
+					agmv->video_state = AGMV_VIDEO_PAUSE;
+					AGMV_DisableMasterSound();
+				}
+				else{
+					agmv->video_state = AGMV_VIDEO_PLAY;
+					AGMV_EnableMasterSound();
+				}
+				
+				while(button_pressed(BUTTON_START));
+			}
+			
+			AGMV_StreamMovie(agmv);	
 			AGMV_DisplayFrame(vram,240,80,agmv);
-		   
+			
 		   if(AGMV_IsVideoDone(agmv)){ 
-			   AGMV_ResetVideo(file,agmv);
+			   AGMV_ResetVideo(agmv->file,agmv);
 		   }
-		   
-		   FPS+=1; if(lastFr>(REG_TM2CNT/6600)){ FPS=0;}
-		   lastFr=(REG_TM2CNT/6600);  
 
-			VBlankIntrWait();		   
-		}		
+		   FPS+=1; if(lastFr>(REG_TM2CNT/frame_rate)){ FPS=0;}
+		   lastFr=(REG_TM2CNT/frame_rate); 
+		} 
+		  	
 	}	
 	
-	free(file);
-	DestroyAGMV(agmv);
+	AGMV_Close(agmv);
 }

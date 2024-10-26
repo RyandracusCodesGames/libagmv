@@ -1,0 +1,10 @@
+src/agmv_psx_mem_utils.o: src/agmv_psx_mem_utils.c \
+ C:/Users/ryand/OneDrive/Desktop/AGMV/platforms/psx/include/agmv_psx_mem_utils.h \
+ C:/Users/ryand/OneDrive/Desktop/AGMV/platforms/psx/include/agmv_psx_defines.h \
+ C:/nolibgs_hello_worlds/psyq/include/sys/types.h \
+ C:/nolibgs_hello_worlds/psyq/include/libetc.h \
+ C:/nolibgs_hello_worlds/psyq/include/libgte.h \
+ C:/nolibgs_hello_worlds/psyq/include/libgpu.h \
+ C:/nolibgs_hello_worlds/psyq/include/libcd.h \
+ C:/nolibgs_hello_worlds/psyq/include/libspu.h \
+ C:/nolibgs_hello_worlds/psyq/include/malloc.h

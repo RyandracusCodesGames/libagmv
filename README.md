@@ -3,17 +3,19 @@ An open-source full-motion video codec optimized for real-time playback on low-e
 ![agmv](https://github.com/RyandracusCodesGames/libagmv/assets/108719757/9cbb12b4-4a41-40e5-9fb7-9ba0fb9427cd)
 
 ## About
-AGMV is an indexed colored, block-based full-motion video codec that utilizes classic
-color quantization, progressive interpolated motion compensation, lz77/lzss data compression,
-a routine 2:1 audio compression algorithm, and various other old-school video compression techniques
-inspired from the classics such as Smacker video and Quake 2's Cinematics video formats to achieve real-time video playback on low-end graphical devices
-favoring decoding speed over aggressive compression routines to ensure that even a CPU clocked at 16.78MHz like the Nintendo Gameboy Advance can decode individual frames in real time.
+At its core, libagmv is an indexed-colored, block-based full-motion video codec styled and flavored by a bygone era
+of video codecs such as Interplay MVE, Smacker Video, Caimans Video Codec for the GBA, and the Quake 2 Cinematics video format.
+libagmv employs classic retro-style video compression techniques of the mid-90s such as classic color quantization, block-based motion compensation, 
+variable block-sizing and block subdivision, intraframe prediction, block copying, minor vector quantization elements, and a simple DPCM based 2:1 audio compression
+routine, all in an effort to produce high-quality video that can be efficiently decoded in real-time by resource-limited systems, both in the graphical and processing power sense,
+such as the 16.78MHz clock speed of the Nintendo Game Boy Advance.
 
 Why use AGMV? AGMV serves four purposes:
 
-	* It maintains blazing fast decoding speed to even where low-end hardware such as the GBA can use it for real-time video playback.
-	* It uses the RGB color space, the native color space of most graphical devices, to avoid any intermediary color conversion step so that a decoded frame can be immediately blitted to the screen. 
-	* At the cost of some visual quality, it can even rival Smacker video, MJPEG, and Cinepak compression rates while being virtually 4x easier to decode.
+* It maintains a unqiue blend of high-quality video and fast decoding for real-time playback on low-end graphical devices.
+* It's open-source and has been ported to other platforms such as the Nintendo Game Boy Advance, DS, and Sony PlayStation.
+* Its' compression and container formats are flexible and able to be extended while maintaining compatability with older versions.
+* It utilizes the RGB color space, the native color space of most graphical devices, to avoid any intermediary color conversion step so that a decoded frame can be immediately blitted to the screen.
 	
 ## GBA Video Demo
 
@@ -34,7 +36,7 @@ https://github.com/RyandracusCodesGames/libagmv/assets/108719757/f77fd24f-c94d-4
 int main(){
 	AGMV* agmv = CreateAGMV(212,320,240,24); /* (Number of Frames, Width, Height, Frames per Second) */
 	AGMV_WavToAudioTrack("example.wav",agmv);
-	AGMV_EncodeAGMV(agmv,"example.agmv","example_directory","agmv_base_name",AGMV_IMG_BMP,1,212,320,240,24,AGMV_OPT_III,AGMV_LOW_QUALITY,AGMV_LZSS_COMPRESSION);
+	AGMV_EncodeAGMV(agmv,"example.agmv","example_directory","agmv_base_name",AGMV_IMG_BMP,1,212,320,240,24,AGMV_OPT_III,AGMV_HIGH_QUALITY,AGMV_LZSS_COMPRESSION);
 	
 	return 0;
 }
@@ -51,7 +53,7 @@ int main(){
  	/* GENERATES A C HEADER FILE CONTAINING AGMV VIDEO*/
 	AGMV* agmv = CreateAGMV(total_num_frames-1,320,240,24);
 	AGMV_RawSignedPCMToAudioTrack("example.raw",agmv,1,16000);
-	AGMV_EncodeAGMV(agmv,"example.agmv","example_directory","agmv_base_name",AGMV_IMG_BMP,1,total_num_frames,320,240,24,AGMV_OPT_GBA_I,AGMV_LOW_QUALITY,AGMV_LZSS_COMPRESSION);
+	AGMV_EncodeAGMV(agmv,"example.agmv","example_directory","agmv_base_name",AGMV_IMG_BMP,1,total_num_frames,320,240,24,AGMV_OPT_GBA_I,AGMV_MID_QUALITY,AGMV_LZSS_COMPRESSION);
 	
 	return 0;
 }
@@ -79,6 +81,19 @@ int main(){
 int main(){
 
 	AGMV_DecodeAudio("example.agmv",AGMV_AUDIO_WAV);
+	
+	return 0;
+}
+
+```
+## Simple AVI Video Conversion
+```c
+#include <stdio.h>
+#include <agmv.h>
+
+int main(){
+
+	AGMV_ConvertAVItoAGMV("example.avi",AGMV_OPT_I,AGMV_HIGH_QUALITY,AGMV_NONE_COMPRESSION);
 	
 	return 0;
 }

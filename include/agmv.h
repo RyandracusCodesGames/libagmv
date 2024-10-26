@@ -9,8 +9,8 @@
 *   Library: libagmv
 *   File: agmv.h
 *   Date: 5/19/2024
-*   Version: 1.1
-*   Updated: 6/13/2024
+*   Version: 2.0
+*   Updated: 8/11/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
@@ -20,5 +20,6 @@
 #include <agmv_decode.h>
 #include <agmv_utils.h>
 #include <agmv_playback.h>
+#include <agmv_convert.h>
 
 #endif

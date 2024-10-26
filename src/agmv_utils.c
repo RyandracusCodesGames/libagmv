@@ -6,14 +6,37 @@
 *   Library: libagmv
 *   File: agmv_utils.c
 *   Date: 5/17/2024
-*   Version: 1.1
-*   Updated: 6/13/2024
+*   Version: 2.0
+*   Updated: 10/25/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
 #include <stdlib.h>
 #include <agmv_utils.h>
 #include <agmv_decode.h>
+#include <stdarg.h>
+
+const   int BAYER_PATTERN_16X16[16][16] =   
+{   //  16x16 Bayer Dithering Matrix.  Color levels: 256
+    {     0, 191,  48, 239,  12, 203,  60, 251,   3, 194,  51, 242,  15, 206,  63, 254  }, 
+    {   127,  64, 175, 112, 139,  76, 187, 124, 130,  67, 178, 115, 142,  79, 190, 127  },
+    {    32, 223,  16, 207,  44, 235,  28, 219,  35, 226,  19, 210,  47, 238,  31, 222  },
+    {   159,  96, 143,  80, 171, 108, 155,  92, 162,  99, 146,  83, 174, 111, 158,  95  },
+    {     8, 199,  56, 247,   4, 195,  52, 243,  11, 202,  59, 250,   7, 198,  55, 246  },
+    {   135,  72, 183, 120, 131,  68, 179, 116, 138,  75, 186, 123, 134,  71, 182, 119  },
+    {    40, 231,  24, 215,  36, 227,  20, 211,  43, 234,  27, 218,  39, 230,  23, 214  },
+    {   167, 104, 151,  88, 163, 100, 147,  84, 170, 107, 154,  91, 166, 103, 150,  87  },
+    {     2, 193,  50, 241,  14, 205,  62, 253,   1, 192,  49, 240,  13, 204,  61, 252  },
+    {   129,  66, 177, 114, 141,  78, 189, 126, 128,  65, 176, 113, 140,  77, 188, 125  },
+    {    34, 225,  18, 209,  46, 237,  30, 221,  33, 224,  17, 208,  45, 236,  29, 220  },
+    {   161,  98, 145,  82, 173, 110, 157,  94, 160,  97, 144,  81, 172, 109, 156,  93  },
+    {    10, 201,  58, 249,   6, 197,  54, 245,   9, 200,  57, 248,   5, 196,  53, 244  },
+    {   137,  74, 185, 122, 133,  70, 181, 118, 136,  73, 184, 121, 132,  69, 180, 117  },
+    {    42, 233,  26, 217,  38, 229,  22, 213,  41, 232,  25, 216,  37, 228,  21, 212  },
+    {   169, 106, 153,  90, 165, 102, 149,  86, 168, 105, 152,  89, 164, 101, 148,  85  }
+};
+
+Bool print = TRUE;
 
 /*-------FILE READING UTILITY FUNCTIONS------*/
 
@@ -27,35 +50,6 @@ Bool AGMV_EOF(FILE* file){
 		return TRUE;
 	}
 	else return FALSE;
-}
-
-u32 matchlength = 0,
-    matchpos = 0,
-    bitbuf = 0,
-    bitsin = 0,
-    masks[17] = {0,1,3,7,15,31,63,127,255,511,1023,2047,4095,8191,16383,32767,65535};
-
-u32 AGMV_ReadBits(FILE* file, u32 num_of_bits){
-	
-	register u32 i;
-
-	i = bitbuf >> (8 - bitsin);
-
-	while (num_of_bits > bitsin)
-	{
-		bitbuf = AGMV_ReadByte(file);
-		i |= (bitbuf << bitsin);
-		bitsin += 8;
-	}
-
-	bitsin -= num_of_bits;
-
-	return (i & masks[num_of_bits]);
-}
-
-void AGMV_FlushReadBits() {
-    bitbuf = 0;
-    bitsin = 0;
 }
 
 u8 AGMV_ReadByte(FILE* file){
@@ -83,32 +77,19 @@ void AGMV_ReadFourCC(FILE* file, char fourcc[4]){
 	fourcc[3] = AGMV_ReadByte(file);
 }
 
-void AGMV_WriteBits(FILE* file, u32 num, u16 num_of_bits){
-	bitbuf |= (num << bitsin);
-
-	bitsin += num_of_bits;
-
-	if (bitsin > 16) 
-	{
-		AGMV_WriteByte(file,bitbuf & 0xFF);
-		bitbuf = num >> (8 - (bitsin - num_of_bits));
-		bitsin -= 8;
-	}
-
-	while (bitsin >= 8)
-	{
-		AGMV_WriteByte(file,bitbuf & 0xFF);
-		bitbuf >>= 8;
-		bitsin -= 8;
-	}
+void AGMV_ReadNBytes(FILE* file, u8* buf, u32 n){
+	fread(buf,1,n,file);
 }
 
-void AGMV_FlushWriteBits(FILE* file){
-	if (bitsin > 0) {
-        AGMV_WriteByte(file, bitbuf & 0xFF);
-        bitbuf = 0;
-        bitsin = 0;
-    }
+void AGMV_ReadNShorts(FILE* file, u16* buf, u32 n){
+	fread(buf,2,n,file);
+}
+
+void AGMV_ReadSwappedNShorts(FILE* file, u16* buf, u32 n){
+	int i;
+	for(i = 0; i < n; i++){
+		buf[i] = AGMV_SwapShort(AGMV_ReadShort(file));
+	}
 }
 
 void AGMV_WriteByte(FILE* file, u8 byte){
@@ -130,11 +111,39 @@ void AGMV_WriteFourCC(FILE* file, char f, char o, char u, char r){
 	AGMV_WriteByte(file,r);
 }
 
+void AGMV_WriteNBytes(FILE* file, u8* buf, u32 n){
+	fwrite(buf,1,n,file);
+}
+
 Bool AGMV_IsCorrectFourCC(char fourcc[4], char f, char o, char u, char r){
 	if(f != fourcc[0] || o != fourcc[1] || u != fourcc[2] || r != fourcc[3]){
 		return FALSE;
 	}
 	else return TRUE;
+}
+
+Bool AGMV_IsValidFlag(u8 byte){
+	if(byte == AGMV_NORMAL_FLAG || byte == AGMV_COPY_FLAG || byte == AGMV_FILL_FLAG || byte == AGMV_COPY_FLAG || byte == AGMV_MV_FLAG || 
+	byte == AGMV_PCOPY_FLAG || byte == AGMV_PMV_FLAG || byte == AGMV_VQ2_FLAG || byte == AGMV_VQ4_FLAG){
+		return TRUE;
+	}
+	else return FALSE;
+}
+
+Bool AGMV_IsNextFrameAnIFrame(FILE* file){
+	u32 pos, frame_type;
+	
+	pos = ftell(file);
+
+	AGMV_FindNextFrameChunk(file);
+	frame_type = AGMV_SkipFrameChunk(file);
+	
+	fseek(file,pos,SEEK_SET);
+	
+	if(frame_type == AGMV_IFRAME){
+		return TRUE;
+	}
+	else return FALSE;
 }
 
 void AGMV_FindNextFrameChunk(FILE* file){
@@ -193,53 +202,142 @@ void AGMV_FindNextAudioChunk(FILE* file){
 	fseek(file,pos-4,SEEK_SET);
 }
 
-void AGMV_SkipFrameChunk(FILE* file){
-	u32 fourcc, frame_num, usize, csize;
+void AGMV_FindNextAudsChunk(FILE* file){
+	u32 pos;
+	Bool isAudio;
+	char fourcc[4];
+
+	AGMV_ReadFourCC(file,fourcc);
+	isAudio = AGMV_IsCorrectFourCC(fourcc,'a','u','d','s');
+
+	if(isAudio){
+		pos = ftell(file);
+		fseek(file,pos-4,SEEK_SET);
+		return;
+	}
+
+	while(!isAudio && !AGMV_EOF(file)){
+		AGMV_ReadFourCC(file,fourcc);
+		isAudio = AGMV_IsCorrectFourCC(fourcc,'a','u','d','s');
+		
+		if(!isAudio){
+			pos = ftell(file);
+			fseek(file,pos-3,SEEK_SET);
+		}
+	}
+
+	pos = ftell(file);
+	fseek(file,pos-4,SEEK_SET);
+}
+
+void AGMV_FindNextStrfChunk(FILE* file){
+	u32 pos;
+	Bool isAudio;
+	char fourcc[4];
+
+	AGMV_ReadFourCC(file,fourcc);
+	isAudio = AGMV_IsCorrectFourCC(fourcc,'s','t','r','f');
+
+	if(isAudio){
+		pos = ftell(file);
+		fseek(file,pos-4,SEEK_SET);
+		return;
+	}
+
+	while(!isAudio && !AGMV_EOF(file)){
+		AGMV_ReadFourCC(file,fourcc);
+		isAudio = AGMV_IsCorrectFourCC(fourcc,'s','t','r','f');
+		
+		if(!isAudio){
+			pos = ftell(file);
+			fseek(file,pos-3,SEEK_SET);
+		}
+	}
+
+	pos = ftell(file);
+	fseek(file,pos-4,SEEK_SET);
+}
+
+void AGMV_FindNextFourCCChunk(FILE* file, char f, char o, char u, char r){
+	u32 pos;
+	Bool isFourcc;
+	char fourcc[4];
+
+	AGMV_ReadFourCC(file,fourcc);
+	isFourcc = AGMV_IsCorrectFourCC(fourcc,f,o,u,r);
+
+	if(isFourcc){
+		pos = ftell(file);
+		fseek(file,pos-4,SEEK_SET);
+		return;
+	}
+
+	while(!isFourcc && !AGMV_EOF(file)){
+		AGMV_ReadFourCC(file,fourcc);
+		isFourcc = AGMV_IsCorrectFourCC(fourcc,f,o,u,r);
+		
+		if(!isFourcc){
+			pos = ftell(file);
+			fseek(file,pos-3,SEEK_SET);
+		}
+	}
+
+	pos = ftell(file);
+	fseek(file,pos-4,SEEK_SET);
+}
+
+u16 AGMV_SkipFrameChunk(FILE* file){
+	u32 fourcc, frame_num, frame_type, usize, csize;
 
 	AGMV_FindNextFrameChunk(file);
 
-	fourcc    = AGMV_ReadLong(file);
-	frame_num = AGMV_ReadLong(file);
-	usize     = AGMV_ReadLong(file);
-	csize     = AGMV_ReadLong(file);
+	fourcc     = AGMV_ReadLong(file);
+	frame_num  = AGMV_ReadLong(file);
+	frame_type = AGMV_ReadShort(file);
+	usize      = AGMV_ReadLong(file);
+	csize      = AGMV_ReadLong(file);
 
 	fseek(file,csize,SEEK_CUR);
+	
+	return frame_type;
 }
 
 void AGMV_SkipAudioChunk(FILE* file){
-	u32 fourcc, size;
+	u32 fourcc, size, csize;
 
 	AGMV_FindNextAudioChunk(file);
 
 	fourcc = AGMV_ReadLong(file);
 	size   = AGMV_ReadLong(file);
+	csize  = AGMV_ReadLong(file);
 
-	fseek(file,size,SEEK_CUR);
+	fseek(file,csize,SEEK_CUR);
 }
 
 void AGMV_ParseAGMV(FILE* file, AGMV* agmv){
-	u32 n = AGMV_GetNumberOfFrames(agmv);
+	u32* offset_table, n;
+	
+	offset_table = agmv->offset_table;
+	n            = AGMV_GetNumberOfFrames(agmv);
 	
 	if(AGMV_GetTotalAudioDuration(agmv) != 0){
 		int i;
 		for(i = 0; i < n; i++){
 			AGMV_FindNextFrameChunk(file);
-			agmv->offset_table[agmv->frame_count++] = ftell(file);
+			offset_table[i] = ftell(file);
 			AGMV_SkipFrameChunk(file);
 			AGMV_FindNextAudioChunk(file);
-			AGMV_DecodeAudioChunk(file,agmv);
+			AGMV_SkipAudioChunk(file);
 		}
 	}
 	else{
 		int i;
 		for(i = 0; i < n; i++){
 			AGMV_FindNextFrameChunk(file);
-			agmv->offset_table[agmv->frame_count++] = ftell(file);
+			offset_table[i] = ftell(file);
 			AGMV_SkipFrameChunk(file);
 		}
 	}
-	
-	agmv->frame_count = 0;
 }
 
 /*------PRIMARY FUNCTIONS TO INITIALIZE AGMV ATTRIBUTES----------*/
@@ -248,12 +346,14 @@ void AGMV_SetWidth(AGMV* agmv, u32 width){
 	agmv->header.width = width;
 	agmv->frame->width = width;
 	agmv->iframe->width = width;
+	agmv->prev_frame->width = width;
 }
 
 void AGMV_SetHeight(AGMV* agmv, u32 height){
 	agmv->header.height = height;
 	agmv->frame->height = height;
 	agmv->iframe->height = height;
+	agmv->prev_frame->height = height;
 }
 
 void AGMV_SetICP0(AGMV* agmv, u32 palette0[256]){
@@ -310,8 +410,8 @@ void AGMV_SetCompression(AGMV* agmv, AGMV_COMPRESSION compression){
 	agmv->compression = compression;
 }
 
-void AGMV_SetAudioState(AGMV* agmv, Bool audio){
-	agmv->enable_audio = audio;
+void AGMV_SetQuality(AGMV* agmv, AGMV_QUALITY quality){
+	agmv->quality = quality;
 }
 
 void AGMV_SetVolume(AGMV* agmv, f32 volume){
@@ -329,6 +429,10 @@ void AGMV_SetBitsPerSample(AGMV* agmv, u16 bits_per_sample){
 	agmv->header.bits_per_sample = bits_per_sample;
 }
 
+void AGMV_SetError(AGMV* agmv, Error error){
+	agmv->error = error;
+}
+
 AGMV* CreateAGMV(u32 num_of_frames, u32 width, u32 height, u32 frames_per_second){
 	AGMV* agmv = (AGMV*)malloc(sizeof(AGMV));
 
@@ -342,14 +446,24 @@ AGMV* CreateAGMV(u32 num_of_frames, u32 width, u32 height, u32 frames_per_second
 	agmv->frame->img_data = (u32*)malloc(sizeof(u32)*width*height);
 	agmv->iframe = (AGMV_FRAME*)malloc(sizeof(AGMV_FRAME));
 	agmv->iframe->img_data = (u32*)malloc(sizeof(u32)*width*height);
+	agmv->prev_frame = (AGMV_FRAME*)malloc(sizeof(AGMV_FRAME));
+	agmv->prev_frame->img_data = (u32*)malloc(sizeof(u32)*width*height);
 	agmv->audio_track = (AGMV_AUDIO_TRACK*)malloc(sizeof(AGMV_AUDIO_TRACK));
 	agmv->iframe_entries = (AGMV_ENTRY*)malloc(sizeof(AGMV_ENTRY)*width*height);
+	agmv->image_entries = (AGMV_ENTRY*)malloc(sizeof(AGMV_ENTRY)*width*height);
+	agmv->prev_fill_color = 0;
+	agmv->vq2color1 = 0; agmv->vq2color2 = 0;
 	agmv->audio_track->pcm = NULL;
 	agmv->audio_track->pcm8 = NULL;
 	agmv->audio_chunk->atsample = NULL;
 
 	agmv->frame_count = 0;
 	agmv->audio_track->start_point = 0;
+	agmv->pframe_count = 0;
+	agmv->iframe_count = 0;
+	
+	agmv->db.curr_pos = 0;
+	agmv->db.read_pos = 0;
 	
 	AGMV_SetWidth(agmv,width);
 	AGMV_SetHeight(agmv,height);
@@ -362,6 +476,7 @@ AGMV* CreateAGMV(u32 num_of_frames, u32 width, u32 height, u32 frames_per_second
 	AGMV_SetLeniency(agmv,0.1282f);
 	AGMV_SetOPT(agmv,AGMV_OPT_I);
 	AGMV_SetCompression(agmv,AGMV_LZSS_COMPRESSION);
+	AGMV_SetQuality(agmv,AGMV_LOW_QUALITY);
 	AGMV_SetVolume(agmv,1.0f);
 	AGMV_SetBitsPerSample(agmv,16);
 
@@ -375,49 +490,99 @@ void DestroyAGMV(AGMV* agmv){
 			agmv->iframe_entries = NULL;
 		}
 		
-		if(agmv->frame->img_data != NULL){
-			free(agmv->frame->img_data);
-			agmv->frame->img_data = NULL;
+		if(agmv->image_entries != NULL){
+			free(agmv->image_entries);
+			agmv->image_entries = NULL;
 		}
 		
-		if(agmv->iframe->img_data != NULL){
-			free(agmv->iframe->img_data);
-			agmv->iframe->img_data = NULL;
+		if(agmv->frame != NULL){
+			
+			if(agmv->frame->img_data != NULL){
+				free(agmv->frame->img_data);
+				agmv->frame->img_data = NULL;
+			}
+			
+			free(agmv->frame);
+			agmv->frame = NULL;
+		}
+				
+		if(agmv->iframe != NULL){
+			
+			if(agmv->iframe->img_data != NULL){
+				free(agmv->iframe->img_data);
+				agmv->iframe->img_data = NULL;
+			}
+
+			free(agmv->iframe);
+			agmv->iframe = NULL;
+		}
+		if(agmv->prev_frame != NULL){
+			
+			if(agmv->prev_frame->img_data != NULL){
+				free(agmv->prev_frame->img_data);
+				agmv->prev_frame->img_data = NULL;
+			}
+			
+			free(agmv->prev_frame);
+			agmv->prev_frame = NULL;
 		}
 
-		free(agmv->frame);
-		free(agmv->iframe);
+		if(agmv->bitstream != NULL){
+			if(agmv->bitstream->data != NULL){
+				free(agmv->bitstream->data);
+			}
+			free(agmv->bitstream);
+			agmv->bitstream = NULL;
+		}
 		
-		if(agmv->bitstream->data != NULL){
-			free(agmv->bitstream->data);
+		if(agmv->frame_chunk != NULL){
+			free(agmv->frame_chunk);
 		}
-
-		free(agmv->bitstream);
-		free(agmv->frame_chunk);
 		
 		if(agmv->header.total_audio_duration != 0){
+			agmv->header.total_audio_duration = 0;
+			
 			if(agmv->header.bits_per_sample == 16){
 				if(agmv->audio_track->pcm != NULL){
 					free(agmv->audio_track->pcm);
+					agmv->audio_track->pcm = NULL;
 				}
 			}
 			else{
 				if(agmv->audio_track->pcm8 != NULL){
 					free(agmv->audio_track->pcm8);
+					agmv->audio_track->pcm8 = NULL;
 				}
 			}
 			
 			if(agmv->audio_chunk->atsample != NULL){
 				free(agmv->audio_chunk->atsample);
+				agmv->audio_chunk->atsample = NULL;
 			}
 		}
+	
+		agmv->bitstream = NULL;
+		agmv->frame_chunk = NULL;
 
 		free(agmv->audio_chunk);
 		free(agmv->audio_track);
-		free(agmv);
 		
+		agmv->audio_chunk = NULL;
+		agmv->audio_track = NULL;
+		
+		free(agmv);
+
 		agmv = NULL;
+
 	}
+}
+
+void AGMV_EnablePrintf(){
+	print = TRUE;
+}
+
+void AGMV_DisablePrintf(){
+	print = FALSE;
 }
 
 /*------PRIMARY FUNCTIONS TO RETRIEVE AGMV ATTRIBUTES----------*/
@@ -436,6 +601,10 @@ u32 AGMV_GetFramesPerSecond(AGMV* agmv){
 
 u32 AGMV_GetNumberOfFrames(AGMV* agmv){
 	return agmv->header.num_of_frames;
+}
+
+u32 AGMV_GetNumberOfIFrames(AGMV* agmv){
+	return agmv->iframe_count;
 }
 
 u32 AGMV_GetTotalAudioDuration(AGMV* agmv){
@@ -470,8 +639,8 @@ AGMV_COMPRESSION AGMV_GetCompression(AGMV* agmv){
 	return agmv->compression;
 }
 
-Bool AGMV_GetAudioState(AGMV* agmv){
-	return agmv->enable_audio;
+AGMV_QUALITY AGMV_GetQuality(AGMV* agmv){
+	return agmv->quality;
 }
 
 f32 AGMV_GetVolume(AGMV* agmv){
@@ -482,7 +651,65 @@ u16 AGMV_GetBitsPerSample(AGMV* agmv){
 	return agmv->header.bits_per_sample;
 }
 
+Error AGMV_GetError(AGMV* agmv){
+	return agmv->error;
+}
+
 /*-----------------VARIOUS UTILITY FUNCTIONS-----------------*/
+void AGMV_Memcpy32(u32* dest, u32* src, u32 n){
+	while(n--){
+		*(dest++) = *(src++);
+	}
+}
+
+void AGMV_Memset32(u32* dest, u32 num, u32 n){
+	while(n--){
+		*(dest++) = num;	
+	}
+}
+
+void AGMV_Memcpy16(u16* dest, u16* src, u32 n){
+	while(n--){
+		*(dest++) = *(src++);
+	}
+}
+
+void AGMV_Memcpy8(u8* dest, u8* src, u32 n){
+	while(n--){
+		*(dest++) = *(src++);
+	}
+}
+
+void AGMV_Memset8(u8* dest, u8 num, u32 n){
+	while(n--){
+		*(dest++) = num;	
+	}
+}
+
+u8 AGMV_GetMSB(u16 color){
+	return (color >> 8) & 0xff;
+}
+
+u8 AGMV_GetLSB(u16 color){
+	return (color & 0xff);
+}
+
+void AGMV_Printf(char* fmt, ...){
+	if(print){
+		va_list	argptr;
+		char msg[AGMV_MAX_PRINT];
+		
+		va_start(argptr,fmt);
+		vsprintf(msg,fmt,argptr);
+		va_end(argptr);
+
+		printf("%s",msg);
+	}
+}
+
+u8 AGMV_SetBitstreamFlag(AGMV_BLOCK_SIZE block_size, u8 flag){
+	return block_size << 6 | flag;
+}
 
 u8 AGMV_GetVersionFromOPT(AGMV_OPT opt, AGMV_COMPRESSION compression){
 	if(compression == AGMV_LZSS_COMPRESSION){
@@ -496,20 +723,47 @@ u8 AGMV_GetVersionFromOPT(AGMV_OPT opt, AGMV_COMPRESSION compression){
 			case AGMV_OPT_III:{
 				return 1;
 			}
+			case AGMV_OPT_IV:{
+				return 0;
+			}
 			case AGMV_OPT_ANIM:{
 				return 2;
 			}
 			case AGMV_OPT_GBA_I:{
-				return 1;
+				return 5;
 			}
 			case AGMV_OPT_GBA_II:{
-				return 2;
+				return 6;
 			}
 			case AGMV_OPT_GBA_III:{
-				return 1;
+				return 5;
 			}
-			case AGMV_OPT_NDS:{
-				return 1;
+			case AGMV_OPT_GBA_IV:{
+				return 10;
+			}
+			case AGMV_OPT_PSX_I:{
+				return 35;
+			}
+			case AGMV_OPT_PSX_II:{
+				return 36;
+			}
+			case AGMV_OPT_PSX_III:{
+				return 35;
+			}
+			case AGMV_OPT_PSX_IV:{
+				return 20;
+			}
+			case AGMV_OPT_NDS_I:{
+				return 25;
+			}
+			case AGMV_OPT_NDS_II:{
+				return 26;
+			}
+			case AGMV_OPT_NDS_III:{
+				return 25;
+			}
+			case AGMV_OPT_NDS_IV:{
+				return 30;
 			}
 		}
 	}
@@ -524,24 +778,580 @@ u8 AGMV_GetVersionFromOPT(AGMV_OPT opt, AGMV_COMPRESSION compression){
 			case AGMV_OPT_III:{
 				return 3;
 			}
+			case AGMV_OPT_IV:{
+				return 100;
+			}
 			case AGMV_OPT_ANIM:{
 				return 4;
 			}
 			case AGMV_OPT_GBA_I:{
-				return 3;
+				return 7;
 			}
 			case AGMV_OPT_GBA_II:{
-				return 4;
+				return 8;
 			}
 			case AGMV_OPT_GBA_III:{
-				return 3;
+				return 7;
 			}
-			case AGMV_OPT_NDS:{
-				return 3;
+			case AGMV_OPT_GBA_IV:{
+				return 101;
+			}
+			case AGMV_OPT_PSX_I:{
+				return 37;
+			}
+			case AGMV_OPT_PSX_II:{
+				return 38;
+			}
+			case AGMV_OPT_PSX_III:{
+				return 37;
+			}
+			case AGMV_OPT_PSX_IV:{
+				return 102;
+			}
+			case AGMV_OPT_NDS_I:{
+				return 27;
+			}
+			case AGMV_OPT_NDS_II:{
+				return 28;
+			}
+			case AGMV_OPT_NDS_III:{
+				return 27;
+			}
+			case AGMV_OPT_NDS_IV:{
+				return 103;
 			}
 		}
 	}
+	
 	return 1;
+}
+
+u8 AGMV_GetCount(AGMV* agmv, AGMV_BLOCK_SIZE block_size, u8 flag, AGMV_QUALITY quality, AGMV_OPT opt){
+	u8 count;
+	
+	if(quality == AGMV_CUSTOM_QUALITY){
+		if(block_size == AGMV_BLOCK_4x4){
+			switch(flag){
+				case AGMV_FILL_FLAG:{
+					return agmv->custom.b4x4.fill;
+				}
+				case AGMV_ICOPY_FLAG:{
+					return agmv->custom.b4x4.icopy;
+				}
+				case AGMV_COPY_FLAG:{
+					return agmv->custom.b4x4.copy;
+				}
+				case AGMV_PCOPY_FLAG:{
+					return agmv->custom.b4x4.pcopy;
+				}
+				case AGMV_PMV_FLAG:{
+					return agmv->custom.b4x4.pmv;
+				}
+				case AGMV_MV_FLAG:{
+					return agmv->custom.b4x4.mv;
+				}
+				case AGMV_VQ2_FLAG:{
+					return agmv->custom.b4x4.vq2;
+				}
+				case AGMV_VQ4_FLAG:{
+					return agmv->custom.b4x4.vq4;
+				}
+			}
+		}
+		else if(block_size == AGMV_BLOCK_8x4){
+			switch(flag){
+				case AGMV_FILL_FLAG:{
+					return agmv->custom.b8x4.fill;
+				}
+				case AGMV_ICOPY_FLAG:{
+					return agmv->custom.b8x4.icopy;
+				}
+				case AGMV_COPY_FLAG:{
+					return agmv->custom.b8x4.copy;
+				}
+				case AGMV_PCOPY_FLAG:{
+					return agmv->custom.b8x4.pcopy;
+				}
+				case AGMV_PMV_FLAG:{
+					return agmv->custom.b8x4.pmv;
+				}
+				case AGMV_MV_FLAG:{
+					return agmv->custom.b8x4.mv;
+				}
+				case AGMV_VQ2_FLAG:{
+					return agmv->custom.b8x4.vq2;
+				}
+				case AGMV_VQ4_FLAG:{
+					return agmv->custom.b8x4.vq4;
+				}
+			}
+		}
+		else if(block_size == AGMV_BLOCK_8x8){
+			switch(flag){
+				case AGMV_FILL_FLAG:{
+					return agmv->custom.b8x8.fill;
+				}
+				case AGMV_ICOPY_FLAG:{
+					return agmv->custom.b8x8.icopy;
+				}
+				case AGMV_COPY_FLAG:{
+					return agmv->custom.b8x8.copy;
+				}
+				case AGMV_PCOPY_FLAG:{
+					return agmv->custom.b8x8.pcopy;
+				}
+				case AGMV_PMV_FLAG:{
+					return agmv->custom.b8x8.pmv;
+				}
+				case AGMV_MV_FLAG:{
+					return agmv->custom.b8x8.mv;
+				}
+				case AGMV_VQ2_FLAG:{
+					return agmv->custom.b8x8.vq2;
+				}
+				case AGMV_VQ4_FLAG:{
+					return agmv->custom.b8x8.vq4;
+				}
+			}
+		}
+		else{
+			switch(flag){
+				case AGMV_FILL_FLAG:{
+					return agmv->custom.b2x4.fill;
+				}
+				case AGMV_ICOPY_FLAG:{
+					return agmv->custom.b2x4.icopy;
+				}
+				case AGMV_COPY_FLAG:{
+					return agmv->custom.b2x4.copy;
+				}
+				case AGMV_PCOPY_FLAG:{
+					return agmv->custom.b2x4.pcopy;
+				}
+				case AGMV_PMV_FLAG:{
+					return agmv->custom.b2x4.pmv;
+				}
+				case AGMV_MV_FLAG:{
+					return agmv->custom.b2x4.mv;
+				}
+				case AGMV_VQ2_FLAG:{
+					return agmv->custom.b2x4.vq2;
+				}
+				case AGMV_VQ4_FLAG:{
+					return agmv->custom.b2x4.vq4;
+				}
+			}
+		}
+	}
+
+	if(quality == AGMV_LOW_QUALITY){
+		if(block_size == AGMV_BLOCK_4x4){
+			switch(flag){
+				case AGMV_FILL_FLAG:{
+					count = AGMV_FILL_COUNT;
+				}break;
+				case AGMV_ICOPY_FLAG:{
+					count = AGMV_ICOPY_COUNT;
+				}break;
+				case AGMV_COPY_FLAG:{
+					count = AGMV_COPY_COUNT;
+				}break;
+				case AGMV_PCOPY_FLAG:{
+					count = AGMV_PCOPY_COUNT;
+				}break;
+				case AGMV_PMV_FLAG:{
+					count = AGMV_PMV_COUNT;
+				}break;
+				case AGMV_MV_FLAG:{
+					count = AGMV_MV_COUNT;
+				}break;
+				case AGMV_VQ2_FLAG:{
+					count = 2;
+				}break;
+				case AGMV_VQ4_FLAG:{
+					count = 4;
+				}break;
+			}
+		}
+		else if(block_size == AGMV_BLOCK_8x4){
+			switch(flag){
+				case AGMV_FILL_FLAG:{
+					count = 26;
+				}break;
+				case AGMV_ICOPY_FLAG:{
+					count = 26;
+				}break;
+				case AGMV_PCOPY_FLAG:{
+					count = 25;
+				}break;
+				case AGMV_COPY_FLAG:{
+					count = 26;
+				}break;
+				case AGMV_PMV_FLAG:{
+					count = 28;
+				}break;
+				case AGMV_MV_FLAG:{
+					count = 28;
+				}break;
+				case AGMV_VQ2_FLAG:{
+					count = 3;
+				}break;
+				case AGMV_VQ4_FLAG:{
+					count = 6;
+				}break;
+			}
+		}
+		else if(block_size == AGMV_BLOCK_8x8){
+			switch(flag){
+				case AGMV_FILL_FLAG:{
+					count = 56;
+				}break;
+				case AGMV_ICOPY_FLAG:{
+					count = 54;
+				}break;
+				case AGMV_COPY_FLAG:{
+					count = 54;
+				}break;
+				case AGMV_PCOPY_FLAG:{
+					count = 52;
+				}break;
+				case AGMV_PMV_FLAG:{
+					count = 52;
+				}break;
+				case AGMV_MV_FLAG:{
+					count = 52;
+				}break;
+				case AGMV_VQ2_FLAG:{
+					count = 2;
+				}break;
+				case AGMV_VQ4_FLAG:{
+					count = 4;
+				}break;
+			}
+		}
+		else{
+			switch(flag){
+				case AGMV_FILL_FLAG:{
+					count = 6;
+				}break;
+				case AGMV_ICOPY_FLAG:{
+					count = 6;
+				}break;
+				case AGMV_COPY_FLAG:{
+					count = 5;
+				}break;
+				case AGMV_PCOPY_FLAG:{
+					count = 5;
+				}break;
+				case AGMV_PMV_FLAG:{
+					count = 5;
+				}break;
+				case AGMV_MV_FLAG:{
+					count = 5;
+				}break;
+				case AGMV_VQ2_FLAG:{
+					count = 2;
+				}break;
+				case AGMV_VQ4_FLAG:{
+					count = 4;
+				}break;
+			}
+		}
+	}
+	else if(quality == AGMV_MID_QUALITY){
+		if(block_size == AGMV_BLOCK_4x4){
+			switch(flag){
+				case AGMV_FILL_FLAG:{
+					count = 14;
+				}break;
+				case AGMV_ICOPY_FLAG:{
+					count = 14;
+				}break;
+				case AGMV_COPY_FLAG:{
+					count = 14;
+				}break;
+				case AGMV_PCOPY_FLAG:{
+					count = 14;
+				}break;
+				case AGMV_PMV_FLAG:{
+					count = 14;
+				}break;
+				case AGMV_MV_FLAG:{
+					count = 14;
+				}break;
+				case AGMV_VQ2_FLAG:{
+					count = 2;
+				}break;
+				case AGMV_VQ4_FLAG:{
+					count = 4;
+				}break;
+			}
+		}
+		else if(block_size == AGMV_BLOCK_8x4){
+			switch(flag){
+				case AGMV_FILL_FLAG:{
+					count = 30;
+				}break;
+				case AGMV_ICOPY_FLAG:{
+					count = 30;
+				}break;
+				case AGMV_PCOPY_FLAG:{
+					count = 28;
+				}break;
+				case AGMV_COPY_FLAG:{
+					count = 28;
+				}break;
+				case AGMV_PMV_FLAG:{
+					count = 28;
+				}break;
+				case AGMV_MV_FLAG:{
+					count = 28;
+				}break;
+				case AGMV_VQ2_FLAG:{
+					count = 3;
+				}break;
+				case AGMV_VQ4_FLAG:{
+					count = 6;
+				}break;
+			}
+		}
+		else if(block_size == AGMV_BLOCK_8x8){
+			switch(flag){
+				case AGMV_FILL_FLAG:{
+					count = 60;
+				}break;
+				case AGMV_ICOPY_FLAG:{
+					count = 58;
+				}break;
+				case AGMV_COPY_FLAG:{
+					count = 58;
+				}break;
+				case AGMV_PCOPY_FLAG:{
+					count = 59;
+				}break;
+				case AGMV_PMV_FLAG:{
+					count = 58;
+				}break;
+				case AGMV_MV_FLAG:{
+					count = 58;
+				}break;
+				case AGMV_VQ2_FLAG:{
+					count = 3;
+				}break;
+				case AGMV_VQ4_FLAG:{
+					count = 6;
+				}break;
+			}
+		}
+		else{
+			switch(flag){
+				case AGMV_FILL_FLAG:{
+					count = 7;
+				}break;
+				case AGMV_ICOPY_FLAG:{
+					count = 6;
+				}break;
+				case AGMV_COPY_FLAG:{
+					count = 7;
+				}break;
+				case AGMV_PCOPY_FLAG:{
+					count = 7;
+				}break;
+				case AGMV_PMV_FLAG:{
+					count = 6;
+				}break;
+				case AGMV_MV_FLAG:{
+					count = 6;
+				}break;
+				case AGMV_VQ2_FLAG:{
+					count = 2;
+				}break;
+				case AGMV_VQ4_FLAG:{
+					count = 4;
+				}break;
+			}
+		}
+	}
+	else{
+		if(block_size == AGMV_BLOCK_4x4){
+			switch(flag){
+				case AGMV_FILL_FLAG:{
+					count = 16;
+				}break;
+				case AGMV_ICOPY_FLAG:{
+					count = 16;
+				}break;
+				case AGMV_COPY_FLAG:{
+					count = 16;
+				}break;
+				case AGMV_PCOPY_FLAG:{
+					count = 16;
+				}break;
+				case AGMV_PMV_FLAG:{
+					count = 15;
+				}break;
+				case AGMV_MV_FLAG:{
+					count = 15;
+				}break;
+				case AGMV_VQ2_FLAG:{
+					count = 2;
+				}break;
+				case AGMV_VQ4_FLAG:{
+					count = 4;
+				}break;
+			}
+		}
+		else if(block_size == AGMV_BLOCK_8x4){
+			switch(flag){
+				case AGMV_FILL_FLAG:{
+					count = 32;
+				}break;
+				case AGMV_ICOPY_FLAG:{
+					count = 32;
+				}break;
+				case AGMV_PCOPY_FLAG:{
+					count = 32;
+				}break;
+				case AGMV_COPY_FLAG:{
+					count = 32;
+				}break;
+				case AGMV_PMV_FLAG:{
+					count = 31;
+				}break;
+				case AGMV_MV_FLAG:{
+					count = 31;
+				}break;
+				case AGMV_VQ2_FLAG:{
+					count = 2;
+				}break;
+				case AGMV_VQ4_FLAG:{
+					count = 4;
+				}break;
+			}
+		}
+		else if(block_size == AGMV_BLOCK_8x8){
+			switch(flag){
+				case AGMV_FILL_FLAG:{
+					count = 63;
+				}break;
+				case AGMV_ICOPY_FLAG:{
+					count = 63;
+				}break;
+				case AGMV_COPY_FLAG:{
+					count = 63;
+				}break;
+				case AGMV_PCOPY_FLAG:{
+					count = 63;
+				}break;
+				case AGMV_PMV_FLAG:{
+					count = 62;
+				}break;
+				case AGMV_MV_FLAG:{
+					count = 62;
+				}break;
+				case AGMV_VQ2_FLAG:{
+					count = 2;
+				}break;
+				case AGMV_VQ4_FLAG:{
+					count = 4;
+				}break;
+			}
+		}
+		else{
+			switch(flag){
+				case AGMV_FILL_FLAG:{
+					count = 8;
+				}break;
+				case AGMV_ICOPY_FLAG:{
+					count = 8;
+				}break;
+				case AGMV_COPY_FLAG:{
+					count = 8;
+				}break;
+				case AGMV_PCOPY_FLAG:{
+					count = 8;
+				}break;
+				case AGMV_PMV_FLAG:{
+					count = 7;
+				}break;
+				case AGMV_MV_FLAG:{
+					count = 7;
+				}break;
+				case AGMV_VQ2_FLAG:{
+					count = 2;
+				}break;
+				case AGMV_VQ4_FLAG:{
+					count = 4;
+				}break;
+			}
+		}
+	}
+	
+	return count;
+}
+
+u8 AGMV_GetBlockWidth(AGMV_BLOCK_SIZE block){
+	if(block == AGMV_BLOCK_4x4){
+		return 4;
+	}
+	else if(block == AGMV_BLOCK_2x4){
+		return 2;
+	}
+	else return 8;
+}
+
+u8 AGMV_GetBlockHeight(AGMV_BLOCK_SIZE block){
+	if(block == AGMV_BLOCK_8x8){
+		return 8;
+	}
+	else return 4;
+}
+
+int AGMV_Clamp(int min, int value, int max){
+	if(value < min){
+		return min;
+	}
+	else if(value > max){
+		return max;
+	}
+	else return value;
+}
+
+void AGMV_DitherImageData(u32* img_data, u32 width, u32 height){
+	int x, y, row, col, t, corr, blue, green, red, i1, i2, i3;
+	u32 color, yoffset;
+	for(y = 0; y < height; y++)
+	{
+		row	= y & 15;	//	y % 16
+		
+		yoffset = y * width;
+		
+		for(x = 0; x < width; x++)
+		{
+			col	= x & 15;	//	x % 16
+
+			t		= BAYER_PATTERN_16X16[col][row];
+			corr	= t / 15;
+			
+			color = img_data[x+yoffset];
+			
+			blue	= AGMV_GetB(color);
+			green	= AGMV_GetG(color);
+			red		= AGMV_GetR(color);
+
+			i1	= (blue  + corr) / 17;		AGMV_Clamp(0,i1,15);
+			i2	= (green + corr) / 17;		AGMV_Clamp(0,i2,15);
+			i3	= (red   + corr) / 17;		AGMV_Clamp(0,i3,15);
+			
+			img_data[x+yoffset] = (i3*17) << 16 | (i2*17) << 8 | (i1*17);
+		}
+	}
+}
+
+u32 AGMV_GetMicrosecondsPerFrame(u32 frame_rate){
+	f32 div = 1.0f / frame_rate;
+	
+	return (u32)(div * 1000000);
 }
 
 f32 AGMV_ClampVolume(f32 volume){
@@ -571,10 +1381,7 @@ u32 AGMV_SwapLong(u32 dword){
 }
 
 void AGMV_CopyImageData(u32* dest, u32* src, u32 size){
-	int i;
-	for(i = 0; i < size; i++){
-		dest[i] = src[i];
-	}
+	AGMV_Memcpy32(dest,src,size);
 }
 
 void AGMV_SyncFrameAndImage(AGMV* agmv, u32* img_data){
@@ -582,22 +1389,22 @@ void AGMV_SyncFrameAndImage(AGMV* agmv, u32* img_data){
 }
 
 void AGMV_SyncAudioTrack(AGMV* agmv, const void* pcm){
-	u32 audio_size = AGMV_GetAudioSize(agmv), i;
-	u16 bps = AGMV_GetBitsPerSample(agmv);
+	u32 audio_size = AGMV_GetAudioSize(agmv);
+	u16* apcm, bps = AGMV_GetBitsPerSample(agmv);
+	u8* apcm8;
+	
+	apcm  = agmv->audio_track->pcm;
+	apcm8 = agmv->audio_track->pcm8;
 	
 	if(bps == 16){
 		u16* pcm16 = (u16*)pcm;
 		
-		for(i = 0; i < audio_size; i++){
-			agmv->audio_track->pcm[i] = pcm16[i];
-		}
+		AGMV_Memcpy16(apcm,pcm16,audio_size);
 	}
 	else{
 		u8* pcm8 = (u8*)pcm;
 		
-		for(i = 0; i < audio_size; i++){
-			agmv->audio_track->pcm8[i] = pcm8[i];
-		}
+		AGMV_Memcpy8(apcm8,pcm8,audio_size);
 	}
 }
 
@@ -608,18 +1415,11 @@ void AGMV_SignedToUnsignedPCM(u8* pcm, u32 size){
 	}
 }
 
-void AGMV_UnsigendToSignedPCM(u8* pcm, u32 size){
+void AGMV_UnsignedToSignedPCM(u8* pcm, u32 size){
 	int i;
 	for(i = 0; i < size; i++){
 		pcm[i] = pcm[i] - 128;
 	}
-}
-
-int AGMV_Abs(int a){
-	if(a < 0){
-		return -a;
-	}
-	else return a;
 }
 
 int AGMV_Min(int a, int b){
@@ -629,31 +1429,19 @@ int AGMV_Min(int a, int b){
 	else return b;
 }
 
-u8 AGMV_GetR(u32 color){
-	return (color & 0xff0000) >> 16;
-}
-
-u8 AGMV_GetG(u32 color){
-	return (color & 0xff00) >> 8;
-}
-
-u8 AGMV_GetB(u32 color){
-	return (color & 0xff);
-}
-
 u8 AGMV_GetQuantizedR(u32 color, AGMV_QUALITY quality){
 	switch(quality){
 		case AGMV_HIGH_QUALITY:{
-			return(color & 0x7e000) >> 13;
-		}
-		case AGMV_MID_QUALITY:{
 			return (color & 0x1f000) >> 12;
 		}
-		case AGMV_LOW_QUALITY:{
+		case AGMV_MID_QUALITY:{
 			return (color & 0xf800) >> 11;
 		}
+		case AGMV_LOW_QUALITY:{
+			return (color & 0x7c00) >> 10;
+		}
 		default:{
-			return(color & 0x7e000) >> 13;
+			return (color & 0x7c00) >> 10;
 		}
 	}
 }
@@ -661,16 +1449,16 @@ u8 AGMV_GetQuantizedR(u32 color, AGMV_QUALITY quality){
 u8 AGMV_GetQuantizedG(u32 color, AGMV_QUALITY quality){
 	switch(quality){
 		case AGMV_HIGH_QUALITY:{
-			return (color & 0x1f80) >> 7;
-		}
-		case AGMV_MID_QUALITY:{
 			return (color & 0xfc0) >> 6;
 		}
-		case AGMV_LOW_QUALITY:{
+		case AGMV_MID_QUALITY:{
 			return (color & 0x7e0) >> 5;
 		}
+		case AGMV_LOW_QUALITY:{
+			return (color & 0x3e0) >> 5;
+		}
 		default:{
-			return(color & 0x1f80) >> 7;
+			return (color & 0x3e0) >> 5;
 		}
 	}
 }
@@ -678,16 +1466,16 @@ u8 AGMV_GetQuantizedG(u32 color, AGMV_QUALITY quality){
 u8 AGMV_GetQuantizedB(u32 color, AGMV_QUALITY quality){
 	switch(quality){
 		case AGMV_HIGH_QUALITY:{
-			return (color & 0x7f);
+			return (color & 0x3f);
 		}
 		case AGMV_MID_QUALITY:{
-			return (color & 0x3f);
+			return (color & 0x001F);
 		}
 		case AGMV_LOW_QUALITY:{
 			return (color & 0x001F);
 		}
 		default:{
-			return (color & 0x7f);
+			return (color & 0x001F);
 		}
 	}
 }
@@ -699,24 +1487,13 @@ u32 AGMV_QuantizeColor(u32 color, AGMV_QUALITY quality){
 			u8 g = AGMV_GetG(color);
 			u8 b = AGMV_GetB(color);
 			
-			r >>= 2;
-			g >>= 2;
-			b >>= 1;
-			
-			return r << 13 | g << 7 | b;
-		}
-		case AGMV_MID_QUALITY:{
-			u8 r = AGMV_GetR(color);
-			u8 g = AGMV_GetG(color);
-			u8 b = AGMV_GetB(color);
-			
 			r >>= 3;
 			g >>= 2;
 			b >>= 2;
 			
 			return r << 12 | g << 6 | b;
 		}
-		case AGMV_LOW_QUALITY:{
+		case AGMV_MID_QUALITY:{
 			u8 r = AGMV_GetR(color);
 			u8 g = AGMV_GetG(color);
 			u8 b = AGMV_GetB(color);
@@ -727,16 +1504,27 @@ u32 AGMV_QuantizeColor(u32 color, AGMV_QUALITY quality){
 			
 			return r << 11 | g << 5 | b;
 		}
+		case AGMV_LOW_QUALITY:{
+			u8 r = AGMV_GetR(color);
+			u8 g = AGMV_GetG(color);
+			u8 b = AGMV_GetB(color);
+			
+			r >>= 3;
+			g >>= 3;
+			b >>= 3;
+			
+			return r << 10 | g << 5 | b;
+		}
 		default:{
 			u8 r = AGMV_GetR(color);
 			u8 g = AGMV_GetG(color);
 			u8 b = AGMV_GetB(color);
 			
-			r >>= 2;
-			g >>= 2;
-			b >>= 1;
+			r >>= 3;
+			g >>= 3;
+			b >>= 3;
 			
-			return r << 13 | g << 7 | b;
+			return r << 10 | g << 5 | b;
 		}
 	}
 }
@@ -749,9 +1537,9 @@ u32 AGMV_ReverseQuantizeColor(u32 color, AGMV_QUALITY quality){
 	switch(quality){
 		case AGMV_HIGH_QUALITY:{
 			
-			r <<= 2;
+			r <<= 3;
 			g <<= 2;
-			b <<= 1;
+			b <<= 2;
 			
 			return r << 16 | g << 8 | b;
 		}
@@ -759,27 +1547,45 @@ u32 AGMV_ReverseQuantizeColor(u32 color, AGMV_QUALITY quality){
 			
 			r <<= 3;
 			g <<= 2;
-			b <<= 2;
+			b <<= 3;
 			
 			return r << 16 | g << 8 | b;
 		}
 		case AGMV_LOW_QUALITY:{
 			
 			r <<= 3;
-			g <<= 2;
+			g <<= 3;
 			b <<= 3;
 			
 			return r << 16 | g << 8 | b;
 		}
 		default:{
 			
-			r <<= 2;
-			g <<= 2;
-			b <<= 1;
+			r <<= 3;
+			g <<= 3;
+			b <<= 3;
 			
 			return r << 16 | g << 8 | b;
 		}
 	}
+}
+
+u32 AGMV_InterpColor(u32 color1, u32 color2){
+	u8 r1, g1, b1, r2, g2, b2, r, g, b;
+	
+	r1 = AGMV_GetR(color1);
+	g1 = AGMV_GetG(color1);
+	b1 = AGMV_GetB(color1);
+	
+	r2 = AGMV_GetR(color2);
+	g2 = AGMV_GetG(color2);
+	b2 = AGMV_GetB(color2);
+	
+	r = (r1 + r2) >> 1;
+	g = (g1 + g2) >> 1;
+	b = (b1 + b2) >> 1;
+	
+	return r << 16 | g << 8 | b;
 }
 
 u8 AGMV_FindNearestColor(u32 palette[256], u32 color){
@@ -827,7 +1633,40 @@ u8 AGMV_FindSmallestColor(u32 palette[256], u32 color){
 	min = 255*255 + 255*255 + 255*255 + 1;
 	index = 0;
 
-	for(i = 0; i < 200; i++){
+	for(i = 0; i < 228; i++){
+		u32 palclr = palette[i];
+		
+		pr = AGMV_GetR(palclr);
+		pg = AGMV_GetG(palclr);
+	    pb = AGMV_GetB(palclr);
+		
+		rdiff = r-pr;
+		gdiff = g-pg;
+		bdiff = b-pb;
+		
+		dist = rdiff*rdiff + gdiff*gdiff + bdiff*bdiff;
+		
+		if(dist < min){
+			min = dist;
+			index = i;
+		}
+	}
+	return index;
+}
+
+u8 AGMV_FindColorFromRange(u32 palette[256], u32 start, u32 end, u32 color){
+	int i, rdiff, gdiff, bdiff, r, g, b;
+	u32 min, dist;
+	u8 pr, pg, pb, index;
+
+	r = AGMV_GetR(color);
+	g = AGMV_GetG(color);
+	b = AGMV_GetB(color);
+	
+	min = 255*255 + 255*255 + 255*255 + 1;
+	index = 0;
+
+	for(i = start; i < end; i++){
 		u32 palclr = palette[i];
 		
 		pr = AGMV_GetR(palclr);
@@ -913,32 +1752,53 @@ AGMV_ENTRY AGMV_FindSmallestEntry(u32 palette0[256], u32 palette1[256], u32 colo
 	return entry;
 }
 
+AGMV_ENTRY AGMV_FindEntryFromRange(u32 palette0[256], u32 palette1[256], u32 start, u32 end, u32 color){
+	AGMV_ENTRY entry;
+	u8 index1, index2;
+
+	index1 = AGMV_FindColorFromRange(palette0,start,end,color);
+	index2 = AGMV_FindColorFromRange(palette1,start,end,color);
+
+	if(index1 <= index2){
+		entry.index = index1;
+		entry.pal_num = 0;
+	}
+	else{
+		entry.index = index2;
+		entry.pal_num = 1;
+	}
+
+	return entry;
+}
+
 u32 AGMV_CalculateTotalAudioDuration(u32 size, u32 sample_rate, u16 num_of_channels, u16 bits_per_sample){
 	return (u32)(size/(f32)sample_rate*num_of_channels*(bits_per_sample/8));
 }
 
-u32 AGMV_GrayscaleColor(u32 clr){
+u32 AGMV_GetGrayscaleIntensity(u32 clr){
 	u8 r = AGMV_GetR(clr);
 	u8 g = AGMV_GetG(clr);
 	u8 b = AGMV_GetB(clr);
 	
 	u8 rgb = (u8)((r+g+b)/3.0f);
 
-	return (rgb << 16 | rgb << 8 | rgb);
+	return rgb;
 }
 
 f32 AGMV_CompareFrameSimilarity(u32* frame1, u32* frame2, u32 width, u32 height){
 	u32 total_num_of_pixels = width*height, count = 0;
+	u32 color1, color2;
+	int gray1, gray2;
 	
 	int i;
 	for(i = 0; i < total_num_of_pixels; i++){
-		u32 color1 = frame1[i];
-		u32 color2 = frame2[i];
+		color1 = *(frame1++);
+		color2 = *(frame2++);
 		
-		int gray1 = AGMV_GrayscaleColor(color1);
-		int gray2 = AGMV_GrayscaleColor(color2);
+		gray1 = AGMV_GetGrayscaleIntensity(color1);
+		gray2 = AGMV_GetGrayscaleIntensity(color2);
 		
-		if(gray1-gray2 == 0){
+		if(gray1-gray2 <= 3){
 			count++;
 		}
 	}
@@ -947,49 +1807,63 @@ f32 AGMV_CompareFrameSimilarity(u32* frame1, u32* frame2, u32 width, u32 height)
 }
 
 void AGMV_InterpFrame(u32* interp, u32* frame1, u32* frame2, u32 width, u32 height){
+	u32 color1, color2;
+	int r, g, b, r1, g1, b1, r2, g2, b2;
 	int i, size = width*height;
 	for(i = 0; i < size; i++){
-		u32 color1 = frame1[i];
-		u32 color2 = frame2[i];
+		color1 = *(frame1++);
+		color2 = *(frame2++);
 		
-		int r1 = AGMV_GetR(color1);
-		int g1 = AGMV_GetG(color1);
-		int b1 = AGMV_GetB(color1);
+		r1 = AGMV_GetR(color1);
+		g1 = AGMV_GetG(color1);
+		b1 = AGMV_GetB(color1);
 		
-		int r2 = AGMV_GetR(color2);
-		int g2 = AGMV_GetG(color2);
-		int b2 = AGMV_GetB(color2);
+		r2 = AGMV_GetR(color2);
+		g2 = AGMV_GetG(color2);
+		b2 = AGMV_GetB(color2);
 		
-		int r = r1 + ((r2-r1) >> 1);
-		int g = g1 + ((g2-g1) >> 1);
-		int b = b1 + ((b2-b1) >> 1);
+		r = (r1 + r2) >> 1;
+		g = (g1 + g2) >> 1;
+		b = (b1 + b2) >> 1;
 		
-		interp[i] = r << 16 | g << 8 | b;
+		*(interp++) = r << 16 | g << 8 | b;
 	}
 }
 
-int AGMV_NextIFrame(int n, int frame_count){
-	int nexti = n;
-	while((nexti + frame_count) % 4 != 0){
-		nexti++;
-	}
-	return nexti;
-}
+void AGMV_ConstructFrameFromEntries(AGMV* agmv){
+	AGMV_ENTRY* img_entry = agmv->iframe_entries, entry;
+	AGMV_OPT opt = AGMV_GetOPT(agmv);
+	u32 i, width, height, *iframe_data = agmv->iframe->img_data, color, size;
+	u32* palette0, *palette1;
 
-int AGMV_PrevIFrame(int n, int frame_count){
-	int nexti = n;
-	while((nexti - frame_count) % 4 != 0){
-		nexti--;
-	}
-	return nexti;
-}
+	width = agmv->frame->width;
+	height = agmv->frame->height;
+	
+	palette0 = agmv->header.palette0;
+	palette1 = agmv->header.palette1;
+	
+	size = width*height;
+	
+	if(opt != AGMV_OPT_II && opt != AGMV_OPT_ANIM && opt != AGMV_OPT_GBA_II){
+		for(i = 0; i < size; i++){
+			entry = *(img_entry++);
 
-int AGMV_SkipToNearestIFrame(int n){
-	int nexti = n;
-	while(nexti % 4 != 0){
-		nexti++;
+			if(entry.pal_num == 0){
+				color = palette0[entry.index];
+			}
+			else{
+				color = palette1[entry.index];
+			}
+			
+			*(iframe_data++) = color;
+		}
 	}
-	return nexti;
+	else{
+		for(i = 0; i < size; i++){
+			entry = *(img_entry++);
+			*(iframe_data++) = palette0[entry.index];
+		}
+	}
 }
 
 void AGMV_BubbleSort(u32* data, u32* gram, u32 num_of_colors){
@@ -1033,39 +1907,31 @@ u32 AGMV_GetNumberOfBytesRead(u32 bits){
 }
 
 void AGMV_WavToAudioTrack(const char* filename, AGMV* agmv){
-	u32 riff, chunk_size, wave, fmt, sub_chunk_size, audio_fmt, num_of_channels, sample_rate, byte_rate, block_align, bits_per_sample, data_chunk, sub_chunk_size2, i;
-	u16* pcm;
-	u8* pcm8;
-	FILE* wav;
+	u32 riff, chunk_size, wave, fmt, sub_chunk_size, audio_fmt, num_of_channels, sample_rate, byte_rate, block_align, bits_per_sample, data_chunk, sub_chunk_size2;
 	
-	wav = fopen(filename,"rb");
+	agmv->audio_type = AGMV_AUDIO_WAV;
+	agmv->audio = fopen(filename,"rb");
 			
-	riff = AGMV_ReadLong(wav);
-	chunk_size = AGMV_ReadLong(wav);
-	wave = AGMV_ReadLong(wav);
-	fmt = AGMV_ReadLong(wav);
-	sub_chunk_size = AGMV_ReadLong(wav);
-	audio_fmt = AGMV_ReadShort(wav);
-	num_of_channels = AGMV_ReadShort(wav);
-	sample_rate = AGMV_ReadLong(wav);
-	byte_rate = AGMV_ReadLong(wav);
-	block_align = AGMV_ReadShort(wav);
-	bits_per_sample = AGMV_ReadShort(wav);
-	data_chunk = AGMV_ReadLong(wav);
-	sub_chunk_size2 = AGMV_ReadLong(wav);
+	riff = AGMV_ReadLong(agmv->audio);
+	chunk_size = AGMV_ReadLong(agmv->audio);
+	wave = AGMV_ReadLong(agmv->audio);
+	fmt = AGMV_ReadLong(agmv->audio);
+	sub_chunk_size = AGMV_ReadLong(agmv->audio);
+	audio_fmt = AGMV_ReadShort(agmv->audio);
+	num_of_channels = AGMV_ReadShort(agmv->audio);
+	sample_rate = AGMV_ReadLong(agmv->audio);
+	byte_rate = AGMV_ReadLong(agmv->audio);
+	block_align = AGMV_ReadShort(agmv->audio);
+	bits_per_sample = AGMV_ReadShort(agmv->audio);
+	data_chunk = AGMV_ReadLong(agmv->audio);
+	sub_chunk_size2 = AGMV_ReadLong(agmv->audio);
 	
 	if(bits_per_sample == 16){
-		pcm = (u16*)malloc(sizeof(u16)*(chunk_size/2));
-		fread(pcm,2,chunk_size/2,wav);
 		AGMV_SetBitsPerSample(agmv,16);
 	}
 	else{
-		pcm8 = (u8*)malloc(sizeof(u8)*(chunk_size));
-		fread(pcm8,1,chunk_size,wav);
 		AGMV_SetBitsPerSample(agmv,8);
 	}
-	
-	fclose(wav);
 	
 	AGMV_SetTotalAudioDuration(agmv,chunk_size/(sample_rate*num_of_channels*(bits_per_sample/8)));
 	AGMV_SetSampleRate(agmv,sample_rate);
@@ -1073,42 +1939,27 @@ void AGMV_WavToAudioTrack(const char* filename, AGMV* agmv){
 	
 	if(bits_per_sample == 16){
 		AGMV_SetAudioSize(agmv,chunk_size/2);
-		agmv->audio_track->pcm = (u16*)malloc(sizeof(u16)*agmv->header.audio_size);
-		AGMV_SyncAudioTrack(agmv,pcm);
-		free(pcm);
 	}
 	else{
 		AGMV_SetAudioSize(agmv,chunk_size);
-		agmv->audio_track->pcm8 = (u8*)malloc(sizeof(u8)*agmv->header.audio_size);
-		AGMV_SyncAudioTrack(agmv,pcm8);
-		free(pcm8);
 	}
-	
 }
 
 void AGMV_RawSignedPCMToAudioTrack(const char* filename, AGMV* agmv, u8 num_of_channels, u32 sample_rate){
-	FILE* file;
-	u32 file_size, i;
-	u8* pcm8;
+	u32 file_size;
 	
-	file = fopen(filename,"rb");
+	agmv->audio_type = 12;
+	agmv->audio = fopen(filename,"rb");
 	
-	fseek(file,0,SEEK_END);
-	file_size = ftell(file);
-	fseek(file,0,SEEK_SET);
-	
-	agmv->audio_track->pcm8 = (u8*)malloc(sizeof(u8)*file_size);
-	pcm8 = agmv->audio_track->pcm8;
+	fseek(agmv->audio,0,SEEK_END);
+	file_size = ftell(agmv->audio);
+	fseek(agmv->audio,0,SEEK_SET);
 	
 	AGMV_SetAudioSize(agmv,file_size);
 	AGMV_SetSampleRate(agmv,sample_rate);
 	AGMV_SetNumberOfChannels(agmv,num_of_channels);
 	AGMV_SetBitsPerSample(agmv,8);
 	AGMV_SetTotalAudioDuration(agmv,file_size/(sample_rate*num_of_channels));
-	
-	for(i = 0; i < file_size; i++){
-		pcm8[i] = AGMV_ReadByte(file) + 128;
-	}
 
 }
 
@@ -1134,6 +1985,9 @@ u32 AGMV_80BitFloat(FILE* file){
 	}
 	else if(buf[0] == 0x40 && buf[1] == 0x0E && buf[2] == 0x93 && buf[3] == 0xA8){
 		return 37800;
+	}
+	else if(buf[0] == 0x40 && buf[1] == 0x0C && buf[2] == 0xFA && buf[3] == 0x00){
+		return 16000;
 	}
 	
 	int freq = 0;
@@ -1168,27 +2022,27 @@ u32 AGMV_80BitFloat(FILE* file){
 
 void AGMV_AIFCToAudioTrack(const char* filename, AGMV* agmv){
 	char fourcc[4];
-	u8* pcm8; u16* pcm;
 	u16 num_of_channels, sample_size;
-	u32 size, num_of_samples, sample_rate, i;
-	FILE* file;
+	u32 size, num_of_samples, sample_rate;
 	
-	file = fopen(filename,"rb");
+	agmv->audio_type = AGMV_AUDIO_AIFC;
+	agmv->audio = fopen(filename,"rb");
 	
-	if(file != NULL){
-		fseek(file,50,SEEK_SET);
-		AGMV_ReadFourCC(file,fourcc);
-		fseek(file,32,SEEK_SET);
+	if(agmv->audio != NULL){
+		fseek(agmv->audio,50,SEEK_SET);
+		AGMV_ReadFourCC(agmv->audio,fourcc);
+		fseek(agmv->audio,32,SEEK_SET);
 		
 		if(AGMV_IsCorrectFourCC(fourcc,'N','O','N','E')){
-			num_of_channels = AGMV_SwapShort(AGMV_ReadShort(file));
-			num_of_samples  = AGMV_SwapLong(AGMV_ReadLong(file));
-			sample_size     = AGMV_SwapShort(AGMV_ReadShort(file));
-			sample_rate     = AGMV_80BitFloat(file);
+			agmv->sowt = FALSE;
+			num_of_channels = AGMV_SwapShort(AGMV_ReadShort(agmv->audio));
+			num_of_samples  = AGMV_SwapLong(AGMV_ReadLong(agmv->audio));
+			sample_size     = AGMV_SwapShort(AGMV_ReadShort(agmv->audio));
+			sample_rate     = AGMV_80BitFloat(agmv->audio);
 			
-			fseek(file,10,SEEK_CUR);
-			size = AGMV_SwapLong(AGMV_ReadLong(file));
-			fseek(file,8,SEEK_CUR);
+			fseek(agmv->audio,10,SEEK_CUR);
+			size = AGMV_SwapLong(AGMV_ReadLong(agmv->audio));
+			fseek(agmv->audio,8,SEEK_CUR);
 
 			AGMV_SetTotalAudioDuration(agmv,(size)/(sample_rate*num_of_channels*(sample_size/8)));
 			AGMV_SetSampleRate(agmv,sample_rate);
@@ -1196,38 +2050,23 @@ void AGMV_AIFCToAudioTrack(const char* filename, AGMV* agmv){
 			
 			if(sample_size == 16){
 				AGMV_SetBitsPerSample(agmv,16);
-				pcm = (u16*)malloc(sizeof(u16)*(size/2));
-				for(i = 0; i < size/2; i++){
-					pcm[i] = AGMV_SwapShort(AGMV_ReadShort(file));
-				}
 				AGMV_SetAudioSize(agmv,size/2);
-				agmv->audio_track->pcm = (u16*)malloc(sizeof(u16)*agmv->header.audio_size);
-				AGMV_SyncAudioTrack(agmv,pcm);
-				free(pcm);
 			}
 			else{
 				AGMV_SetBitsPerSample(agmv,8);
-				pcm8 = (u8*)malloc(sizeof(u8)*size);
-				agmv->audio_track->pcm8 = (u8*)malloc(sizeof(u8)*agmv->header.audio_size);
-				fread(pcm8,1,size,file);
 				AGMV_SetAudioSize(agmv,size);
-				
-				for(i = 0; i < agmv->header.audio_size; i++){
-					agmv->audio_track->pcm8[i] = pcm8[i] + 128;
-				}
-				
-				free(pcm8);
 			}
 		}
 		else if(AGMV_IsCorrectFourCC(fourcc,'s','o','w','t')){
-			num_of_channels = AGMV_SwapShort(AGMV_ReadShort(file));
-			num_of_samples  = AGMV_SwapLong(AGMV_ReadLong(file));
-			sample_size     = AGMV_SwapShort(AGMV_ReadShort(file));
-			sample_rate     = AGMV_80BitFloat(file);
+			agmv->sowt = TRUE;
+			num_of_channels = AGMV_SwapShort(AGMV_ReadShort(agmv->audio));
+			num_of_samples  = AGMV_SwapLong(AGMV_ReadLong(agmv->audio));
+			sample_size     = AGMV_SwapShort(AGMV_ReadShort(agmv->audio));
+			sample_rate     = AGMV_80BitFloat(agmv->audio);
 			
-			fseek(file,10,SEEK_CUR);
-			size = AGMV_SwapLong(AGMV_ReadLong(file));
-			fseek(file,8,SEEK_CUR);
+			fseek(agmv->audio,10,SEEK_CUR);
+			size = AGMV_SwapLong(AGMV_ReadLong(agmv->audio));
+			fseek(agmv->audio,8,SEEK_CUR);
 
 			AGMV_SetTotalAudioDuration(agmv,(size)/(sample_rate*num_of_channels*(sample_size/8)));
 			AGMV_SetSampleRate(agmv,sample_rate);
@@ -1235,112 +2074,66 @@ void AGMV_AIFCToAudioTrack(const char* filename, AGMV* agmv){
 			
 			if(sample_size == 16){
 				AGMV_SetBitsPerSample(agmv,16);
-				pcm = (u16*)malloc(sizeof(u16)*(size/2));
-				for(i = 0; i < size/2; i++){
-					pcm[i] = AGMV_ReadShort(file);
-				}
 				AGMV_SetAudioSize(agmv,size/2);
-				agmv->audio_track->pcm = (u16*)malloc(sizeof(u16)*agmv->header.audio_size);
-				AGMV_SyncAudioTrack(agmv,pcm);
-				free(pcm);
 			}
 			else{
 				AGMV_SetBitsPerSample(agmv,8);
-				pcm8 = (u8*)malloc(sizeof(u8)*size);
-				agmv->audio_track->pcm8 = (u8*)malloc(sizeof(u8)*agmv->header.audio_size);
-				fread(pcm8,1,size,file);
 				AGMV_SetAudioSize(agmv,size);
-				
-				for(i = 0; i < agmv->header.audio_size; i++){
-					agmv->audio_track->pcm8[i] = pcm8[i] + 128;
-				}
-				
-				free(pcm8);
 			}
 		}
 		else{
 			
 		}
 	}
-	
-	fclose(file);
 }
 
 void AGMV_AIFFToAudioTrack(const char* filename, AGMV* agmv){
-	u8* pcm8; u16* pcm;
 	u16 num_of_channels, sample_size;
-	u32 size, num_of_samples, sample_rate, i;
-	FILE* file;
+	u32 size, num_of_samples, sample_rate;
 	
-	file = fopen(filename,"rb");
+	agmv->audio_type = AGMV_AUDIO_AIFF;
+	agmv->audio = fopen(filename,"rb");
 	
-	if(file != NULL){
-		fseek(file,20,SEEK_SET);
+	if(agmv->audio != NULL){
+		fseek(agmv->audio,20,SEEK_SET);
 		
-		num_of_channels = AGMV_SwapShort(AGMV_ReadShort(file));
-		num_of_samples = AGMV_SwapLong(AGMV_ReadLong(file));
-		sample_size = AGMV_SwapShort(AGMV_ReadShort(file));
-		sample_rate = AGMV_80BitFloat(file);
-		
-		fseek(file,4,SEEK_CUR);
-		size = AGMV_SwapLong(AGMV_ReadLong(file));
-		fseek(file,8,SEEK_CUR);
+		num_of_channels = AGMV_SwapShort(AGMV_ReadShort(agmv->audio));
+		num_of_samples = AGMV_SwapLong(AGMV_ReadLong(agmv->audio));
+		sample_size = AGMV_SwapShort(AGMV_ReadShort(agmv->audio));
+		sample_rate = AGMV_80BitFloat(agmv->audio);
+
+		fseek(agmv->audio,4,SEEK_CUR);
+		size = AGMV_SwapLong(AGMV_ReadLong(agmv->audio));
+		fseek(agmv->audio,8,SEEK_CUR);
 
 		AGMV_SetTotalAudioDuration(agmv,(size/2)/(sample_rate*num_of_channels*(sample_size/8)));
 		AGMV_SetSampleRate(agmv,sample_rate);
 		AGMV_SetNumberOfChannels(agmv,num_of_channels);
 		
 		if(sample_size == 16){
-			pcm = (u16*)malloc(sizeof(u16)*(size/2));
-			for(i = 0; i < size/2; i++){
-				pcm[i] = AGMV_SwapShort(AGMV_ReadShort(file));
-			}
+			AGMV_SetBitsPerSample(agmv,16);
 			AGMV_SetAudioSize(agmv,size/2);
-			agmv->audio_track->pcm = (u16*)malloc(sizeof(u16)*agmv->header.audio_size);
-			AGMV_SyncAudioTrack(agmv,pcm);
-			free(pcm);
 		}
 		else{
-			pcm8 = (u8*)malloc(sizeof(u8)*size);
-			fread(pcm8,1,size,file);
+			AGMV_SetBitsPerSample(agmv,8);
 			AGMV_SetAudioSize(agmv,size);
-			agmv->audio_chunk->atsample = (u8*)malloc(sizeof(u8)*agmv->header.audio_size);
-			
-			for(i = 0; i < agmv->header.audio_size; i++){
-				agmv->audio_chunk->atsample[i] = pcm8[i];
-			}
-			
-			free(pcm8);
 		}
 	}
 }
 
 void AGMV_Raw8PCMToAudioTrack(const char* filename, AGMV* agmv){
-	int i, file_size;
-	s8* data;
-	FILE* file;
+	u32 file_size;
 	
-	file = fopen(filename,"rb");
-	fseek(file,0,SEEK_END);
-	file_size = ftell(file);
-	fseek(file,0,SEEK_SET);
-	
-	data = (s8*)malloc(sizeof(s8)*file_size);
-	fread(data,1,file_size,file);
+	agmv->audio_type = 12;
+	agmv->audio = fopen(filename,"rb");
+	fseek(agmv->audio,0,SEEK_END);
+	file_size = ftell(agmv->audio);
+	fseek(agmv->audio,0,SEEK_SET);
 	
 	AGMV_SetTotalAudioDuration(agmv,file_size/(16000));
 	AGMV_SetSampleRate(agmv,16000);
 	AGMV_SetNumberOfChannels(agmv,1);
 	AGMV_SetAudioSize(agmv,file_size);
-	
-	agmv->audio_chunk->satsample = (s8*)malloc(sizeof(s8)*agmv->header.audio_size);
-	
-	for(i = 0; i < agmv->header.audio_size; i++){
-		agmv->audio_chunk->satsample[i] = data[i];
-	}
-		
-	free(data);
-	fclose(file);
 }
 
 AGMV_INFO AGMV_GetVideoInfo(AGMV* agmv){
@@ -1424,15 +2217,6 @@ void AGMV_ExportAudioType(FILE* audio, AGMV* agmv, AGMV_AUDIO_TYPE audio_type){
 			AGMV_WriteShort(audio,(agmv->header.num_of_channels * agmv->header.bits_per_sample) / 8);
 			AGMV_WriteShort(audio,agmv->header.bits_per_sample);
 			AGMV_WriteFourCC(audio,'d','a','t','a');
-			
-			if(agmv->header.bits_per_sample == 16){
-				AGMV_WriteLong(audio,agmv->header.audio_size*2);
-				fwrite(agmv->audio_track->pcm,2,agmv->header.audio_size,audio);
-			}
-			else{
-				AGMV_WriteLong(audio,agmv->header.audio_size);
-				fwrite(agmv->audio_track->pcm8,1,agmv->header.audio_size,audio);
-			}
 		}break;
 		case AGMV_AUDIO_AIFF:{
 			AGMV_WriteFourCC(audio,'F','O','R','M');
@@ -1478,17 +2262,6 @@ void AGMV_ExportAudioType(FILE* audio, AGMV* agmv, AGMV_AUDIO_TYPE audio_type){
 			
 			AGMV_WriteLong(audio,0);
 			AGMV_WriteLong(audio,0);
-			
-			if(AGMV_GetBitsPerSample(agmv) == 16){
-				for(i = 0; i < AGMV_GetAudioSize(agmv); i++){
-					AGMV_WriteShort(audio,AGMV_SwapShort(agmv->audio_track->pcm[i]));
-				}
-			}
-			else{
-				for(i = 0; i < AGMV_GetAudioSize(agmv); i++){
-					AGMV_WriteByte(audio,agmv->audio_track->pcm8[i]-128);
-				}
-			}
 		}break;
 		case AGMV_AUDIO_AIFC:{
 			AGMV_WriteFourCC(audio,'F','O','R','M');
@@ -1529,17 +2302,6 @@ void AGMV_ExportAudioType(FILE* audio, AGMV* agmv, AGMV_AUDIO_TYPE audio_type){
 			
 			AGMV_WriteLong(audio,0);
 			AGMV_WriteLong(audio,0);
-			
-			if(AGMV_GetBitsPerSample(agmv) == 16){
-				for(i = 0; i < AGMV_GetAudioSize(agmv); i++){
-					AGMV_WriteShort(audio,AGMV_SwapShort(agmv->audio_track->pcm[i]));
-				}
-			}
-			else{
-				for(i = 0; i < AGMV_GetAudioSize(agmv); i++){
-					AGMV_WriteByte(audio,agmv->audio_track->pcm8[i]-128);
-				}
-			}
 		}break;
 		default:{
 			AGMV_WriteFourCC(audio,'R','I','F','F');
@@ -1561,14 +2323,54 @@ void AGMV_ExportAudioType(FILE* audio, AGMV* agmv, AGMV_AUDIO_TYPE audio_type){
 			AGMV_WriteShort(audio,(agmv->header.num_of_channels * agmv->header.bits_per_sample) / 8);
 			AGMV_WriteShort(audio,agmv->header.bits_per_sample);
 			AGMV_WriteFourCC(audio,'d','a','t','a');
-			
+		}break;
+	}
+}
+
+void AGMV_ExportAudio(FILE* audio, AGMV* agmv, AGMV_AUDIO_TYPE audio_type){
+	int i;
+	u8 bytes[10];
+	switch(audio_type){
+		case AGMV_AUDIO_WAV:{
 			if(agmv->header.bits_per_sample == 16){
-				AGMV_WriteLong(audio,agmv->header.audio_size*2);
-				fwrite(agmv->audio_track->pcm,2,agmv->header.audio_size,audio);
+				fwrite(agmv->audio_track->pcm,2,agmv->audio_chunk->size,audio);
 			}
 			else{
 				AGMV_WriteLong(audio,agmv->header.audio_size);
-				fwrite(agmv->audio_track->pcm8,1,agmv->header.audio_size,audio);
+				fwrite(agmv->audio_track->pcm8,1,agmv->audio_chunk->size,audio);
+			}
+		}break;
+		case AGMV_AUDIO_AIFF:{		
+			if(AGMV_GetBitsPerSample(agmv) == 16){
+				for(i = 0; i < agmv->audio_chunk->size; i++){
+					AGMV_WriteShort(audio,AGMV_SwapShort(agmv->audio_track->pcm[i]));
+				}
+			}
+			else{
+				AGMV_UnsignedToSignedPCM(agmv->audio_track->pcm8,agmv->audio_chunk->size);
+				fwrite(agmv->audio_track->pcm8,1,agmv->audio_chunk->size,audio);
+				AGMV_SignedToUnsignedPCM(agmv->audio_track->pcm8,agmv->audio_chunk->size);
+			}
+		}break;
+		case AGMV_AUDIO_AIFC:{		
+			if(AGMV_GetBitsPerSample(agmv) == 16){
+				for(i = 0; i < agmv->audio_chunk->size; i++){
+					AGMV_WriteShort(audio,AGMV_SwapShort(agmv->audio_track->pcm[i]));
+				}
+			}
+			else{
+				AGMV_UnsignedToSignedPCM(agmv->audio_track->pcm8,agmv->audio_chunk->size);
+				fwrite(agmv->audio_track->pcm8,1,agmv->audio_chunk->size,audio);
+				AGMV_SignedToUnsignedPCM(agmv->audio_track->pcm8,agmv->audio_chunk->size);
+			}
+		}break;
+		default:{
+			if(agmv->header.bits_per_sample == 16){
+				fwrite(agmv->audio_track->pcm,2,agmv->audio_chunk->size,audio);
+			}
+			else{
+				AGMV_WriteLong(audio,agmv->header.audio_size);
+				fwrite(agmv->audio_track->pcm8,1,agmv->audio_chunk->size,audio);
 			}
 		}break;
 	}

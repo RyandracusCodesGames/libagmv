@@ -8,6 +8,7 @@ add_library(agmv STATIC
         src/agmv_encode.c
         src/agmv_playback.c
         src/agmv_utils.c
+		src/agmv_convert.c
 )
 target_include_directories(agmv PUBLIC include)
 target_link_libraries(agmv PRIVATE agidl)

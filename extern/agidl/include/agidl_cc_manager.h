@@ -15,7 +15,7 @@
 *   File: agidl_cc_manager.h
 *   Date: 9/8/2023
 *   Version: 0.4b
-*   Updated: 6/9/2024
+*   Updated: 6/14/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
@@ -78,7 +78,7 @@ void AGIDL_InitICP(AGIDL_ICP *palette, int mode);
 void AGIDL_ForceAddColor(AGIDL_ICP* palette, COLOR clr, u8 index);
 void AGIDL_AddColorICP16(AGIDL_ICP *palette, u8 index, COLOR16 clr, AGIDL_CLR_FMT fmt, int max_diff, int *pass);
 void AGIDL_AddColorICP(AGIDL_ICP *palette, u8 index, COLOR clr, AGIDL_CLR_FMT fmt, int max_diff, int *pass);
-void quickSort(u32* data, u32* gram, int low, int high);
+void AGIDL_BubbleSort(u32* data, u32* gram, u32 num_of_colors);
 u8 AGIDL_FindClosestColor(AGIDL_ICP palette, COLOR clr, AGIDL_CLR_FMT fmt, int max_difference);
 u8 AGIDL_FindNearestColor(AGIDL_ICP palette, COLOR clr, AGIDL_CLR_FMT fmt);
 AGIDL_ICP AGIDL_GenerateVGAICP();

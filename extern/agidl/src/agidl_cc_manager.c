@@ -17,7 +17,7 @@
 *   File: agidl_cc_manager.c
 *   Date: 9/8/2023
 *   Version: 0.4b
-*   Updated: 6/12/2024
+*   Updated: 6/14/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
@@ -1267,43 +1267,21 @@ void QSwap(u32* a, u32* b){
 	*b = temp;
 }
 
-int partition(u32* data, u32* gram, int low, int high)
-{
-    // choose the pivot
-    int pivot = data[high];
-
-    // Index of smaller element and Indicate
-    // the right position of pivot found so far
-    int i = (low - 1);
-	int j;
-    for (j = low; j <= high; j++) {
-        // If current element is smaller than the pivot
-        if (data[j] < pivot) {
-            // Increment index of smaller element
-            i++;
-            QSwap(&data[i], &data[j]);
-			QSwap(&gram[i], &gram[j]);
-        }
-    }
-    QSwap(&data[i + 1], &data[high]);
-	QSwap(&gram[i + 1], &gram[high]);
-    return (i + 1);
-}
-
-void quickSort(u32* data, u32* gram, int low, int high)
-{
-    // when low is less than high
-    if (low < high) {
-        // pi is the partition return index of pivot
-
-        int pi = partition(data, gram, low, high);
-
-        // Recursion Call
-        // smaller element than pivot goes left and
-        // higher element goes right
-        quickSort(data, gram, low, pi - 1);
-        quickSort(data, gram, pi + 1, high);
-    }
+void AGIDL_BubbleSort(u32* data, u32* gram, u32 num_of_colors){
+	int i, j;
+	for(j = 0; j < num_of_colors - 1; j++){
+		for(i = 0; i < num_of_colors - 1; i++){
+			if(data[i] > data[i + 1]){
+				u32 temp = data[i];
+				data[i] = data[i + 1];
+				data[i + 1] = temp;
+				
+				u32 tempc = gram[i];
+				gram[i] = gram[i + 1];
+				gram[i + 1] = tempc;
+			}
+		}
+	}
 }
 
 void AGIDL_EncodeHistogramICP(AGIDL_ICP* palette, const void* data, u32 width, u32 height, AGIDL_CLR_FMT fmt){
@@ -1326,10 +1304,9 @@ void AGIDL_EncodeHistogramICP(AGIDL_ICP* palette, const void* data, u32 width, u
 			histogram[color16] = histogram[color16] + 1;
 		}  
 
-		//PERFORM QUICK SORT TO LIST THE 256 MOST IMPORTANT COLORS IN ORDER OF LEAST TO MOST FREQUENTLY OCCURING COLORS
-		quickSort(histogram,colorgram,0,MAX_HIGH_CLR);
+		//PERFORM BUBBLE SORT TO LIST THE 256 MOST IMPORTANT COLORS IN ORDER OF LEAST TO MOST FREQUENTLY OCCURING COLORS
+		AGIDL_BubbleSort(histogram,colorgram,MAX_HIGH_CLR);
 
-		
 		AGIDL_InitICP(palette,AGIDL_ICP_16b_256);
 		
 		int count = 0;
@@ -1403,9 +1380,8 @@ void AGIDL_EncodeHistogramICP(AGIDL_ICP* palette, const void* data, u32 width, u
 			histogram[color16] = histogram[color16] + 1;
 		}  
 
-		//PERFORM QUICK SORT TO LIST THE 256 MOST IMPORTANT COLORS IN ORDER OF LEAST TO MOST FREQUENTLY OCCURING COLORS
-		quickSort(histogram,colorgram,0,32767);
-
+		//PERFORM BUBBLE SORT TO LIST THE 256 MOST IMPORTANT COLORS IN ORDER OF LEAST TO MOST FREQUENTLY OCCURING COLORS
+		AGIDL_BubbleSort(histogram,colorgram,32767);
 		
 		AGIDL_InitICP(palette,AGIDL_ICP_256);
 		

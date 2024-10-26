@@ -3,6 +3,7 @@ INCLUDES = -I"$(CURDIR)/extern/agidl/include" -I"$(CURDIR)/include"
 CFLAGS = -Wall -O2 $(INCLUDES)
 LDFLAGS = -L"$(CURDIR)/extern/agidl/lib" -lagidl
 DEPS = include/agmv_utils.h \
+		include/agmv_convert.h \
 		include/agmv_encode.h \
 		include/agmv_decode.h \
 		include/agmv_playback.h \
@@ -10,6 +11,7 @@ DEPS = include/agmv_utils.h \
 		include/agmv.h
 		
 OBJFILES = src/agmv_utils.o \
+		src/agmv_convert.o \
 		src/agmv_encode.o \
 		src/agmv_decode.o \
 		src/agmv_playback.o \
@@ -53,13 +55,26 @@ OBJFILES = src/agmv_utils.o \
 		extern/agidl/src/agidl_img_export.o
 		
 OBJS =  src/agmv_utils.o \
+		src/agmv_convert.o \
 		src/agmv_encode.o \
 		src/agmv_decode.o \
 		src/agmv_playback.o \
 		src/main.o
+		
+SRC =  src/agmv_utils.c \
+		src/agmv_convert.c \
+		src/agmv_encode.c \
+		src/agmv_decode.c \
+		src/agmv_playback.c \
+		src/main.c
+		
+ASM_FILES = $(SRC:.c=.s)
 
 TARGET = main
 ARCHIVE = libs/libagmv.a
+
+%.o: %.c $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS)
 
 all: $(TARGET)
 
@@ -69,6 +84,13 @@ $(TARGET) : $(OBJS)
 archive:
 	ar rcs $(ARCHIVE) $(OBJFILES)
 	
+assembly:
+	$(CC) -S $(CFLAGS) -o src/agmv_utils.s src/agmv_utils.c
+	$(CC) -S $(CFLAGS) -o src/agmv_convert.s src/agmv_convert.c
+	$(CC) -S $(CFLAGS) -o src/agmv_encode.s src/agmv_encode.c
+	$(CC) -S $(CFLAGS) -o src/agmv_decode.s src/agmv_decode.c
+	$(CC) -S $(CFLAGS) -o src/agmv_playback.s src/agmv_playback.c
+	$(CC) -S $(CFLAGS) -o src/main.s src/main.c	
 	
 clean:
-	rm -f $(TARGET) $(OBJS) *~
+	rm -f $(TARGET) $(OBJS) $(ASM_FILES) *~

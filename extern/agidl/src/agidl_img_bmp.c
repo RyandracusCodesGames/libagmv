@@ -18,7 +18,7 @@
 *   File: agidl_img_bmp.c
 *   Date: 9/12/2023
 *   Version: 0.4b
-*   Updated: 6/9/2024
+*   Updated: 6/23/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
@@ -641,11 +641,13 @@ void AGIDL_BMPDecodeIMG(AGIDL_BMP* bmp, FILE* file, BMP_IMG_TYPE img_type){
 				
 				bmp->pixels.pix32 = (COLOR*)malloc(sizeof(COLOR)*(size));
 				
+				u32* pixels = bmp->pixels.pix32;
+				
 				int i, count;
 				for(i = 0, count = 1; i < size; i++, count++){
 					COLOR clr = AGIDL_ReadRGB(file,AGIDL_BMPGetClrFmt(bmp));
 					
-					bmp->pixels.pix32[i] = clr;
+					pixels[i] = clr;
 					
 					if(count == width){
 						count = 0;
@@ -660,6 +662,8 @@ void AGIDL_BMPDecodeIMG(AGIDL_BMP* bmp, FILE* file, BMP_IMG_TYPE img_type){
 				u32 size = AGIDL_BMPGetSize(bmp);
 				u32 width = AGIDL_BMPGetWidth(bmp);
 				
+				u16* pixels = bmp->pixels.pix16;
+				
 				if((width % 4) == 0){
 					AGIDL_ReadBufRGB16(file,bmp->pixels.pix16,AGIDL_BMPGetWidth(bmp),AGIDL_BMPGetHeight(bmp));
 				}
@@ -669,7 +673,7 @@ void AGIDL_BMPDecodeIMG(AGIDL_BMP* bmp, FILE* file, BMP_IMG_TYPE img_type){
 					for(i = 0, count = 1; i < size; i++, count++){
 						COLOR16 clr = AGIDL_ReadShort(file);
 						
-						bmp->pixels.pix16[i] = clr;
+						pixels[i] = clr;
 						
 						if(count == width){
 							count = 0;

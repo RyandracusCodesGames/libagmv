@@ -1,6 +1,5 @@
 main.o: \
  C:/Users/ryand/OneDrive/Desktop/AGMV/examples/simple_gba_video/source/main.c \
- C:/Users/ryand/OneDrive/Desktop/AGMV/examples/simple_gba_video/include/agmv_gba.h \
  C:/devkitPro/libgba/include/gba.h \
  C:/devkitPro/libgba/include/gba_affine.h \
  C:/devkitPro/libgba/include/gba_base.h \
@@ -17,8 +16,8 @@ main.o: \
  C:/devkitPro/libgba/include/gba_systemcalls.h \
  C:/devkitPro/libgba/include/gba_timers.h \
  C:/devkitPro/libgba/include/gba_video.h \
- C:/Users/ryand/OneDrive/Desktop/AGMV/examples/simple_gba_video/include/GBA_GEN_AGMV.h
-C:/Users/ryand/OneDrive/Desktop/AGMV/examples/simple_gba_video/include/agmv_gba.h:
+ C:/Users/ryand/OneDrive/Desktop/AGMV/examples/simple_gba_video/include/agmv_gba.h \
+ C:/Users/ryand/OneDrive/Desktop/AGMV/examples/simple_gba_video/build/open06_agmv.h
 C:/devkitPro/libgba/include/gba.h:
 C:/devkitPro/libgba/include/gba_affine.h:
 C:/devkitPro/libgba/include/gba_base.h:
@@ -35,4 +34,5 @@ C:/devkitPro/libgba/include/gba_sprites.h:
 C:/devkitPro/libgba/include/gba_systemcalls.h:
 C:/devkitPro/libgba/include/gba_timers.h:
 C:/devkitPro/libgba/include/gba_video.h:
-C:/Users/ryand/OneDrive/Desktop/AGMV/examples/simple_gba_video/include/GBA_GEN_AGMV.h:
+C:/Users/ryand/OneDrive/Desktop/AGMV/examples/simple_gba_video/include/agmv_gba.h:
+C:/Users/ryand/OneDrive/Desktop/AGMV/examples/simple_gba_video/build/open06_agmv.h:

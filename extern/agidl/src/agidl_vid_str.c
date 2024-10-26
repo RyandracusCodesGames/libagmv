@@ -7,7 +7,7 @@
 *   File: agidl_vid_str.c
 *   Date: 3/15/2024
 *   Version: 0.4b
-*   Updated: 6/10/2024
+*   Updated: 7/6/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
@@ -405,14 +405,14 @@ void AGIDL_CreateMDECList(AGIDL_MDEC_FRAME* frame){
 	frame->len = 0;
 }
 
-AGIDL_Bool print = FALSE;
+AGIDL_Bool mdec_print = FALSE;
 
 void AGIDL_InitMDECPrint(){
-	print = TRUE;
+	mdec_print = TRUE;
 }
 
 void AGIDL_DisableMDECPrint(){
-	print = FALSE;
+	mdec_print = FALSE;
 }
 
 /* PRIMARY STR DECODING FUNCTION CALLS */
@@ -521,7 +521,7 @@ int AGIDL_MDEC(const char* filename, AGIDL_IMG_TYPE img_type){
 		  //AGIDL_DecodeMacroblock(frame);
 		  //AGIDL_ConvertYCbCrToRGB(frame);	
 			
-			if(print == TRUE){
+			if(mdec_print == TRUE){
 				AGIDL_PrintMDECBitstream(frame);
 			}
 			
@@ -533,7 +533,7 @@ int AGIDL_MDEC(const char* filename, AGIDL_IMG_TYPE img_type){
 			  //AGIDL_DecodeMacroblock(frame);
 			  //AGIDL_ConvertYCbCrToRGB(frame);	
 			  
-				if(print == TRUE){
+				if(mdec_print == TRUE){
 					AGIDL_PrintMDECBitstream(frame);
 				}
 			}
@@ -557,7 +557,7 @@ int AGIDL_MDEC(const char* filename, AGIDL_IMG_TYPE img_type){
 			AGIDL_MDECAllocResources(frame);
 			AGIDL_ReadMultiplexStream(file,frame);
 			
-			if(print == TRUE){
+			if(mdec_print == TRUE){
 				AGIDL_PrintMDECBitstream(frame);
 			}
 			
@@ -566,7 +566,7 @@ int AGIDL_MDEC(const char* filename, AGIDL_IMG_TYPE img_type){
 				AGIDL_ReadMDECVideoFrame(file,frame);
 				AGIDL_ReadMultiplexStream(file,frame);
 				
-				if(print == TRUE){
+				if(mdec_print == TRUE){
 					AGIDL_PrintMDECBitstream(frame);
 				}
 			}

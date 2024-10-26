@@ -7,8 +7,8 @@
 *   Program: agmvp.exe
 *   File: screen.c
 *   Date: 3/29/2024
-*   Version: 0.4b
-*   Updated: 3/29/2024
+*   Version: 2.0
+*   Updated: 8/2/2024
 *   Author: Ryandracus Chapman
 *
 ********************************************/
@@ -53,9 +53,14 @@ void AGMV_InitHUD(AGIDL_ATTR* attr, int tx, int ty, f32 sx, f32 sy, AGIDL_Bool s
 }
 
 void AGMV_FillScreen(Screen* screen, u32 color){
+	u32* vram, size;
+	
+	vram = screen->bitmap->vram;
+	size = screen->width*screen->height;
+	
 	int i;
-	for(i = 0; i < screen->width * screen->height; i++){
-		screen->bitmap->vram[i] = color;
+	for(i = 0; i < size; i++){
+		*(vram++) = color;
 	}
 }
 

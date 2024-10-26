@@ -123,7 +123,8 @@ AGIDL_GLYPH AGIDL_FindLetter(AGIDL_FONT* font, char c){
 		}
 		temp = temp->next;
 	}
-	AGIDL_GLYPH glyph = {};
+	AGIDL_GLYPH glyph;
+	glyph.c = ' ';
 	return glyph;
 }
 
